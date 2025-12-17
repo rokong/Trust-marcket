@@ -37,7 +37,6 @@ export default function AdminPayments() {
       const { data } = await api.post("/api/admin/payment/add", {
         trxID,
         price,
-        paymentType,
       });
       setMsg(data.message);
       setTrxID("");
@@ -54,19 +53,6 @@ export default function AdminPayments() {
     return date.toLocaleString();
   };
 
-  const getTypeColor = (type) => {
-    switch (type) {
-      case "bKash":
-        return "text-pink-600";
-      case "Nogod":
-        return "text-orange-500";
-      case "Rocket":
-        return "text-purple-600";
-      default:
-        return "text-gray-600";
-    }
-  };
-
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       {/* Back Button */}
@@ -81,19 +67,6 @@ export default function AdminPayments() {
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-gray-900">
         Admin – Add Payment
       </h1>
-
-      {/* Payment Type Dropdown */}
-      <div className="flex mb-4">
-        <select
-          value={paymentType}
-          onChange={(e) => setPaymentType(e.target.value)}
-          className="border p-3 rounded focus:ring-2 focus:ring-green-500 focus:outline-none"
-        >
-          <option value="bKash">bKash</option>
-          <option value="Nogod">Nogod</option>
-          <option value="Rocket">Rocket</option>
-        </select>
-      </div>
 
       {/* Add Payment Form */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 mb-6">
@@ -135,7 +108,6 @@ export default function AdminPayments() {
           <table className="w-full text-left border-collapse">
             <thead className="bg-gray-100">
               <tr>
-                <th className="py-3 px-3 text-gray-700">Payment Type</th>
                 <th className="py-3 px-3 text-gray-700">trxID</th>
                 <th className="py-3 px-3 text-gray-700">Amount</th>
                 <th className="py-3 px-3 text-gray-700">Status</th>
@@ -146,9 +118,6 @@ export default function AdminPayments() {
             <tbody>
               {payments.map((p) => (
                 <tr key={p._id} className="border-b hover:bg-gray-50">
-                  <td className={`py-2 px-3 font-medium ${getTypeColor(p.paymentType)}`}>
-                    {p.paymentType || "bKash"}
-                  </td>
                   <td className="py-2 px-3 font-mono">{p.trxID}</td>
                   <td className="py-2 px-3">{p.price}৳</td>
                   <td
