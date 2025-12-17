@@ -1,0 +1,5 @@
+{
+  "/admin/messages/[userId]": [
+    "static/chunks/pages/admin/messages/[userId].js"
+  ]
+}

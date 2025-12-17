@@ -1,0 +1,258 @@
+// frontend/pages/index.js
+import { useEffect, useState } from "react";
+import api from "../utils/api";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { 
+  Menu, 
+  MessageCircle, 
+  User, 
+  Home, 
+  PlusCircle, 
+  ShoppingCart, 
+  Heart 
+} from "lucide-react";
+
+export default function HomePage() {
+  const [posts, setPosts] = useState([]);
+  const [category, setCategory] = useState("all");
+  const [showCategory, setShowCategory] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const router = useRouter();
+  const [search, setSearch] = useState("");
+
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      try {
+        const res = await api.get("/posts");
+        setPosts(res.data);
+      } catch (err) {
+        console.error("Failed to load posts", err);
+      }
+    };
+    loadPosts();
+  }, []);
+
+  const handleBuy = (post) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to buy!");
+      router.push("/login");
+      return;
+    }
+    router.push(`/buy?post=${post._id}`);
+  };
+
+  const handleMessage = (post) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Please login!");
+      router.push("/login");
+      return;
+    }
+    router.push(`/messages?post=${post._id}`);
+  };
+
+  const handleCreatePost = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to create a post!");
+      router.push("/login");
+      return;
+    }
+    router.push("/create-post");
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100">
+      
+      {/* Navbar */}
+      <header className="bg-white shadow-md p-4 flex justify-between items-center relative">
+        <div className="flex items-center gap-2">
+          <Home className="text-blue-600 w-6 h-6" />
+          <h1 className="text-2xl font-extrabold text-blue-600 tracking-wide">
+            Trust Market
+          </h1>
+        </div>
+
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex space-x-8 text-gray-700 font-medium items-center">
+          <Link href="/" className="hover:text-blue-600 transition flex items-center gap-1">
+            Home
+          </Link>
+
+          <button 
+            onClick={() => setShowCategory(!showCategory)} 
+            className="hover:text-blue-600 transition flex items-center gap-1"
+          >
+            <Menu className="w-4 h-4" /> Categories
+          </button>
+
+          <Link href="/messages" className="hover:text-blue-600 transition flex items-center gap-1">
+            <MessageCircle className="w-4 h-4" /> Messages
+          </Link>
+
+          <Link href="/dashboard" className="hover:text-blue-600 transition flex items-center gap-1">
+            <User className="w-4 h-4" /> Account
+          </Link>
+
+          <button 
+            onClick={handleCreatePost} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition ml-4"
+          >
+            <PlusCircle className="w-5 h-5" /> Create Post
+          </button>
+        </nav>
+
+        {/* Mobile Menu */}
+        <div className="md:hidden flex items-center gap-2">
+          <button onClick={() => setShowMobileMenu(!showMobileMenu)}>
+            <Menu className="w-6 h-6 text-blue-600" />
+          </button>
+          <button 
+            onClick={handleCreatePost} 
+            className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1"
+          >
+            <PlusCircle className="w-5 h-5" /> Post
+          </button>
+        </div>
+
+        {/* Category Dropdown */}
+        {showCategory && (
+          <div className="absolute right-4 top-16 bg-white border rounded-lg shadow-lg w-56 z-10">
+            {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
+              <button 
+                key={cat} 
+                onClick={() => {
+                  setCategory(cat.toLowerCase());
+                  setShowCategory(false);
+                }} 
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Mobile Menu Dropdown */}
+        {showMobileMenu && (
+          <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
+            <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
+            <Link 
+              href="/messages" 
+              className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1"
+            >
+              <MessageCircle className="w-4 h-4" /> Messages
+            </Link>
+            <Link 
+              href="/dashboard" 
+              className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1"
+            >
+              <User className="w-4 h-4" /> Account
+            </Link>
+            <button 
+              onClick={() => setShowCategory(!showCategory)} 
+              className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1"
+            >
+              <Menu className="w-4 h-4" /> Categories
+            </button>
+          </div>
+        )}
+      </header>
+      
+      {/* Search Bar */}
+      <div className="bg-white border-b p-4 flex justify-center">
+        <input
+          type="text"
+          placeholder="Search post by title..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full max-w-xl border rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Category Filter */}
+      <div className="bg-white border-b p-3 flex justify-center gap-4 flex-wrap">
+        {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
+          <button 
+            key={cat} 
+            onClick={() => setCategory(cat.toLowerCase())} 
+            className={`px-4 py-2 rounded-full border transition ${
+              category === cat.toLowerCase() 
+                ? "bg-blue-600 text-white border-blue-600" 
+                : "bg-white text-gray-700 hover:bg-blue-50"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
+      {/* Posts */}
+      <main className="max-w-7xl mx-auto p-6">
+        {posts.length === 0 ? (
+          <p className="text-center text-gray-500">No posts available yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {posts
+              .filter(p =>
+                (category === "all" || p.category?.toLowerCase() === category) &&
+                p.title?.toLowerCase().includes(search.toLowerCase())
+              )
+              .map(post => (
+                <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
+                  {post.images?.length > 0 && (
+                    <div className="w-full rounded-xl overflow-hidden bg-gray-200 mb-3">
+                      <img 
+                        src={`http://localhost:5000/uploads/${post.images[0]}`} 
+                        className="w-full max-h-72 object-cover" 
+                        alt="Post Image" 
+                      />
+                    </div>
+                  )}
+                  {post.videos?.length > 0 && (
+                    <video controls className="w-full max-h-72 rounded-xl mb-3 object-cover">
+                      <source src={`http://localhost:5000/uploads/${post.videos[0]}`} type="video/mp4" />
+                    </video>
+                  )}
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
+                  <p className="text-gray-600 mb-3 line-clamp-3">{post.description}</p>
+                  <p className="text-blue-600 font-bold text-lg mb-3">🤑 {post.price} BDT</p>
+
+                  <div className="flex justify-between items-center mt-auto">
+                    <Link 
+                      href={`/post/${post._id}`} 
+                      className="text-blue-600 hover:underline font-medium flex items-center gap-1"
+                    >
+                      <Heart className="w-4 h-4" /> View
+                    </Link>
+
+                    <button 
+                      onClick={() => handleMessage(post)} 
+                      className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition flex items-center gap-1"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Message
+                    </button>
+
+                    <button 
+                      onClick={() => handleBuy(post)} 
+                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-1"
+                    >
+                      <ShoppingCart className="w-4 h-4" /> Buy
+                    </button>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
+      </main>
+
+      {/* Footer */}
+      <footer className="bg-white text-center py-4 border-t mt-10 text-gray-500 text-sm">
+        © {new Date().getFullYear()} <span className="font-semibold text-blue-600">Trust Market</span> — All rights reserved.
+      </footer>
+    </div>
+  );
+}

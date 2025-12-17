@@ -1,0 +1,132 @@
+{
+    "client": "Thunder Client",
+    "collectionName": "Trust Market API",
+    "dateExported": "2025-11-02T12:00:00.000Z",
+    "version": "1.1",
+    "folders": [
+        {
+            "name": "Auth",
+            "_id": "auth-folder",
+            "containerId": "",
+            "created": "2025-11-02T12:00:00.000Z",
+            "sortNum": 10000
+        },
+        {
+            "name": "Posts",
+            "_id": "posts-folder",
+            "containerId": "",
+            "created": "2025-11-02T12:00:00.000Z",
+            "sortNum": 20000
+        },
+        {
+            "name": "Admin",
+            "_id": "admin-folder",
+            "containerId": "",
+            "created": "2025-11-02T12:00:00.000Z",
+            "sortNum": 30000
+        }
+    ],
+    "requests": [
+        {
+            "_id": "register",
+            "colId": "default",
+            "containerId": "auth-folder",
+            "name": "Register User",
+            "url": "{{baseUrl}}/api/auth/register",
+            "method": "POST",
+            "sortNum": 10000,
+            "created": "2025-11-02T12:00:00.000Z",
+            "modified": "2025-11-02T12:00:00.000Z",
+            "headers": [
+                { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"name\": \"Nazmul\",\n  \"email\": \"nazmul@test.com\",\n  \"password\": \"123456\",\n  \"role\": \"seller\"\n}"
+            }
+        },
+        {
+            "_id": "login",
+            "colId": "default",
+            "containerId": "auth-folder",
+            "name": "Login",
+            "url": "{{baseUrl}}/api/auth/login",
+            "method": "POST",
+            "sortNum": 20000,
+            "created": "2025-11-02T12:00:00.000Z",
+            "modified": "2025-11-02T12:00:00.000Z",
+            "headers": [
+                { "name": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+                "type": "json",
+                "raw": "{\n  \"email\": \"nazmul@test.com\",\n  \"password\": \"123456\"\n}"
+            }
+        },
+        {
+            "_id": "create-post",
+            "colId": "default",
+            "containerId": "posts-folder",
+            "name": "Create Post",
+            "url": "{{baseUrl}}/api/posts",
+            "method": "POST",
+            "sortNum": 30000,
+            "created": "2025-11-02T12:00:00.000Z",
+            "modified": "2025-11-02T12:00:00.000Z",
+            "headers": [
+                { "name": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+                "type": "form-data",
+                "raw": "",
+                "form": [
+                    { "name": "title", "value": "Test Item" },
+                    { "name": "description", "value": "A test item description" },
+                    { "name": "price", "value": "49.99" },
+                    { "name": "images", "type": "file" }
+                ]
+            }
+        },
+        {
+            "_id": "approved-posts",
+            "colId": "default",
+            "containerId": "posts-folder",
+            "name": "Get Approved Posts",
+            "url": "{{baseUrl}}/api/posts/approved",
+            "method": "GET",
+            "sortNum": 40000,
+            "created": "2025-11-02T12:00:00.000Z",
+            "modified": "2025-11-02T12:00:00.000Z"
+        },
+        {
+            "_id": "pending-posts",
+            "colId": "default",
+            "containerId": "admin-folder",
+            "name": "Get Pending Posts",
+            "url": "{{baseUrl}}/api/admin/pending-posts",
+            "method": "GET",
+            "sortNum": 50000,
+            "created": "2025-11-02T12:00:00.000Z",
+            "modified": "2025-11-02T12:00:00.000Z"
+        },
+        {
+            "_id": "approve-post",
+            "colId": "default",
+            "containerId": "admin-folder",
+            "name": "Approve Post",
+            "url": "{{baseUrl}}/api/admin/approve/{{postId}}",
+            "method": "PUT",
+            "sortNum": 60000,
+            "created": "2025-11-02T12:00:00.000Z",
+            "modified": "2025-11-02T12:00:00.000Z"
+        }
+    ],
+    "settings": {
+        "headers": [],
+        "auth": {
+            "type": "none"
+        },
+        "tests": [],
+        "envId": "default-env"
+    }
+}

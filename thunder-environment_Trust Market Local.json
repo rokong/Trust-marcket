@@ -1,0 +1,20 @@
+{
+    "client": "Thunder Client",
+    "environmentName": "Trust Market Local",
+    "dateExported": "2025-11-02T12:00:00.000Z",
+    "version": "1.0",
+    "variables": [
+        {
+            "name": "baseUrl",
+            "value": "http://localhost:5000"
+        },
+        {
+            "name": "token",
+            "value": ""
+        },
+        {
+            "name": "postId",
+            "value": ""
+        }
+    ]
+}

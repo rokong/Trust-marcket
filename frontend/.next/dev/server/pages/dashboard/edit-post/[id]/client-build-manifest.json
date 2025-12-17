@@ -1,0 +1,5 @@
+{
+  "/dashboard/edit-post/[id]": [
+    "static/chunks/pages/dashboard/edit-post/[id].js"
+  ]
+}
