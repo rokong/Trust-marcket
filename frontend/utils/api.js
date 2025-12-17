@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL + "/api",
+  baseURL:  "https://trust-market-backend-nsao.onrender.com/api",
 });
 
 // Automatically send token in every request
