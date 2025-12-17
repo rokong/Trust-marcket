@@ -13,7 +13,7 @@ router.post("/api/admin/payment/add", async (req, res) => {
       return res.status(400).json({ message: "trxID & price required" });
     }
 
-    const payment = await Payment.create({ trxID, price: Number(price), paymentType });
+    const payment = await Payment.create({ trxID, price: Number(price) });
     res.json({ message: "✅ Payment added as pending", payment });
   } catch (err) {
     console.error(err);
