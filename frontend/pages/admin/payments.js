@@ -52,11 +52,6 @@ export default function AdminPayments() {
     return date.toLocaleString();
   };
 
-<<<<<<< Updated upstream
-=======
-  
-
->>>>>>> Stashed changes
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       {/* Back Button */}
