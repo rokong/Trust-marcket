@@ -1,1 +1,123 @@
-[00:00:04.313] Server  LOG      ✓ Ready in 3.7s
+[00:00:08.118] Server  LOG      ✓ Ready in 7s
+[00:00:11.148] Server  LOG      ○ Compiling /admin/payments ...
+[00:00:15.869] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:00:18.418] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:00:53.804] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:01:25.156] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:01:27.490] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:15:11.112] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:15:13.114] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:29:31.737] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:29:34.013] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:29:35.091] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+
+[00:29:35.802] Browser ERROR   <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/api/admin/payment/list</pre>
+</body>
+</html>
+

@@ -40,8 +40,9 @@ app.use("/api/users", userRoutes);
 app.use("/api/admin", adminMessageRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
-app.use("/api", bkashRoutes);
 app.use("/api", adminPaymentRoutes);
+app.use("/api", bkashRoutes);
+
 
 // -------------------- CREATE HTTP SERVER --------------------
 const PORT = process.env.PORT || 5000;

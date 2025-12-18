@@ -7,7 +7,6 @@ import { useRouter } from "next/router";
 
 export default function AdminPayments() {
   const router = useRouter();
-  const [paymentType, setPaymentType] = useState("bKash");
   const [trxID, setTrxID] = useState("");
   const [price, setPrice] = useState("");
   const [msg, setMsg] = useState("");
@@ -53,6 +52,11 @@ export default function AdminPayments() {
     return date.toLocaleString();
   };
 
+<<<<<<< Updated upstream
+=======
+  
+
+>>>>>>> Stashed changes
   return (
     <div className="p-4 md:p-6 max-w-6xl mx-auto">
       {/* Back Button */}

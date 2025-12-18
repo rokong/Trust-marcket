@@ -89,7 +89,6 @@ var __turbopack_async_dependencies__ = __turbopack_handle_async_dependencies__([
 ;
 function AdminPayments() {
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$node_modules$2f$next$2f$router$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["useRouter"])();
-    const [paymentType, setPaymentType] = (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useState"])("bKash");
     const [trxID, setTrxID] = (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useState"])("");
     const [price, setPrice] = (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useState"])("");
     const [msg, setMsg] = (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react__$5b$external$5d$__$28$react$2c$__cjs$29$__["useState"])("");
@@ -114,8 +113,7 @@ function AdminPayments() {
         try {
             const { data } = await __TURBOPACK__imported__module__$5b$project$5d2f$frontend$2f$utils$2f$api$2e$js__$5b$ssr$5d$__$28$ecmascript$29$__["default"].post("/api/admin/payment/add", {
                 trxID,
-                price,
-                paymentType
+                price
             });
             setMsg(data.message);
             setTrxID("");
@@ -130,18 +128,6 @@ function AdminPayments() {
         const date = new Date(isoString);
         return date.toLocaleString();
     };
-    const getTypeColor = (type)=>{
-        switch(type){
-            case "bKash":
-                return "text-pink-600";
-            case "Nogod":
-                return "text-orange-500";
-            case "Rocket":
-                return "text-purple-600";
-            default:
-                return "text-gray-600";
-        }
-    };
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
         className: "p-4 md:p-6 max-w-6xl mx-auto",
         children: [
@@ -153,14 +139,14 @@ function AdminPayments() {
                         size: 20
                     }, void 0, false, {
                         fileName: "[project]/frontend/pages/admin/payments.js",
-                        lineNumber: 77,
+                        lineNumber: 64,
                         columnNumber: 9
                     }, this),
                     " Back"
                 ]
             }, void 0, true, {
                 fileName: "[project]/frontend/pages/admin/payments.js",
-                lineNumber: 73,
+                lineNumber: 60,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h1", {
@@ -168,49 +154,7 @@ function AdminPayments() {
                 children: "Admin – Add Payment"
             }, void 0, false, {
                 fileName: "[project]/frontend/pages/admin/payments.js",
-                lineNumber: 81,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
-                className: "flex mb-4",
-                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("select", {
-                    value: paymentType,
-                    onChange: (e)=>setPaymentType(e.target.value),
-                    className: "border p-3 rounded focus:ring-2 focus:ring-green-500 focus:outline-none",
-                    children: [
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
-                            value: "bKash",
-                            children: "bKash"
-                        }, void 0, false, {
-                            fileName: "[project]/frontend/pages/admin/payments.js",
-                            lineNumber: 92,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
-                            value: "Nogod",
-                            children: "Nogod"
-                        }, void 0, false, {
-                            fileName: "[project]/frontend/pages/admin/payments.js",
-                            lineNumber: 93,
-                            columnNumber: 11
-                        }, this),
-                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("option", {
-                            value: "Rocket",
-                            children: "Rocket"
-                        }, void 0, false, {
-                            fileName: "[project]/frontend/pages/admin/payments.js",
-                            lineNumber: 94,
-                            columnNumber: 11
-                        }, this)
-                    ]
-                }, void 0, true, {
-                    fileName: "[project]/frontend/pages/admin/payments.js",
-                    lineNumber: 87,
-                    columnNumber: 9
-                }, this)
-            }, void 0, false, {
-                fileName: "[project]/frontend/pages/admin/payments.js",
-                lineNumber: 86,
+                lineNumber: 68,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -223,7 +167,7 @@ function AdminPayments() {
                         className: "border p-3 rounded flex-1 focus:ring-2 focus:ring-green-500 focus:outline-none"
                     }, void 0, false, {
                         fileName: "[project]/frontend/pages/admin/payments.js",
-                        lineNumber: 100,
+                        lineNumber: 74,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("input", {
@@ -234,7 +178,7 @@ function AdminPayments() {
                         className: "border p-3 rounded w-full md:w-40 focus:ring-2 focus:ring-green-500 focus:outline-none"
                     }, void 0, false, {
                         fileName: "[project]/frontend/pages/admin/payments.js",
-                        lineNumber: 106,
+                        lineNumber: 80,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("button", {
@@ -243,13 +187,13 @@ function AdminPayments() {
                         children: "Add Payment"
                     }, void 0, false, {
                         fileName: "[project]/frontend/pages/admin/payments.js",
-                        lineNumber: 113,
+                        lineNumber: 87,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/frontend/pages/admin/payments.js",
-                lineNumber: 99,
+                lineNumber: 73,
                 columnNumber: 7
             }, this),
             msg && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("p", {
@@ -257,7 +201,7 @@ function AdminPayments() {
                 children: msg
             }, void 0, false, {
                 fileName: "[project]/frontend/pages/admin/payments.js",
-                lineNumber: 122,
+                lineNumber: 96,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("h2", {
@@ -265,7 +209,7 @@ function AdminPayments() {
                 children: "All Payments"
             }, void 0, false, {
                 fileName: "[project]/frontend/pages/admin/payments.js",
-                lineNumber: 128,
+                lineNumber: 102,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("div", {
@@ -275,7 +219,7 @@ function AdminPayments() {
                     children: "No payments added yet"
                 }, void 0, false, {
                     fileName: "[project]/frontend/pages/admin/payments.js",
-                    lineNumber: 133,
+                    lineNumber: 107,
                     columnNumber: 11
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("table", {
                     className: "w-full text-left border-collapse",
@@ -286,18 +230,10 @@ function AdminPayments() {
                                 children: [
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("th", {
                                         className: "py-3 px-3 text-gray-700",
-                                        children: "Payment Type"
-                                    }, void 0, false, {
-                                        fileName: "[project]/frontend/pages/admin/payments.js",
-                                        lineNumber: 138,
-                                        columnNumber: 17
-                                    }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("th", {
-                                        className: "py-3 px-3 text-gray-700",
                                         children: "trxID"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/pages/admin/payments.js",
-                                        lineNumber: 139,
+                                        lineNumber: 112,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("th", {
@@ -305,7 +241,7 @@ function AdminPayments() {
                                         children: "Amount"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/pages/admin/payments.js",
-                                        lineNumber: 140,
+                                        lineNumber: 113,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("th", {
@@ -313,7 +249,7 @@ function AdminPayments() {
                                         children: "Status"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/pages/admin/payments.js",
-                                        lineNumber: 141,
+                                        lineNumber: 114,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("th", {
@@ -321,7 +257,7 @@ function AdminPayments() {
                                         children: "Created At"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/pages/admin/payments.js",
-                                        lineNumber: 142,
+                                        lineNumber: 115,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("th", {
@@ -329,18 +265,18 @@ function AdminPayments() {
                                         children: "Updated At"
                                     }, void 0, false, {
                                         fileName: "[project]/frontend/pages/admin/payments.js",
-                                        lineNumber: 143,
+                                        lineNumber: 116,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/frontend/pages/admin/payments.js",
-                                lineNumber: 137,
+                                lineNumber: 111,
                                 columnNumber: 15
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/frontend/pages/admin/payments.js",
-                            lineNumber: 136,
+                            lineNumber: 110,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("tbody", {
@@ -348,19 +284,11 @@ function AdminPayments() {
                                     className: "border-b hover:bg-gray-50",
                                     children: [
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("td", {
-                                            className: `py-2 px-3 font-medium ${getTypeColor(p.paymentType)}`,
-                                            children: p.paymentType || "bKash"
-                                        }, void 0, false, {
-                                            fileName: "[project]/frontend/pages/admin/payments.js",
-                                            lineNumber: 149,
-                                            columnNumber: 19
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("td", {
                                             className: "py-2 px-3 font-mono",
                                             children: p.trxID
                                         }, void 0, false, {
                                             fileName: "[project]/frontend/pages/admin/payments.js",
-                                            lineNumber: 152,
+                                            lineNumber: 122,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("td", {
@@ -371,7 +299,7 @@ function AdminPayments() {
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/frontend/pages/admin/payments.js",
-                                            lineNumber: 153,
+                                            lineNumber: 123,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("td", {
@@ -379,7 +307,7 @@ function AdminPayments() {
                                             children: p.status === "verified" ? "Confirmed" : "Pending"
                                         }, void 0, false, {
                                             fileName: "[project]/frontend/pages/admin/payments.js",
-                                            lineNumber: 154,
+                                            lineNumber: 124,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("td", {
@@ -387,7 +315,7 @@ function AdminPayments() {
                                             children: formatDateTime(p.createdAt)
                                         }, void 0, false, {
                                             fileName: "[project]/frontend/pages/admin/payments.js",
-                                            lineNumber: 161,
+                                            lineNumber: 131,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$externals$5d2f$react$2f$jsx$2d$dev$2d$runtime__$5b$external$5d$__$28$react$2f$jsx$2d$dev$2d$runtime$2c$__cjs$29$__["jsxDEV"])("td", {
@@ -395,35 +323,35 @@ function AdminPayments() {
                                             children: formatDateTime(p.updatedAt)
                                         }, void 0, false, {
                                             fileName: "[project]/frontend/pages/admin/payments.js",
-                                            lineNumber: 162,
+                                            lineNumber: 132,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, p._id, true, {
                                     fileName: "[project]/frontend/pages/admin/payments.js",
-                                    lineNumber: 148,
+                                    lineNumber: 121,
                                     columnNumber: 17
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/frontend/pages/admin/payments.js",
-                            lineNumber: 146,
+                            lineNumber: 119,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/frontend/pages/admin/payments.js",
-                    lineNumber: 135,
+                    lineNumber: 109,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/frontend/pages/admin/payments.js",
-                lineNumber: 131,
+                lineNumber: 105,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/frontend/pages/admin/payments.js",
-        lineNumber: 71,
+        lineNumber: 58,
         columnNumber: 5
     }, this);
 }

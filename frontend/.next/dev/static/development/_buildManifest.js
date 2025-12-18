@@ -1,4 +1,10 @@
 self.__BUILD_MANIFEST = {
+  "/": [
+    "static/chunks/pages/index.js"
+  ],
+  "/admin/payments": [
+    "static/chunks/pages/admin/payments.js"
+  ],
   "__rewrites": {
     "afterFiles": [],
     "beforeFiles": [],
