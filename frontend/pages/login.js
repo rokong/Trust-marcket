@@ -21,12 +21,14 @@ export default function Login() {
       localStorage.setItem("userEmail", user.email);
       localStorage.setItem("role", user.role);
 
-      if (user.role === "admin" && user.email === "mdnajmullhassan938@gmail.com") {
+      if (
+        user.role === "admin" &&
+        user.email === "mdnajmullhassan938@gmail.com"
+      ) {
         router.push("/admin/pages");
       } else {
         router.push("/");
       }
-
     } catch (err) {
       console.log(err);
       setError("Login failed. Invalid email or password.");
@@ -47,9 +49,11 @@ export default function Login() {
         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">
           Trust Market Login
         </h2>
+
         {error && (
           <p className="text-red-500 text-center mb-4 font-medium">{error}</p>
         )}
+
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
@@ -64,6 +68,7 @@ export default function Login() {
               placeholder="Enter your email"
             />
           </div>
+
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-1">
               Password
@@ -77,27 +82,34 @@ export default function Login() {
               placeholder="Enter your password"
             />
           </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-all"
-          >
-            Login
-          </button>
+
+          {/* Login + Register in one line */}
+          <div className="flex gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/register")}
+              className="w-1/2 border border-blue-600 text-blue-600 font-semibold py-2 rounded-lg hover:bg-blue-50 transition-all"
+            >
+              Register
+            </button>
+
+            <button
+              type="submit"
+              className="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-all"
+            >
+              Login
+            </button>
+          </div>
         </form>
-        <div className="flex justify-between items-center mt-5 text-sm text-gray-600">
+
+        {/* Forgot password centered */}
+        <div className="mt-5 text-center text-sm text-gray-600">
           <button
             type="button"
             onClick={() => router.push("/forgot-password")}
             className="hover:text-blue-600"
           >
             Forgot Password?
-          </button>
-          <button
-            type="button"
-            onClick={() => router.push("/register")}
-            className="hover:text-blue-600"
-          >
-            Don’t have an account? Register
           </button>
         </div>
       </div>
