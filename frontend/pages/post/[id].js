@@ -81,7 +81,7 @@ export default function ViewPost() {
         {post.images?.map((img) => (
           <img
             key={img}
-            src={`http://localhost:5000/uploads/${img}`}
+            src={`https://trust-market-backend-nsao.onrender.com/uploads/${img}`}
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 object-cover rounded-xl cursor-pointer"
             onClick={() => setFullscreenMedia({ type: "image", src: `https://trust-market-backend-nsao.onrender.com/uploads/${img}` })}
           />
@@ -97,7 +97,7 @@ export default function ViewPost() {
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 rounded-xl cursor-pointer"
             onClick={() => setFullscreenMedia({ type: "video", src: `https://trust-market-backend-nsao.onrender.com/uploads/${vid}` })}
           >
-            <source src={`http://localhost:5000/uploads/${vid}`} type="video/mp4" />
+            <source src={`https://trust-market-backend-nsao.onrender.com/uploads/${vid}`} type="video/mp4" />
           </video>
         ))}
       </div>
