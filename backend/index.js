@@ -27,7 +27,6 @@ app.use(cors({
     "http://localhost:3000",
     "https://trust-marcket-h.vercel.app"
   ],
-  credentials: true,
 }));
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
