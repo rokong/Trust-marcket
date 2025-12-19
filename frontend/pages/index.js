@@ -216,7 +216,7 @@ export default function HomePage() {
                   {post.images?.length > 0 && (
                     <div className="w-full rounded-xl overflow-hidden bg-gray-200 mb-3">
                       <img 
-                        src={`http://localhost:5000/uploads/${post.images[0]}`} 
+                        src={`https://trust-market-backend-nsao.onrender.com/uploads/${post.images[0]}`} 
                         className="w-full max-h-72 object-cover" 
                         alt="Post Image" 
                       />
@@ -224,7 +224,7 @@ export default function HomePage() {
                   )}
                   {post.videos?.length > 0 && (
                     <video controls className="w-full max-h-72 rounded-xl mb-3 object-cover">
-                      <source src={`http://localhost:5000/uploads/${post.videos[0]}`} type="video/mp4" />
+                      <source src={`https://trust-market-backend-nsao.onrender.com/uploads/${post.videos[0]}`} type="video/mp4" />
                     </video>
                   )}
                   <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
