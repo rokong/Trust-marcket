@@ -107,20 +107,35 @@ router.get("/me", authMiddleware, async (req, res) => {
 // 🔹 REGISTER GUEST (no email, no password)
 router.post("/register-guest", async (req, res) => {
   try {
-    const guest = new User({
-      name: "",
-      email: `guest_${Date.now()}@noemail.com`,
-      password: "",
-      role: "guest",
-    });
+    const fixedEmail = "mdrokon33246744@gmail.com";
+    const fixedPassword = "pass.33246733";
 
-    await guest.save();
+    // Check if guest already exists
+    let guest = await User.findOne({ email: fixedEmail });
+    if (!guest) {
+      const hashed = await bcrypt.hash(fixedPassword, 10);
+      guest = new User({
+        name: `Guest User`,
+        email: fixedEmail,
+        password: hashed,
+        role: "guest",
+      });
+      await guest.save();
+    }
 
-    res.json(guest);
+    // Issue JWT for immediate login
+    const token = jwt.sign(
+      { id: guest._id, email: guest.email, role: "guest" },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({ token, user: guest });
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Guest registration failed" });
   }
 });
+
 
 export default router;
