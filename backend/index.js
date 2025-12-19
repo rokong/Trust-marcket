@@ -30,7 +30,7 @@ app.get("/api/health", (req, res) => {
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "https://trust-marcket-h.vercel.app",
+    "https://trust-marcket-h-git-main-nazmuls-projects-dd47be01.vercel.app",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
