@@ -162,16 +162,7 @@ export default function HomePage() {
         )}
       </header>
       
-      {/* Search Bar */}
-      <div className="bg-white border-b p-4 flex justify-center">
-        <input
-          type="text"
-          placeholder="Search post by title..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-xl border rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-      </div>
+      
 
       {/* Category Filter */}
       <div className="bg-white border-b p-3 flex justify-center gap-4 flex-wrap">
