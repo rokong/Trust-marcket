@@ -25,7 +25,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "https://trust-marcket.vercel.app"
+    "https://trust-marcket-h.vercel.app"
   ],
   credentials: true,
 }));
