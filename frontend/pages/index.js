@@ -21,7 +21,17 @@ export default function HomePage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
 
-
+  
+  useEffect(() => {
+    api.get("/health")
+      .then(res => {
+        console.log("BACKEND OK:", res.data);
+      })
+      .catch(err => {
+        console.log("BACKEND FAIL:", err);
+      });
+  }, []);
+  
   useEffect(() => {
     const loadPosts = async () => {
       try {
