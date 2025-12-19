@@ -95,7 +95,7 @@ export default function ViewPost() {
             key={vid}
             controls
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 rounded-xl cursor-pointer"
-            onClick={() => setFullscreenMedia({ type: "video", src: `http://localhost:5000/uploads/${vid}` })}
+            onClick={() => setFullscreenMedia({ type: "video", src: `https://trust-market-backend-nsao.onrender.com/uploads/${vid}` })}
           >
             <source src={`http://localhost:5000/uploads/${vid}`} type="video/mp4" />
           </video>
