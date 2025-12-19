@@ -21,6 +21,11 @@ import Message from "./src/models/Message.js"; // আপনার মেসে�
 dotenv.config();
 const app = express();
 
+app.get("/api/health", (req, res) => {
+  console.log("HEALTH HIT");
+  res.json({ ok: true });
+});
+
 // -------------------- MIDDLEWARE --------------------
 app.use(cors({
   origin: [
