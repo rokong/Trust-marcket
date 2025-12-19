@@ -83,7 +83,7 @@ export default function ViewPost() {
             key={img}
             src={`http://localhost:5000/uploads/${img}`}
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 object-cover rounded-xl cursor-pointer"
-            onClick={() => setFullscreenMedia({ type: "image", src: `http://localhost:5000/uploads/${img}` })}
+            onClick={() => setFullscreenMedia({ type: "image", src: `https://trust-market-backend-nsao.onrender.com/uploads/${img}` })}
           />
         ))}
       </div>
