@@ -24,7 +24,7 @@ const app = express();
 // -------------------- MIDDLEWARE --------------------
 app.use(cors({
   origin: [
-    
+    "http://localhost:3000",
     "https://trust-marcket-h.vercel.app"
   ],
   credentials: true,
