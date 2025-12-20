@@ -137,7 +137,11 @@ export default function CreatePost() {
         </select>
 
         {/* Image Upload Premium */}
-        <label className="border-2 border-dashed border-gray-300 p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition">
+        <label
+          className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
+            images.length > 0 ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-blue-500"
+          }`}
+        >
           <span className="text-gray-500 mb-2">Select Images</span>
           <input
             type="file"
@@ -152,7 +156,11 @@ export default function CreatePost() {
         </label>
 
         {/* Video Upload Premium */}
-        <label className="border-2 border-dashed border-gray-300 p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition">
+        <label
+          className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
+            videos.length > 0 ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-blue-500"
+          }`}
+        >
           <span className="text-gray-500 mb-2">Select Videos</span>
           <input
             type="file"
