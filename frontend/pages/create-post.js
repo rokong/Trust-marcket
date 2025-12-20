@@ -18,14 +18,10 @@ export default function CreatePost() {
 
   const router = useRouter();
 
-  // Phone validation (LIVE)
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, "");
-
     if (value.length > 11) return;
-
     setPhone(value);
-
     if (!value.startsWith("01")) {
       setPhoneError("Phone number must start with 01");
     } else if (value.length !== 11) {
@@ -35,13 +31,10 @@ export default function CreatePost() {
     }
   };
 
-  // 20% price increase
   const calculatedPrice = price ? (parseFloat(price) * 1.2).toFixed(2) : 0;
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
-
-    // hard stop on invalid phone
     if (phoneError || phone.length !== 11) {
       setError("❌ Invalid phone number");
       setSuccess("");
@@ -57,7 +50,6 @@ export default function CreatePost() {
     formData.append("price", calculatedPrice);
     formData.append("category", category);
     formData.append("phone", phone);
-
     Array.from(images).forEach((file) => formData.append("images", file));
     Array.from(videos).forEach((file) => formData.append("videos", file));
 
@@ -68,18 +60,11 @@ export default function CreatePost() {
           "Content-Type": "multipart/form-data",
         },
       });
-
-      setSuccess(`✅ Post created successfully! Final price: ${calculatedPrice}`);
+      setSuccess(`✅ Post created successfully! Price: ${calculatedPrice}`);
       setError("");
-
-      setTitle("");
-      setDescription("");
-      setPrice("");
-      setCategory("Gaming");
-      setImages([]);
-      setVideos([]);
-      setPhone("");
-      setPhoneError("");
+      setTitle(""); setDescription(""); setPrice("");
+      setCategory("Gaming"); setImages([]); setVideos([]);
+      setPhone(""); setPhoneError("");
     } catch (err) {
       console.error(err?.response?.data || err);
       setError("❌ Failed to create post.");
@@ -88,21 +73,21 @@ export default function CreatePost() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4 relative">
+    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
       <button
         onClick={() => router.push("/")}
-        className="fixed top-4 right-4 px-4 py-2 bg-gray-800 text-white rounded-lg"
+        className="fixed top-4 right-4 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition z-50"
       >
         Home
       </button>
 
-      <h2 className="text-2xl font-bold text-blue-600 mt-16">
+      <h2 className="text-3xl font-bold text-blue-600 mt-16 md:mt-20 text-center">
         Create a New Post
       </h2>
 
       <form
         onSubmit={handleCreatePost}
-        className="bg-white p-6 rounded-xl shadow-md w-full max-w-lg mt-4 space-y-4"
+        className="bg-white p-8 md:p-10 rounded-2xl shadow-lg w-full max-w-xl mt-6 space-y-6"
       >
         {error && <p className="text-red-600">{error}</p>}
         {success && <p className="text-green-600">{success}</p>}
@@ -113,7 +98,7 @@ export default function CreatePost() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className="border w-full p-3 rounded"
+          className="border border-gray-300 p-4 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
         />
 
         <textarea
@@ -121,7 +106,7 @@ export default function CreatePost() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           required
-          className="border w-full p-3 rounded h-32"
+          className="border border-gray-300 p-4 rounded-lg w-full h-32 focus:ring-2 focus:ring-blue-400"
         />
 
         <div className="relative">
@@ -131,10 +116,10 @@ export default function CreatePost() {
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required
-            className="border w-full p-3 rounded"
+            className="border border-gray-300 p-4 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
           />
           {price && (
-            <span className="absolute right-3 top-3 text-sm text-gray-500">
+            <span className="absolute right-4 top-4 text-gray-500 font-medium">
               +20% → {calculatedPrice}
             </span>
           )}
@@ -143,7 +128,7 @@ export default function CreatePost() {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="border w-full p-3 rounded"
+          className="border border-gray-300 p-4 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
         >
           <option>Gaming</option>
           <option>Facebook Page</option>
@@ -151,37 +136,48 @@ export default function CreatePost() {
           <option>YouTube Channel</option>
         </select>
 
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => setImages(e.target.files)}
-          className="border w-full p-2 rounded"
-        />
+        {/* Image Upload Premium */}
+        <label className="border-2 border-dashed border-gray-300 p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition">
+          <span className="text-gray-500 mb-2">Select Images</span>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => setImages(e.target.files)}
+            className="hidden"
+          />
+          {images.length > 0 && (
+            <p className="text-sm text-gray-600 mt-2">{images.length} file(s) selected</p>
+          )}
+        </label>
 
-        <input
-          type="file"
-          accept="video/*"
-          multiple
-          onChange={(e) => setVideos(e.target.files)}
-          className="border w-full p-2 rounded"
-        />
+        {/* Video Upload Premium */}
+        <label className="border-2 border-dashed border-gray-300 p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition">
+          <span className="text-gray-500 mb-2">Select Videos</span>
+          <input
+            type="file"
+            accept="video/*"
+            multiple
+            onChange={(e) => setVideos(e.target.files)}
+            className="hidden"
+          />
+          {videos.length > 0 && (
+            <p className="text-sm text-gray-600 mt-2">{videos.length} file(s) selected</p>
+          )}
+        </label>
 
         <input
           type="text"
           placeholder="Phone (01XXXXXXXXX)"
           value={phone}
           onChange={handlePhoneChange}
-          className="border w-full p-3 rounded"
+          className="border border-gray-300 p-4 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
         />
-
-        {phoneError && (
-          <p className="text-red-600 text-sm">{phoneError}</p>
-        )}
+        {phoneError && <p className="text-red-600 text-sm">{phoneError}</p>}
 
         <button
           type="submit"
-          className="bg-blue-600 text-white w-full py-3 rounded-lg font-semibold"
+          className="bg-blue-600 text-white w-full py-4 rounded-lg font-semibold hover:bg-blue-700 transition"
         >
           Create Post
         </button>
