@@ -18,7 +18,7 @@ export default function CreatePost() {
   const router = useRouter();
 
   // লাইভ 10% বৃদ্ধি হিসাব
-  const calculatedPrice = price ? (parseFloat(price) * 1.1).toFixed(2) : 0;
+  const calculatedPrice = price ? (parseFloat(price) * 1.2).toFixed(2) : 0;
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -44,7 +44,7 @@ export default function CreatePost() {
         },
       });
 
-      setSuccess(`✅ Post created successfully! Price with 10% added: ${calculatedPrice}`);
+      setSuccess(`✅ Post created successfully! Price with 20% added: ${calculatedPrice}`);
       setError("");
 
       setTitle("");
