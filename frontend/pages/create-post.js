@@ -111,7 +111,7 @@ export default function CreatePost() {
           />
           {price && (
             <span className="absolute right-3 top-3 text-gray-500 text-sm">
-              +10% → {calculatedPrice}
+              +20% → {calculatedPrice}
             </span>
           )}
         </div>
