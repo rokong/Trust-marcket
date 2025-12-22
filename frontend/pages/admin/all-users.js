@@ -33,7 +33,7 @@ export default function AllUsers() {
       const token = localStorage.getItem("token");
       if (!token) return router.push("/login");
 
-      const res = await api.get("/api/admin/users");
+      const res = await api.get("/admin/users");
       setUsers(res.data);
       setFilteredUsers(res.data);
     } catch (err) {
@@ -46,7 +46,7 @@ export default function AllUsers() {
 
     try {
       const token = localStorage.getItem("token");
-      await api.delete(`/api/admin/users/${userId}`, {
+      await api.delete(`/admin/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
