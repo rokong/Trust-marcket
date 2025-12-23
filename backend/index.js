@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
-
+import { Server } from "socket.io";
 
 import postsRoutes from "./src/routes/posts.js";
 import authRoutes from "./src/routes/auth.js";
@@ -20,10 +20,10 @@ import Message from "./src/models/Message.js"; // আপনার মেসে�
 
 dotenv.config();
 const app = express();
-
-app.get("/api/health", (req, res) => {
-  console.log("HEALTH HIT");
-  res.json({ ok: true });
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+  },
 });
 
 // -------------------- MIDDLEWARE --------------------
@@ -55,6 +55,29 @@ app.use("/api", bkashRoutes);
 const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
+// 🔌 SOCKET CONNECTION
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
+  // join user room
+  socket.on("join", (userId) => {
+    socket.join(userId);
+  });
+
+  // user/admin send message
+  socket.on("send_message", async (data) => {
+    const msg = await Message.create(data);
+
+    // send to specific user room
+    io.to(data.userId.toString()).emit("receive_message", msg);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected");
+  });
+});
+
+export { server };
 
 // -------------------- MONGO + START SERVER --------------------
 mongoose
