@@ -3,17 +3,32 @@ import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import api from "../../../utils/api";
 import { ArrowLeft } from "lucide-react";
+import { io } from "socket.io-client";
 
 export default function ChatPage() {
   const router = useRouter();
   const { userId } = router.query;
-
+  const socket = io("https://trust-market-backend-nsao.onrender.com");
   const [messages, setMessages] = useState([]);
   const [reply, setReply] = useState("");
   const [postData, setPostData] = useState(null);
   const [user, setUser] = useState(null);
 
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (!userId) return;
+  
+    socket.emit("join", userId);
+  
+    socket.on("receive_message", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+  
+    return () => {
+      socket.off("receive_message");
+    };
+  }, [userId]);
 
   /* ---------------- Load User Info ---------------- */
   useEffect(() => {
@@ -45,29 +60,19 @@ export default function ChatPage() {
   }, [messages]);
 
   /* ---------------- Send Reply ---------------- */
-  const sendReply = async () => {
+  const sendReply = () => {
     if (!reply.trim()) return;
-
-    try {
-      const res = await api.post(
-        "/admin/messages/send",
-        {
-          userId,
-          text: reply,
-          sender: "admin",
-          type: "text",
-        },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
-      );
-
-      setMessages((prev) => [...prev, res.data]);
-      setReply("");
-    } catch (err) {
-      console.error(err);
-    }
+  
+    socket.emit("send_message", {
+      userId,
+      sender: "admin",
+      type: "text",
+      text: reply,
+    });
+  
+    setReply("");
   };
+
 
   const formatTime = (t) =>
     new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
