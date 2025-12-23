@@ -2,16 +2,31 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import api from "../../utils/api";
+import { io } from "socket.io-client";
 
 export default function Messages() {
   const router = useRouter();
   const { post } = router.query;
-
+  const socket = io("https://trust-market-backend-nsao.onrender.com"); // backend URL
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [userId, setUserId] = useState(null);
   const [postData, setPostData] = useState(null);
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (!userId) return;
+  
+    socket.emit("join", userId);
+  
+    socket.on("receive_message", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+  
+    return () => {
+      socket.off("receive_message");
+    };
+  }, [userId]);
 
   /* ---------------- Load User ---------------- */
   useEffect(() => {
@@ -62,25 +77,19 @@ export default function Messages() {
   }, [messages]);
 
   /* ---------------- Send Text ---------------- */
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!text.trim()) return;
-
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-      const res = await api.post(
-        "/messages/send",
-        { userId, text, type: "text" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setMessages((prev) => [...prev, res.data]);
-      setText("");
-    } catch (err) {
-      console.error(err);
-    }
+  
+    socket.emit("send_message", {
+      userId,
+      sender: "user",
+      type: "text",
+      text,
+    });
+  
+    setText("");
   };
+
 
   /* ---------------- Send Shared Post ---------------- */
   const sendSharedPost = async () => {
