@@ -22,9 +22,15 @@ dotenv.config();
 const app = express();
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: [
+      "http://localhost:3000",
+      "https://trust-marcket-h-git-main-nazmuls-projects-dd47be01.vercel.app"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
   },
 });
+
 
 // -------------------- MIDDLEWARE --------------------
 app.use(cors({
