@@ -21,7 +21,13 @@ export default function HomePage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
 
-  
+  useEffect(() => {
+    fetch("https://trust-market-backend-nsao.onrender.com/api/health")
+      .then(res => res.json())
+      .then(data => console.log("HEALTH:", data))
+      .catch(err => console.error("HEALTH ERR:", err));
+  }, []);
+
   useEffect(() => {
     api.get("/health")
       .then(res => {
