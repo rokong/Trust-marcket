@@ -15,6 +15,7 @@ import adminRoutes from "./src/routes/admin.js";
 import adminUserRoutes from "./src/routes/adminUserRoutes.js";
 import bkashRoutes from "./src/routes/bkashRoutes.js";
 import adminPaymentRoutes from "./src/routes/adminPaymentRoutes.js";
+import uploadRoutes from "./src/routes/uploadRoutes.js";
 
 import Message from "./src/models/Message.js"; // আপনার মেসেজ মডেল
 
@@ -44,6 +45,7 @@ app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
+app.use("/api/upload", uploadRoutes(io));
 
 
 // -------------------- CREATE HTTP SERVER --------------------
