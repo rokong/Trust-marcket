@@ -2,7 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import api from "../../../utils/api";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 import { io } from "socket.io-client";
 
 const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
@@ -12,19 +12,18 @@ export default function ChatPage() {
   const { userId } = router.query;
 
   const socket = useRef(null);
+  const bottomRef = useRef(null);
+  const fileRef = useRef(null);
+
   const [messages, setMessages] = useState([]);
   const [reply, setReply] = useState("");
   const [user, setUser] = useState(null);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  const fileRef = useRef(null);
-  const bottomRef = useRef(null);
-
-  // Initialize socket once
+  // Initialize Socket
   useEffect(() => {
     if (!userId) return;
-
     socket.current = io(https://trust-market-backend-nsao.onrender.com);
     socket.current.emit("join", userId);
 
@@ -32,15 +31,12 @@ export default function ChatPage() {
       setMessages((prev) => [...prev, msg]);
     });
 
-    return () => {
-      socket.current.disconnect();
-    };
+    return () => socket.current.disconnect();
   }, [userId]);
 
-  // Load user info
+  // Load User Info
   useEffect(() => {
     if (!userId) return;
-
     api
       .get(`/admin/message-user/${userId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -49,10 +45,9 @@ export default function ChatPage() {
       .catch(console.error);
   }, [userId]);
 
-  // Load messages
+  // Load Messages
   useEffect(() => {
     if (!userId) return;
-
     api
       .get(`/admin/messages/${userId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -66,43 +61,31 @@ export default function ChatPage() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Send text
-  const sendReply = () => {
+  // Send Text
+  const sendText = () => {
     if (!reply.trim()) return;
-
-    const msg = {
-      userId,
-      sender: "admin",
-      type: "text",
-      text: reply,
-    };
-
+    const msg = { userId, sender: "admin", type: "text", text: reply };
     socket.current.emit("send_message", msg);
     setMessages((prev) => [...prev, msg]);
     setReply("");
   };
 
-  // File handling
+  // Handle File Selection
   const handleFile = (e) => {
     const f = e.target.files[0];
     if (!f) return;
-
     setFile(f);
-    setPreview({
-      url: URL.createObjectURL(f),
-      type: f.type.startsWith("video") ? "video" : "image",
-    });
+    setPreview({ url: URL.createObjectURL(f), type: f.type.startsWith("video") ? "video" : "image" });
   };
 
   const clearMedia = () => {
     setFile(null);
     setPreview(null);
-    fileRef.current.value = null;
+    if (fileRef.current) fileRef.current.value = null;
   };
 
   const sendMedia = async () => {
     if (!file) return;
-
     const fd = new FormData();
     fd.append("file", file);
     fd.append("userId", userId);
@@ -112,7 +95,6 @@ export default function ChatPage() {
       const res = await api.post("/upload/message-media", fd, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-
       socket.current.emit("send_message", res.data);
       setMessages((prev) => [...prev, res.data]);
       clearMedia();
@@ -126,91 +108,51 @@ export default function ChatPage() {
 
   return (
     <div className="h-screen flex flex-col bg-gray-100">
-      {/* Header */}
+      {/* HEADER */}
       <div className="bg-white shadow p-4 flex items-center gap-4">
         <button onClick={() => router.back()}>
           <ArrowLeft />
         </button>
-        <h2 className="font-bold">{user ? user.name || "User" : "Chat"}</h2>
+        <h2 className="font-semibold">{user?.name || "User"}</h2>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
+      {/* CHAT MESSAGES */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((m) => (
-          <div
-            key={m._id || Math.random()}
-            className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}
-          >
-            <div>
-              {m.type === "shared_post" ? (
-                <div
-                  onClick={() => router.push(`/admin/posts/${m.postId}`)}
-                  className="bg-gray-200 p-3 rounded-xl cursor-pointer"
-                >
-                  <div className="font-semibold">{m.postTitle}</div>
-                  <div className="text-xs">{m.postDescription}</div>
-                  <div className="text-blue-600">{m.postPrice} BDT</div>
-                </div>
-              ) : m.type === "image" ? (
-                <img src={m.url} className="max-w-xs rounded-xl" />
-              ) : m.type === "video" ? (
-                <video src={m.url} controls className="max-w-xs rounded-xl" />
-              ) : (
-                <div
-                  className={`px-3 py-2 rounded-xl ${
-                    m.sender === "admin" ? "bg-blue-600 text-white" : "bg-white shadow"
-                  }`}
-                >
+          <div key={m._id || Math.random()} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
+            <div className="max-w-xs">
+              {m.type === "image" && <img src={`${BACKEND_URL}${m.mediaUrl}`} className="rounded-xl shadow" />}
+              {m.type === "video" && <video src={`${BACKEND_URL}${m.mediaUrl}`} controls className="rounded-xl shadow" />}
+              {m.type === "text" && (
+                <div className={`px-3 py-2 rounded-xl ${m.sender === "admin" ? "bg-blue-600 text-white" : "bg-white shadow"}`}>
                   {m.text}
                 </div>
               )}
-              <div className="text-[10px] text-gray-500 text-right">{formatTime(m.createdAt)}</div>
+              <div className="text-[10px] text-gray-500 text-right mt-1">{formatTime(m.createdAt)}</div>
             </div>
           </div>
         ))}
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div className="p-2 border-t bg-white flex flex-col gap-2">
-        {preview && (
-          <div className="flex items-center gap-2">
-            {preview.type === "image" ? (
-              <img src={preview.url} className="w-20 h-20 object-cover rounded" />
-            ) : (
-              <video src={preview.url} className="w-24 h-24 rounded" controls />
-            )}
-            <button onClick={clearMedia} className="text-red-500 font-bold">
-              X
-            </button>
-            <button onClick={sendMedia} className="bg-blue-600 text-white px-3 rounded">
-              Send
+      {/* MEDIA PREVIEW */}
+      {preview && (
+        <div className="px-3 pb-2">
+          <div className="relative w-40 rounded-xl overflow-hidden shadow bg-white">
+            {preview.type === "image" ? <img src={preview.url} /> : <video src={preview.url} controls />}
+            <button onClick={clearMedia} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1">
+              <X size={14} />
             </button>
           </div>
-        )}
-        <div className="flex gap-2">
-          <input
-            ref={fileRef}
-            type="file"
-            onChange={handleFile}
-            className="hidden"
-          />
-          <button
-            onClick={() => fileRef.current.click()}
-            className="bg-gray-200 px-3 rounded"
-          >
-            +
-          </button>
-          <input
-            value={reply}
-            onChange={(e) => setReply(e.target.value)}
-            className="flex-1 border rounded-xl p-2"
-            placeholder="Reply..."
-          />
-          <button onClick={sendReply} className="bg-blue-600 text-white px-4 rounded-xl">
-            Send
-          </button>
         </div>
+      )}
+
+      {/* INPUT */}
+      <div className="p-3 bg-white flex gap-2 items-center border-t">
+        <input value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Type message..." className="flex-1 border rounded-xl px-3 py-2" />
+        <input type="file" hidden ref={fileRef} accept="image/*,video/*" onChange={handleFile} />
+        <button onClick={() => fileRef.current.click()} className="px-3 py-2 rounded-xl bg-gray-200">📎</button>
+        <button onClick={file ? sendMedia : sendText} className={`px-4 py-2 rounded-xl text-white ${file ? "bg-green-600" : "bg-blue-600"}`}>Send</button>
       </div>
     </div>
   );
