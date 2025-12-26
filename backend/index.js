@@ -6,6 +6,7 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 
+
 import postsRoutes from "./src/routes/posts.js";
 import authRoutes from "./src/routes/auth.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
@@ -21,6 +22,7 @@ import Message from "./src/models/Message.js"; // আপনার মেসে�
 
 dotenv.config();
 const app = express();
+const io = new Server(server, { cors: { origin: "*" } });
 
 // -------------------- MIDDLEWARE --------------------
 app.use(cors({
@@ -45,7 +47,7 @@ app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
-app.use("/api/upload", uploadRoutes());
+app.use("/api/upload", uploadRoutes(io));
 
 
 // -------------------- CREATE HTTP SERVER --------------------
