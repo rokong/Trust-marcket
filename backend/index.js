@@ -22,7 +22,7 @@ import Message from "./src/models/Message.js"; // আপনার মেসে�
 
 dotenv.config();
 const app = express();
-const io = new Server(server, { cors: { origin: "*" } });
+
 
 // -------------------- MIDDLEWARE --------------------
 app.use(cors({
