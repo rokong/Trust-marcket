@@ -4,31 +4,24 @@ import { useRouter } from "next/router";
 import api from "../../utils/api";
 import { io } from "socket.io-client";
 
+const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
+
 export default function Messages() {
   const router = useRouter();
   const { post } = router.query;
-  const socket = io("https://trust-market-backend-nsao.onrender.com"); // backend URL
+
+  const socket = useRef(null);
+  const fileRef = useRef(null);
+  const bottomRef = useRef(null);
+
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [userId, setUserId] = useState(null);
   const [postData, setPostData] = useState(null);
-  const bottomRef = useRef(null);
+  const [file, setFile] = useState(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
 
-  useEffect(() => {
-    if (!userId) return;
-  
-    socket.emit("join", userId);
-  
-    socket.on("receive_message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
-    });
-  
-    return () => {
-      socket.off("receive_message");
-    };
-  }, [userId]);
-
-  /* ---------------- Load User ---------------- */
+  /* ---------------- User & Socket Init ---------------- */
   useEffect(() => {
     const id = localStorage.getItem("userId");
     if (!id) {
@@ -37,6 +30,17 @@ export default function Messages() {
       return;
     }
     setUserId(id);
+
+    socket.current = io(https://trust-market-backend-nsao.onrender.com);
+    socket.current.emit("join", id);
+
+    socket.current.on("receive_message", (msg) => {
+      setMessages((prev) => [...prev, msg]);
+    });
+
+    return () => {
+      socket.current.disconnect();
+    };
   }, []);
 
   /* ---------------- Load Messages ---------------- */
@@ -76,20 +80,55 @@ export default function Messages() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* ---------------- Send Text ---------------- */
+  /* ---------------- File Handling ---------------- */
+  const handleFileSelect = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+
+    setFile(f);
+    setPreviewUrl(URL.createObjectURL(f));
+  };
+
+  const removeMedia = () => {
+    setFile(null);
+    setPreviewUrl(null);
+    fileRef.current.value = null;
+  };
+
+  /* ---------------- Send Messages ---------------- */
   const sendMessage = () => {
     if (!text.trim()) return;
-  
-    socket.emit("send_message", {
+
+    const msg = {
       userId,
       sender: "user",
       type: "text",
       text,
-    });
-  
+      createdAt: new Date(),
+    };
+
+    socket.current.emit("send_message", msg);
+    setMessages((prev) => [...prev, msg]);
     setText("");
   };
 
+  const sendMedia = async () => {
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("userId", userId);
+    form.append("sender", "user");
+
+    try {
+      const res = await api.post("/upload/message-media", form);
+      socket.current.emit("send_message", res.data);
+      setMessages((prev) => [...prev, res.data]);
+      removeMedia();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   /* ---------------- Send Shared Post ---------------- */
   const sendSharedPost = async () => {
@@ -137,10 +176,8 @@ export default function Messages() {
 
         {messages.map((m) => (
           <div
-            key={m._id}
-            className={`flex ${
-              m.sender === "user" ? "justify-end" : "justify-start"
-            }`}
+            key={m._id || Math.random()}
+            className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div>
               {m.type === "shared_post" ? (
@@ -149,15 +186,13 @@ export default function Messages() {
                   className="bg-gray-200 p-3 rounded-xl cursor-pointer"
                 >
                   <div className="font-semibold">{m.postTitle}</div>
-                  <div className="text-xs text-gray-600">
-                    {m.postDescription}
-                  </div>
+                  <div className="text-xs text-gray-600">{m.postDescription}</div>
                   <div className="text-blue-600">{m.postPrice} BDT</div>
                 </div>
+              ) : m.type === "media" ? (
+                <img src={m.mediaUrl} alt="media" className="max-w-xs rounded-xl" />
               ) : (
-                <div className="bg-blue-500 text-white px-3 py-2 rounded-xl">
-                  {m.text}
-                </div>
+                <div className="bg-blue-500 text-white px-3 py-2 rounded-xl">{m.text}</div>
               )}
 
               <div className="text-[10px] text-gray-500 text-right">
@@ -185,17 +220,45 @@ export default function Messages() {
       {/* Input */}
       <div className="p-2 border-t bg-white flex gap-2">
         <input
+          type="file"
+          ref={fileRef}
+          onChange={handleFileSelect}
+          className="hidden"
+        />
+        {previewUrl && (
+          <div className="relative">
+            <img src={previewUrl} alt="preview" className="h-16 w-16 rounded-lg" />
+            <button
+              onClick={removeMedia}
+              className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full px-1"
+            >
+              x
+            </button>
+          </div>
+        )}
+        <input
           value={text}
           onChange={(e) => setText(e.target.value)}
           className="flex-1 border rounded-xl p-2"
           placeholder="Type message..."
         />
-        <button
-          onClick={sendMessage}
-          className="bg-blue-600 text-white px-4 rounded-xl"
-        >
+        <button onClick={sendMessage} className="bg-blue-600 text-white px-4 rounded-xl">
           Send
         </button>
+        <button
+          onClick={() => fileRef.current.click()}
+          className="bg-gray-300 px-3 rounded-xl"
+        >
+          +
+        </button>
+        {file && (
+          <button
+            onClick={sendMedia}
+            className="bg-green-600 text-white px-4 rounded-xl"
+          >
+            Send Media
+          </button>
+        )}
       </div>
     </div>
   );
