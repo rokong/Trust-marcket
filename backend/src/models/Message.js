@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 const messageSchema = new mongoose.Schema({ 
   sender: { type: String, enum: ["user", "admin"], required: true },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+  mediaUrl: { type: String, default: null }, // 🔥 ADD
   // ✅ text এখন conditional
   text: {
     type: String,
@@ -17,7 +18,7 @@ const messageSchema = new mongoose.Schema({
   // 👇 ADD THIS
   type: {
     type: String,
-    enum: ["text", "shared_post"],
+    enum: ["text", "shared_post", "image", "video"],
     default: "text",
   },
   postTitle: {
