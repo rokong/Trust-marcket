@@ -26,7 +26,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "trust-marcket-h-git-main-nazmuls-projects-dd47be01.vercel.app",
+    "http://trust-marcket-h-git-main-nazmuls-projects-dd47be01.vercel.app",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
@@ -74,7 +74,9 @@ app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
-
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true });
+});
 // -------------------- MONGO + START SERVER --------------------
 mongoose.connect(process.env.MONGO_URI)
   .then(() => {
