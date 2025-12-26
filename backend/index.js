@@ -6,7 +6,6 @@ import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
 
-
 import postsRoutes from "./src/routes/posts.js";
 import authRoutes from "./src/routes/auth.js";
 import messageRoutes from "./src/routes/messageRoutes.js";
@@ -18,11 +17,10 @@ import bkashRoutes from "./src/routes/bkashRoutes.js";
 import adminPaymentRoutes from "./src/routes/adminPaymentRoutes.js";
 import uploadRoutes from "./src/routes/uploadRoutes.js";
 
-import Message from "./src/models/Message.js"; // আপনার মেসেজ মডেল
+import Message from "./src/models/Message.js";
 
 dotenv.config();
 const app = express();
-
 
 // -------------------- MIDDLEWARE --------------------
 app.use(cors({
@@ -37,7 +35,36 @@ app.use(cors({
 app.use(express.json());
 app.use("/uploads", express.static("uploads"));
 
+// -------------------- CREATE HTTP SERVER --------------------
+const PORT = process.env.PORT || 5000;
+const server = http.createServer(app);
+
+// -------------------- SOCKET.IO --------------------
+const io = new Server(server, {
+  cors: { origin: "*" },
+});
+
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    socket.join(userId);
+  });
+
+  socket.on("send_message", async (data) => {
+    const msg = await Message.create(data);
+    io.to(data.userId.toString()).emit("receive_message", msg);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("Socket disconnected");
+  });
+});
+
 // -------------------- ROUTES --------------------
+// io এখানে পাঠাতে হবে, কারণ এখন io declare হয়ে গেছে
+app.use("/api/upload", uploadRoutes(io));
+
 app.use("/api/posts", postsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
@@ -47,48 +74,13 @@ app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
-app.use("/api/upload", uploadRoutes(io));
-
-
-// -------------------- CREATE HTTP SERVER --------------------
-const PORT = process.env.PORT || 5000;
-const server = http.createServer(app);
-
-const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
-});
-
-// 🔌 SOCKET CONNECTION
-io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
-
-  // join user room
-  socket.on("join", (userId) => {
-    socket.join(userId);
-  });
-
-  // user/admin send message
-  socket.on("send_message", async (data) => {
-    const msg = await Message.create(data);
-
-    // send to specific user room
-    io.to(data.userId.toString()).emit("receive_message", msg);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Socket disconnected");
-  });
-});
-
-export { server };
 
 // -------------------- MONGO + START SERVER --------------------
-mongoose
-  .connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI)
   .then(() => {
     server.listen(PORT, () => console.log(`Server running on ${PORT}`));
     console.log("MongoDB connected");
   })
   .catch((err) => console.log(err));
+
+export { server };
