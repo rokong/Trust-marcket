@@ -89,37 +89,31 @@ export default function Messages() {
   };
 
   /* ---------------- Send ---------------- */
-  const sendMessage = async () => {
-    if (!text.trim() && !file) return;
+  const sendMessage = () => {
+    if (!text.trim()) return;
 
-    if (file) {
-      const form = new FormData();
-      form.append("file", file);
-      form.append("userId", userId);
-      form.append("sender", "user");
-
-      try {
-        const res = await api.post("/upload/message-media", form);
-        socket.current.emit("send_message", res.data);
-        setMessages((prev) => [...prev, res.data]);
-        removeMedia();
-      } catch (err) {
-        console.error(err);
-      }
-      return;
-    }
-
-    const msg = {
+    socket.current.emit("send_message", {
       userId,
       sender: "user",
       type: "text",
       text,
-      createdAt: new Date(),
-    };
+    });
 
-    socket.current.emit("send_message", msg);
-    setMessages((prev) => [...prev, msg]);
     setText("");
+  };
+
+  const sendMedia = async () => {
+    if (!file) return;
+
+    const form = new FormData();
+    form.append("file", file);
+    form.append("userId", userId);
+    form.append("sender", "user");
+
+    const res = await api.post("/upload/message-media", form);
+    socket.current.emit("send_message", res.data);
+    
+    removeMedia();
   };
 
   const sendSharedPost = async () => {
