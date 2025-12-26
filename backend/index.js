@@ -45,7 +45,7 @@ app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
-app.use("/api/upload", uploadRoutes(io));
+app.use("/api/upload", uploadRoutes());
 
 
 // -------------------- CREATE HTTP SERVER --------------------
