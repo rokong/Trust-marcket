@@ -26,7 +26,7 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "trust-marcket-h-git-main-nazmuls-projects-dd47be01.vercel.app",
+    "https://trust-marcket-h-git-main-nazmuls-projects-dd47be01.vercel.app",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
