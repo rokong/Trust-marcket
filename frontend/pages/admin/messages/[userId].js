@@ -5,32 +5,39 @@ import api from "../../../utils/api";
 import { ArrowLeft } from "lucide-react";
 import { io } from "socket.io-client";
 
+const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
+
 export default function ChatPage() {
   const router = useRouter();
   const { userId } = router.query;
-  const socket = io("https://trust-market-backend-nsao.onrender.com");
+
+  const socket = useRef(null);
   const [messages, setMessages] = useState([]);
   const [reply, setReply] = useState("");
-  const [postData, setPostData] = useState(null);
   const [user, setUser] = useState(null);
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
+  const fileRef = useRef(null);
   const bottomRef = useRef(null);
 
+  // Initialize socket once
   useEffect(() => {
     if (!userId) return;
-  
-    socket.emit("join", userId);
-  
-    socket.on("receive_message", (msg) => {
+
+    socket.current = io(https://trust-market-backend-nsao.onrender.com);
+    socket.current.emit("join", userId);
+
+    socket.current.on("receive_message", (msg) => {
       setMessages((prev) => [...prev, msg]);
     });
-  
+
     return () => {
-      socket.off("receive_message");
+      socket.current.disconnect();
     };
   }, [userId]);
 
-  /* ---------------- Load User Info ---------------- */
+  // Load user info
   useEffect(() => {
     if (!userId) return;
 
@@ -42,7 +49,7 @@ export default function ChatPage() {
       .catch(console.error);
   }, [userId]);
 
-  /* ---------------- Load Messages ---------------- */
+  // Load messages
   useEffect(() => {
     if (!userId) return;
 
@@ -54,25 +61,65 @@ export default function ChatPage() {
       .catch(console.error);
   }, [userId]);
 
-  /* ---------------- Auto Scroll ---------------- */
+  // Auto-scroll
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* ---------------- Send Reply ---------------- */
+  // Send text
   const sendReply = () => {
     if (!reply.trim()) return;
-  
-    socket.emit("send_message", {
+
+    const msg = {
       userId,
       sender: "admin",
       type: "text",
       text: reply,
-    });
-  
+    };
+
+    socket.current.emit("send_message", msg);
+    setMessages((prev) => [...prev, msg]);
     setReply("");
   };
 
+  // File handling
+  const handleFile = (e) => {
+    const f = e.target.files[0];
+    if (!f) return;
+
+    setFile(f);
+    setPreview({
+      url: URL.createObjectURL(f),
+      type: f.type.startsWith("video") ? "video" : "image",
+    });
+  };
+
+  const clearMedia = () => {
+    setFile(null);
+    setPreview(null);
+    fileRef.current.value = null;
+  };
+
+  const sendMedia = async () => {
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("userId", userId);
+    fd.append("sender", "admin");
+
+    try {
+      const res = await api.post("/upload/message-media", fd, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+
+      socket.current.emit("send_message", res.data);
+      setMessages((prev) => [...prev, res.data]);
+      clearMedia();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const formatTime = (t) =>
     new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -84,19 +131,15 @@ export default function ChatPage() {
         <button onClick={() => router.back()}>
           <ArrowLeft />
         </button>
-        <h2 className="font-bold">
-          {user ? user.name || "User" : "Chat"}
-        </h2>
+        <h2 className="font-bold">{user ? user.name || "User" : "Chat"}</h2>
       </div>
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {messages.map((m) => (
           <div
-            key={m._id}
-            className={`flex ${
-              m.sender === "admin" ? "justify-end" : "justify-start"
-            }`}
+            key={m._id || Math.random()}
+            className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}
           >
             <div>
               {m.type === "shared_post" ? (
@@ -108,20 +151,20 @@ export default function ChatPage() {
                   <div className="text-xs">{m.postDescription}</div>
                   <div className="text-blue-600">{m.postPrice} BDT</div>
                 </div>
+              ) : m.type === "image" ? (
+                <img src={m.url} className="max-w-xs rounded-xl" />
+              ) : m.type === "video" ? (
+                <video src={m.url} controls className="max-w-xs rounded-xl" />
               ) : (
                 <div
                   className={`px-3 py-2 rounded-xl ${
-                    m.sender === "admin"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white shadow"
+                    m.sender === "admin" ? "bg-blue-600 text-white" : "bg-white shadow"
                   }`}
                 >
                   {m.text}
                 </div>
               )}
-              <div className="text-[10px] text-gray-500 text-right">
-                {formatTime(m.createdAt)}
-              </div>
+              <div className="text-[10px] text-gray-500 text-right">{formatTime(m.createdAt)}</div>
             </div>
           </div>
         ))}
@@ -129,20 +172,47 @@ export default function ChatPage() {
       </div>
 
       {/* Input */}
-      <div className="p-2 border-t bg-white flex gap-2">
-        <input
-          value={reply}
-          onChange={(e) => setReply(e.target.value)}
-          className="flex-1 border rounded-xl p-2"
-          placeholder="Reply..."
-        />
-        <button
-          onClick={sendReply}
-          className="bg-blue-600 text-white px-4 rounded-xl"
-        >
-          Send
-        </button>
+      <div className="p-2 border-t bg-white flex flex-col gap-2">
+        {preview && (
+          <div className="flex items-center gap-2">
+            {preview.type === "image" ? (
+              <img src={preview.url} className="w-20 h-20 object-cover rounded" />
+            ) : (
+              <video src={preview.url} className="w-24 h-24 rounded" controls />
+            )}
+            <button onClick={clearMedia} className="text-red-500 font-bold">
+              X
+            </button>
+            <button onClick={sendMedia} className="bg-blue-600 text-white px-3 rounded">
+              Send
+            </button>
+          </div>
+        )}
+        <div className="flex gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            onChange={handleFile}
+            className="hidden"
+          />
+          <button
+            onClick={() => fileRef.current.click()}
+            className="bg-gray-200 px-3 rounded"
+          >
+            +
+          </button>
+          <input
+            value={reply}
+            onChange={(e) => setReply(e.target.value)}
+            className="flex-1 border rounded-xl p-2"
+            placeholder="Reply..."
+          />
+          <button onClick={sendReply} className="bg-blue-600 text-white px-4 rounded-xl">
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );
 }
+
