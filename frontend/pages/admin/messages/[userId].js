@@ -24,7 +24,7 @@ export default function ChatPage() {
   // Initialize Socket
   useEffect(() => {
     if (!userId) return;
-    socket.current = io(https://trust-market-backend-nsao.onrender.com);
+    socket.current = io("https://trust-market-backend-nsao.onrender.com");
     socket.current.emit("join", userId);
 
     socket.current.on("receive_message", (msg) => {
