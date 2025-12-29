@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import api from "../../utils/api";
 import { io } from "socket.io-client";
 
-const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
+
 
 export default function Messages() {
   const router = useRouter();
@@ -32,7 +32,7 @@ export default function Messages() {
     setUserId(id);
 
     // FIX: URL must be string
-    socket.current = io(BACKEND_URL);
+    socket.current = io(https://trust-market-backend-nsao.onrender.com);
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
