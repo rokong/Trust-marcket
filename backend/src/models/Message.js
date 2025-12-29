@@ -19,8 +19,8 @@ const messageSchema = new mongoose.Schema({
   type: {
     type: String,
     enum: ["text", "shared_post", "image", "video"],
-    default: "text",
-  },
+    required: true,
+  }
   postTitle: {
     type: String,
     default: null,
