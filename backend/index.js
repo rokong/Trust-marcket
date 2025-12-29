@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", async (data) => {
-    const msg = await Message.create(data);
+    
     io.to(data.userId.toString()).emit("receive_message", msg);
   });
 
