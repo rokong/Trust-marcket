@@ -24,13 +24,13 @@ export default function ChatPage() {
   // Initialize Socket
   useEffect(() => {
     if (!userId) return;
-    socket.current = io("https://trust-market-backend-nsao.onrender.com");
+    socket.current = io(BACKEND_URL);
     socket.current.emit("join", userId);
-
+  
     socket.current.on("receive_message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((p) => [...p, msg]);
     });
-
+  
     return () => socket.current.disconnect();
   }, [userId]);
 
@@ -62,13 +62,18 @@ export default function ChatPage() {
   }, [messages]);
 
   // Send Text
-  const sendText = () => {
+  const sendText = async () => {
     if (!reply.trim()) return;
-    const msg = { userId, sender: "admin", type: "text", text: reply };
-    socket.current.emit("send_message", msg);
-    setMessages((prev) => [...prev, msg]);
+  
+    const res = await api.post(
+      "/admin/messages/send",
+      { userId, text: reply, type: "text" },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+  
+    socket.current.emit("send_message", res.data);
     setReply("");
-  };
+  }
 
   // Handle File Selection
   const handleFile = (e) => {
