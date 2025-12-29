@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import api from "../../utils/api";
 import { io } from "socket.io-client";
 
-
+const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
 
 export default function Messages() {
   const router = useRouter();
