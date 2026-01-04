@@ -158,7 +158,7 @@ export default function ChatPage() {
                     </div>
                   )}
                   <button
-                    onClick={() => router.push(`/post/${m.postId}`)}
+                    onClick={() => router.push(`/admin/all-users/${m.postId}`)}
                     className="text-xs text-blue-600 underline"
                   >
                     View Post
