@@ -32,7 +32,7 @@ export default function Messages() {
     setUserId(id);
 
     // FIX: URL must be string
-    socket.current = io(https://trust-market-backend-nsao.onrender.com);
+    socket.current = io(BACKEND_URL);
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
