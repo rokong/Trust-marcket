@@ -164,33 +164,21 @@ export default function Messages() {
           >
             <div>
               {m.type === "shared_post" ? (
-                <div
-                  onClick={() => router.push(`/post/${m.postId}`)}
-                  className="bg-gray-200 p-3 rounded-xl cursor-pointer"
-                >
-                  <div className="font-semibold">{m.postTitle}</div>
-                  <div className="text-xs text-gray-600">{m.postDescription}</div>
-                  <div className="text-blue-600">{m.postPrice} BDT</div>
+                <div onClick={() => router.push(`/post/${m.postId}`)}>
+                  <div>{m.postTitle}</div>
+                  <div>{m.postDescription}</div>
+                  <div>{m.postPrice} BDT</div>
                 </div>
-              ) : m.type === "media" ? (
-                m.mediaUrl.endsWith(".mp4") ? (
-                  <video
-                    src={`${BACKEND_URL}${m.mediaUrl}`}
-                    controls
-                    className="max-w-xs rounded-xl"
-                  />
-                ) : (
-                  <img
-                    src={`${BACKEND_URL}${m.mediaUrl}`}
-                    alt="media"
-                    className="max-w-xs rounded-xl"
-                  />
-                )
+              ) : m.type === "image" ? (
+                <img src={BACKEND_URL + m.mediaUrl} className="rounded-xl" />
+              ) : m.type === "video" ? (
+                <video src={BACKEND_URL + m.mediaUrl} controls className="rounded-xl" />
               ) : (
                 <div className="bg-blue-500 text-white px-3 py-2 rounded-xl">
                   {m.text}
                 </div>
               )}
+
 
               <div className="text-[10px] text-gray-500 text-right">
                 {formatTime(m.createdAt)}
