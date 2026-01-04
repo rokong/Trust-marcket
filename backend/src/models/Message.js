@@ -20,7 +20,7 @@ const messageSchema = new mongoose.Schema({
     type: String,
     enum: ["text", "shared_post", "image", "video"],
     required: true,
-  }
+  },
   postTitle: {
     type: String,
     default: null,
