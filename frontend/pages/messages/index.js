@@ -110,10 +110,12 @@ export default function Messages() {
     form.append("userId", userId);
     form.append("sender", "user");
 
-    const res = await api.post("/upload/message-media", form);
+    const res = await api.post("/upload/message-media", fd, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    });
+
     socket.current.emit("send_message", res.data);
-    
-    removeMedia();
+    clearMedia();
   };
 
   const sendSharedPost = async () => {
