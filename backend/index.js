@@ -52,14 +52,30 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", async (data) => {
-    
-    io.to(data.userId.toString()).emit("receive_message", msg);
+    try {
+      const msg = await Message.create({
+        userId: data.userId,
+        sender: data.sender,
+        type: data.type,
+        text: data.text ?? "",
+        mediaUrl: data.mediaUrl ?? null,
+        postId: data.postId ?? null,
+        postTitle: data.postTitle ?? null,
+        postDescription: data.postDescription ?? null,
+        postPrice: data.postPrice ?? null,
+      });
+
+      io.to(data.userId.toString()).emit("receive_message", msg);
+    } catch (err) {
+      console.error("send_message failed", err);
+    }
   });
 
   socket.on("disconnect", () => {
     console.log("Socket disconnected");
   });
 });
+
 
 // -------------------- ROUTES --------------------
 // io এখানে পাঠাতে হবে, কারণ এখন io declare হয়ে গেছে
