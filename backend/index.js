@@ -5,6 +5,9 @@ import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
 import { Server } from "socket.io";
+import path from "path";
+import { fileURLToPath } from "url";
+
 
 import postsRoutes from "./src/routes/posts.js";
 import authRoutes from "./src/routes/auth.js";
@@ -21,6 +24,8 @@ import Message from "./src/models/Message.js";
 
 dotenv.config();
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // -------------------- MIDDLEWARE --------------------
 app.use(cors({
@@ -33,7 +38,11 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.json());
-app.use("/uploads", express.static("uploads"));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"))
+);
+
 
 // -------------------- CREATE HTTP SERVER --------------------
 const PORT = process.env.PORT || 5000;
