@@ -2,7 +2,7 @@
 import express from "express";
 import multer from "multer";
 import Message from "../models/Message.js";
-import { parser } from "../../utils/cloudinary.js";
+import { parser } from "../utils/cloudinary.js";
 
 const router = express.Router();
 
