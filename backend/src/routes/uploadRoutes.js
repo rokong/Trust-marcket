@@ -2,6 +2,7 @@
 import express from "express";
 import multer from "multer";
 import Message from "../models/Message.js";
+import { parser } from "../../utils/cloudinary.js";
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 export default function uploadRoutes(io) {
-  router.post("/message-media", upload.single("file"), async (req, res) => {
+  router.post("/message-media", parser.single("file"), async (req, res) => {
     try {
       const { userId, sender } = req.body;
 
@@ -23,18 +24,15 @@ export default function uploadRoutes(io) {
         return res.status(400).json({ message: "No file uploaded" });
       }
 
-      const type = req.file.mimetype.startsWith("video")
-        ? "video"
-        : "image";
+      const type = req.file.mimetype.startsWith("video") ? "video" : "image";
 
       const msg = await Message.create({
         userId,
         sender,
         type,
-        mediaUrl: `/uploads/${req.file.filename}`,
+        mediaUrl: req.file.path, // Cloudinary URL
       });
 
-      // 🔥 REAL-TIME
       io.to(userId.toString()).emit("receive_message", msg);
 
       res.json(msg);
