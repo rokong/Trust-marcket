@@ -221,16 +221,14 @@ export default function HomePage() {
                 <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
                   {post.images?.length > 0 && (
                     <div className="w-full rounded-xl overflow-hidden bg-gray-200 mb-3">
-                      <img 
-                        src={`https://trust-market-backend-nsao.onrender.com/uploads/${post.images[0]}`} 
-                        className="w-full max-h-72 object-cover" 
-                        alt="Post Image" 
-                      />
+                      {post.images?.[0] && (
+                        <img src={post.images[0]} alt="Post Image" className="w-full max-h-72 object-cover rounded-xl" />
+                      )}
                     </div>
                   )}
-                  {post.videos?.length > 0 && (
-                    <video controls className="w-full max-h-72 rounded-xl mb-3 object-cover">
-                      <source src={`https://trust-market-backend-nsao.onrender.com/uploads/${post.videos[0]}`} type="video/mp4" />
+                  {post.videos?.[0] && (
+                    <video controls className="w-full max-h-72 rounded-xl object-cover">
+                      <source src={post.videos[0]} type="video/mp4" />
                     </video>
                   )}
                   <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
