@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import auth from "../middleware/authMiddleware.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+import { parser } from "../../utils/cloudinary.js";
 
 const router = express.Router();
 
@@ -62,15 +63,15 @@ router.get("/:id", async (req, res) => {
 router.post(
   "/create",
   auth,
-  upload.fields([
+  parser.fields([
     { name: "images", maxCount: 20 },
     { name: "videos", maxCount: 5 },
   ]),
   async (req, res) => {
     try {
       const { title, description, price, category, phone } = req.body;
-      const images = req.files?.images?.map(f => f.filename) || [];
-      const videos = req.files?.videos?.map(f => f.filename) || [];
+      const images = req.files?.images?.map(f => f.path) || [];
+      const videos = req.files?.videos?.map(f => f.path) || [];
 
       const newPost = new Post({
         title,
@@ -80,7 +81,7 @@ router.post(
         phone,
         images,
         videos,
-        user: new mongoose.Types.ObjectId(req.user.id),
+        user: req.user.id,
       });
 
       await newPost.save();
