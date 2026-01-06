@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 import auth from "../middleware/authMiddleware.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
-import { parser } from "../../utils/cloudinary.js";
+import { parser } from "../utils/cloudinary.js";
 
 const router = express.Router();
 
