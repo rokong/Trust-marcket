@@ -1,7 +1,5 @@
 // backend/src/routes/posts.js
-import express from "express"; 
-import multer from "multer";
-import fs from "fs";
+import express from "express";
 import mongoose from "mongoose";
 import auth from "../middleware/authMiddleware.js";
 import Post from "../models/Post.js";
@@ -9,21 +7,6 @@ import User from "../models/User.js";
 import { parser } from "../utils/cloudinary.js";
 
 const router = express.Router();
-
-// ------------------ Multer Setup ------------------
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = "uploads/";
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname.replace(/\s+/g, "-");
-    cb(null, uniqueName);
-  },
-});
-
-const upload = multer({ storage });
 
 // ------------------ GET All Posts ------------------
 router.get("/", async (req, res) => {
@@ -50,8 +33,13 @@ router.get("/my-posts", auth, async (req, res) => {
 // ------------------ GET Single Post ------------------
 router.get("/:id", async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(400).json({ message: "Invalid post id" });
+    }
+
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
+
     res.json(post);
   } catch (err) {
     console.error(err);
@@ -59,7 +47,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// ------------------ CREATE POST ------------------
+// ------------------ CREATE POST (Cloudinary) ------------------
 router.post(
   "/create",
   auth,
@@ -70,22 +58,22 @@ router.post(
   async (req, res) => {
     try {
       const { title, description, price, category, phone } = req.body;
-      const images = req.files?.images?.map(f => f.path) || [];
-      const videos = req.files?.videos?.map(f => f.path) || [];
 
-      const newPost = new Post({
+      const images = req.files?.images?.map((f) => f.path) || [];
+      const videos = req.files?.videos?.map((f) => f.path) || [];
+
+      const newPost = await Post.create({
         title,
         description,
         price,
         category,
         phone,
-        images,
-        videos,
+        images, // Cloudinary URLs
+        videos, // Cloudinary URLs
         user: req.user.id,
       });
 
-      await newPost.save();
-      res.json({ success: true, message: "Post created successfully", post: newPost });
+      res.json({ success: true, post: newPost });
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Failed to create post" });
@@ -93,11 +81,11 @@ router.post(
   }
 );
 
-// ------------------ UPDATE POST (Owner only) ------------------
+// ------------------ UPDATE POST (Owner only, Cloudinary) ------------------
 router.put(
   "/:id",
   auth,
-  upload.fields([
+  parser.fields([
     { name: "images", maxCount: 20 },
     { name: "videos", maxCount: 5 },
   ]),
@@ -112,14 +100,19 @@ router.put(
 
       const { title, description, price, category, phone } = req.body;
 
-      post.title = title;
-      post.description = description;
-      post.price = price;
-      post.category = category;
-      post.phone = phone;
+      post.title = title ?? post.title;
+      post.description = description ?? post.description;
+      post.price = price ?? post.price;
+      post.category = category ?? post.category;
+      post.phone = phone ?? post.phone;
 
-      if (req.files?.images) post.images.push(...req.files.images.map(f => f.filename));
-      if (req.files?.videos) post.videos.push(...req.files.videos.map(f => f.filename));
+      if (req.files?.images) {
+        post.images.push(...req.files.images.map((f) => f.path));
+      }
+
+      if (req.files?.videos) {
+        post.videos.push(...req.files.videos.map((f) => f.path));
+      }
 
       await post.save();
       res.json({ success: true, post });
@@ -136,7 +129,6 @@ router.delete("/:id", auth, async (req, res) => {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: "Post not found" });
 
-    // Owner or Admin check
     if (post.user.toString() !== req.user.id && req.user.role !== "admin") {
       return res.status(403).json({ message: "Not authorized" });
     }
@@ -149,20 +141,22 @@ router.delete("/:id", auth, async (req, res) => {
   }
 });
 
-// ------------------ FAVORITE / UNFAVORITE POST ------------------
+// ------------------ FAVORITE / UNFAVORITE ------------------
 router.post("/favorite/:id", auth, async (req, res) => {
   try {
     const postId = req.params.id;
-    const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ message: "Post not found" });
 
     const user = await User.findById(req.user.id);
     if (!user.favorites) user.favorites = [];
 
-    const already = user.favorites.some(p => p.toString() === postId.toString());
+    const exists = user.favorites.some(
+      (p) => p.toString() === postId.toString()
+    );
 
-    if (already) {
-      user.favorites = user.favorites.filter(p => p.toString() !== postId.toString());
+    if (exists) {
+      user.favorites = user.favorites.filter(
+        (p) => p.toString() !== postId.toString()
+      );
       await user.save();
       return res.json({ success: true, message: "Removed from favorites" });
     }
