@@ -81,7 +81,7 @@ export default function ViewPost() {
         {post.images?.filter(img => img).map((img) => (
           <img
             key={img}
-            src={img}
+            src={resolveMediaUrl(img)}
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 object-cover rounded-xl cursor-pointer"
             onClick={() => setFullscreenMedia({ type: "image", src: img })}
             alt="Post Image"
@@ -98,7 +98,7 @@ export default function ViewPost() {
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 rounded-xl cursor-pointer"
             onClick={() => setFullscreenMedia({ type: "video", src: vid })}
           >
-            <source src={vid} type="video/mp4" />
+            <source src={resolveMediaUrl(vid)} type="video/mp4" />
           </video>
         ))}
       </div>
