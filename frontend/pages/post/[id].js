@@ -78,19 +78,20 @@ export default function ViewPost() {
 
       {/* Images */}
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-4">
-        {post.images?.map((img) => (
+        {post.images?.filter(img => img).map((img) => (
           <img
             key={img}
-            src={img} // Cloudinary URL
+            src={img}
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 object-cover rounded-xl cursor-pointer"
             onClick={() => setFullscreenMedia({ type: "image", src: img })}
+            alt="Post Image"
           />
         ))}
       </div>
-
+      
       {/* Videos */}
       <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 mb-6">
-        {post.videos?.map((vid) => (
+        {post.videos?.filter(vid => vid).map((vid) => (
           <video
             key={vid}
             controls
@@ -101,6 +102,7 @@ export default function ViewPost() {
           </video>
         ))}
       </div>
+
 
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6">
