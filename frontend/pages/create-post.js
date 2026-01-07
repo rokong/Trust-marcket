@@ -145,6 +145,7 @@ export default function CreatePost() {
           <span className="text-gray-500 mb-2">Select Images</span>
           <input
             type="file"
+            name="images"
             accept="image/*"
             multiple
             onChange={(e) => setImages(e.target.files)}
@@ -164,6 +165,7 @@ export default function CreatePost() {
           <span className="text-gray-500 mb-2">Select Videos</span>
           <input
             type="file"
+            name="videos" 
             accept="video/*"
             multiple
             onChange={(e) => setVideos(e.target.files)}
