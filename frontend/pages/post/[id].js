@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import api from "../../utils/api";
+import { resolveMediaUrl } from "../../utils/resolveMediaUrl";
 import { Heart, MessageCircle, ShoppingCart, X } from "lucide-react";
 
 export default function ViewPost() {
@@ -83,7 +84,12 @@ export default function ViewPost() {
             key={img}
             src={resolveMediaUrl(img)}
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 object-cover rounded-xl cursor-pointer"
-            onClick={() => setFullscreenMedia({ type: "image", src: img })}
+            onClick={() =>
+              setFullscreenMedia({
+                type: "image",
+                src: resolveMediaUrl(img),
+              })
+            }
             alt="Post Image"
           />
         ))}
@@ -96,7 +102,12 @@ export default function ViewPost() {
             key={vid}
             controls
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 rounded-xl cursor-pointer"
-            onClick={() => setFullscreenMedia({ type: "video", src: vid })}
+            onClick={() =>
+              setFullscreenMedia({
+                type: "video",
+                src: resolveMediaUrl(vid),
+              })
+            }
           >
             <source src={resolveMediaUrl(vid)} type="video/mp4" />
           </video>
