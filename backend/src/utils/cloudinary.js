@@ -13,11 +13,15 @@ cloudinary.config({
 });
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "trust-marcket", // Cloudinary folder
-    format: async (req, file) => file.mimetype.split("/")[1], // jpg, png, mp4 etc
-    public_id: (req, file) => Date.now() + "-" + file.originalname,
+  cloudinary,
+  params: async (req, file) => {
+    const ext = file.originalname.split(".").pop();
+    return {
+      folder: "trust-marcket",
+      public_id: Date.now() + "-" + file.originalname,
+      resource_type: file.mimetype.startsWith("video") ? "video" : "image",
+      format: ext, // force original extension
+    };
   },
 });
 
