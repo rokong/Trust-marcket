@@ -97,14 +97,9 @@ export default function ViewPost() {
             key={vid}
             controls
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 rounded-xl cursor-pointer"
-            onClick={() =>
-              setFullscreenMedia({
-                type: "video",
-                src: resolveMediaUrl(vid),
-              })
-            }
+            onClick={() => setModalContent({ type: "video", src: vid })}
           >
-            <source src={resolveMediaUrl(vid)} type="video/mp4" />
+            <source src={vid} type="video/mp4" />
           </video>
         ))}
       </div>
