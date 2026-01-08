@@ -82,9 +82,9 @@ export default function ViewPost() {
         {post.images?.filter(img => img).map((img) => (
           <img
             key={img}
-            src={img}
+            src={resolveMediaUrl(img)}
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 object-cover rounded-xl cursor-pointer"
-            onClick={() => setModalContent({ type: "image", src: img })}
+            onClick={() => setFullscreenMedia({ type: "image", src: resolveMediaUrl(img) })}
             alt="Post Image"
           />
         ))}
@@ -97,13 +97,12 @@ export default function ViewPost() {
             key={vid}
             controls
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 rounded-xl cursor-pointer"
-            onClick={() => setModalContent({ type: "video", src: vid })}
+            onClick={() => setFullscreenMedia({ type: "video", src: resolveMediaUrl(vid) })}
           >
-            <source src={vid} type="video/mp4" />
+            <source src={resolveMediaUrl(vid)} type="video/mp4" />
           </video>
         ))}
       </div>
-
 
       {/* Buttons */}
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 sm:mt-6">

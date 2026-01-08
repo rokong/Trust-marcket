@@ -118,6 +118,34 @@ export default function SinglePostAdmin() {
         <p><span className="font-semibold">Views:</span> {post.views || 0}</p>
       </div>
 
+      {/* Info Section */}
+      <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 max-w-3xl mx-auto">
+        {/* Heading */}
+        <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-4 text-gray-800 text-center">
+          Trust Market – আপনার নিরাপদ ও সহজ অনলাইন মার্কেটপ্লেস অ্যাপ
+        </h3>
+
+        {/* Description */}
+        <p className="text-gray-700 mb-4 sm:mb-5 text-justify text-sm sm:text-base md:text-lg leading-relaxed">
+          Trust Market একটি আধুনিক অ্যাপ যা ব্যবহারকারীদের জন্য নিরাপদ, সহজ এবং সুবিধাজনকভাবে অনলাইন কেনাবেচার সুযোগ করে দেয়।<br /><br />
+          আপনি আগে পেমেন্ট করবেন। এরপর আমরা আপনার নির্বাচিত জিনিসটি SMS এর মাধ্যমে নিশ্চিত করে পাঠিয়ে দেব। যদি কোনো কারণে জিনিসটি আপনার চাহিদা অনুযায়ী না হয়, তাহলে ৩০ মিনিটের মধ্যে আমাদের জানালে টাকা ফেরত দেওয়া হবে।
+          দ্রষ্টব্য: জদি আপনার নিরবাচিত জিনিস টি পাওয়ার সাথে সাথে ১ ঘন্টা মধে একাউন্ট এ আপনার এক্সেস না বসান কিছু হলে trust market দাই নয়
+        </p>
+
+        {/* Features */}
+        <h4 className="text-lg sm:text-xl md:text-2xl font-semibold mb-3 text-gray-800">
+          প্রধান ফিচারসমূহ:
+        </h4>
+
+        <ul className="list-disc list-inside text-gray-700 space-y-2 sm:space-y-3 text-sm sm:text-base md:text-lg">
+          <li>✅ নিরাপদ লেনদেন</li>
+          <li>✅ সহজ ন্যাভিগেশন</li>
+          <li>✅ বিক্রেতাদের জন্য সুবিধা</li>
+          <li>✅ রিয়েল টাইম আপডেট</li>
+          <li>✅ বিশ্বাসযোগ্য কমিউনিটি</li>
+        </ul>
+      </div>
+
       {/* Fullscreen Modal */}
       {modalContent && (
         <div className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
