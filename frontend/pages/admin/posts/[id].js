@@ -79,39 +79,36 @@ export default function SinglePostAdmin() {
       {/* Images */}
       {post.images && post.images.length > 0 && (
         <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
-          {post.images.map((img, index) => {
-            const src = img.startsWith("http") ? img : `${BASE_URL}/uploads/${img}`;
-            return (
-              <img
-                key={index}
-                src={src}
-                alt={`image-${index}`}
-                className="w-24 h-24 md:w-40 md:h-40 object-cover rounded-xl shadow-md cursor-pointer hover:opacity-90 transition"
-                onClick={() => setModalContent({ type: "image", src })}
-              />
-            );
-          })}
+          {post.images.map((img, index) => (
+            <img
+              key={index}
+              src={img}
+              alt={`image-${index}`}
+              className="w-24 h-24 md:w-40 md:h-40 object-cover rounded-xl shadow-md cursor-pointer hover:opacity-90 transition"
+              onClick={() => setModalContent({ type: "image", src: img })}
+            />
+          ))}
         </div>
       )}
+
 
       {/* Videos */}
       {post.videos && post.videos.length > 0 && (
         <div className="flex flex-wrap gap-2 md:gap-3 mb-4">
-          {post.videos.map((vid, index) => {
-            const src = vid.startsWith("http") ? vid : `${BASE_URL}/uploads/${vid}`;
-            return (
-              <video
-                key={index}
-                className="w-48 h-32 md:w-60 md:h-36 rounded-xl shadow-md cursor-pointer hover:opacity-90 transition"
-                onClick={() => setModalContent({ type: "video", src })}
-                muted
-              >
-                <source src={src} type="video/mp4" />
-              </video>
-            );
-          })}
+          {post.videos.map((vid, index) => (
+            <video
+              key={index}
+              className="w-48 h-32 md:w-60 md:h-36 rounded-xl shadow-md cursor-pointer hover:opacity-90 transition"
+              onClick={() => setModalContent({ type: "video", src: vid })}
+              muted
+              controls
+            >
+              <source src={vid} type="video/mp4" />
+            </video>
+          ))}
         </div>
       )}
+
 
       {/* Contact & Details */}
       <div className="space-y-1 md:space-y-2 text-gray-800 mt-4 text-sm md:text-base">

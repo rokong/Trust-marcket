@@ -1,6 +1,7 @@
 // frontend/pages/index.js
 import { useEffect, useState } from "react";
 import api from "../utils/api";
+import { resolveMediaUrl } from "../utils/resolveMediaUrl";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { 
@@ -222,13 +223,13 @@ export default function HomePage() {
                   {post.images?.length > 0 && (
                     <div className="w-full rounded-xl overflow-hidden bg-gray-200 mb-3">
                       {post.images?.[0] && (
-                        <img src={resolveMediaUrl(post.images[0])} alt="Post Image" className="w-full max-h-72 object-cover rounded-xl" />
+                        <img src={post.images[0]} alt="Post Image" className="w-full max-h-72 object-cover rounded-xl" />
                       )}
                     </div>
                   )}
                   {post.videos?.[0] && (
                     <video controls className="w-full max-h-72 rounded-xl object-cover">
-                      <source src={resolveMediaUrl(post.videos[0])} type="video/mp4" />
+                      <source src={post.videos[0]} type="video/mp4" />
                     </video>
                   )}
                   <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
