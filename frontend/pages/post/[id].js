@@ -82,14 +82,9 @@ export default function ViewPost() {
         {post.images?.filter(img => img).map((img) => (
           <img
             key={img}
-            src={resolveMediaUrl(img)}
+            src={img}
             className="w-full sm:w-[48%] max-h-72 sm:max-h-96 object-cover rounded-xl cursor-pointer"
-            onClick={() =>
-              setFullscreenMedia({
-                type: "image",
-                src: resolveMediaUrl(img),
-              })
-            }
+            onClick={() => setModalContent({ type: "image", src: img })}
             alt="Post Image"
           />
         ))}
