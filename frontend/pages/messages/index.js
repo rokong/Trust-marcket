@@ -185,7 +185,9 @@ export default function Messages() {
                     View Post
                   </button>
                 </div>
-              ) : ... }
+              ) : (
+                <div />
+              )}
               <div className="text-[10px] text-gray-500 text-right">
                 {formatTime(m.createdAt)}
               </div>
