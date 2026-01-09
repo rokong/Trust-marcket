@@ -2,8 +2,8 @@ self.__BUILD_MANIFEST = {
   "/": [
     "static/chunks/pages/index.js"
   ],
-  "/admin/payments": [
-    "static/chunks/pages/admin/payments.js"
+  "/post/[id]": [
+    "static/chunks/pages/post/[id].js"
   ],
   "__rewrites": {
     "afterFiles": [],
@@ -23,13 +23,6 @@ self.__BUILD_MANIFEST = {
     "/admin/posts",
     "/admin/posts/[id]",
     "/admin/transactions",
-    "/api/conversation",
-    "/api/conversations",
-    "/api/conversations/[buyerId]",
-    "/api/get-all-conversations",
-    "/api/get-messages",
-    "/api/hello",
-    "/api/send-message",
     "/buy",
     "/create-post",
     "/dashboard",
@@ -37,7 +30,6 @@ self.__BUILD_MANIFEST = {
     "/dashboard/create-post",
     "/dashboard/edit-post/[id]",
     "/dashboard/favorites",
-    "/dashboard/inbox",
     "/dashboard/my-posts",
     "/dashboard/orders",
     "/forgot-password",
