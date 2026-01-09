@@ -44,14 +44,7 @@ app.use(
 );
 
 
-// ===== HEALTH CHECK =====
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    message: "Backend is running",
-    time: new Date().toISOString(),
-  });
-});
+
 
 // -------------------- CREATE HTTP SERVER --------------------
 const PORT = process.env.PORT || 5000;
