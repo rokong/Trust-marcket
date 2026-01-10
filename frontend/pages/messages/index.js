@@ -73,6 +73,10 @@ export default function Messages() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
+
+  socket.current = io(BACKEND_URL, { transports: ["websocket"] });
+  
   /* ---------------- FILE ---------------- */
   const handleFileSelect = (e) => {
     const f = e.target.files[0];
@@ -102,27 +106,27 @@ export default function Messages() {
     setText("");
   };
 
+  // SEND MEDIA
   const sendMedia = async () => {
     if (!file) return;
-
+  
     const form = new FormData();
     form.append("file", file);
     form.append("userId", userId);
     form.append("sender", "user");
-
+  
     try {
-      const res = await api.post("/upload/message-media", form, {
+      const res = await api.post("/api/upload/message-media", form, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-
-      // Cloudinary returns full URL in res.data.mediaUrl
-      socket.current.emit("send_message", { ...res.data, mediaType: res.data.type });
+  
+      socket.current.emit("send_message", res.data);
+      setMessages((prev) => [...prev, res.data]); // Optimistic UI update
       removeMedia();
     } catch (err) {
       console.error(err);
     }
   };
-
   const sendSharedPost = async () => {
     if (!postData) return;
 
