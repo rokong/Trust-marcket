@@ -51,7 +51,12 @@ const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
 // -------------------- SOCKET.IO --------------------
-const BACKEND_URL = process.env.BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
+// -------------------- SOCKET.IO --------------------
+import { Server as IOServer } from "socket.io"; // just for clarity
+
+const io = new IOServer(server, {
+  cors: { origin: "*" },
+});
 
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
