@@ -4,8 +4,6 @@ import { useRouter } from "next/router";
 import api from "../../utils/api";
 import { io } from "socket.io-client";
 
-const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
-
 export default function Messages() {
   const router = useRouter();
   const { post } = router.query;
@@ -30,7 +28,7 @@ export default function Messages() {
     }
     setUserId(id);
 
-    socket.current = io(BACKEND_URL, { transports: ["websocket"] });
+    socket.current = io(process.env.NEXT_PUBLIC_BACKEND_URL || "", { transports: ["websocket"] });
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
@@ -116,7 +114,9 @@ export default function Messages() {
       const res = await api.post("/upload/message-media", form, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      socket.current.emit("send_message", res.data);
+
+      // Cloudinary returns full URL in res.data.mediaUrl
+      socket.current.emit("send_message", { ...res.data, mediaType: res.data.type });
       removeMedia();
     } catch (err) {
       console.error(err);
@@ -171,23 +171,23 @@ export default function Messages() {
           >
             <div className="max-w-xs space-y-1">
               {/* TEXT */}
-              {(m.type === "text" || m.text) && (
+              {m.type === "text" && (
                 <div
                   className={`px-3 py-2 rounded-xl ${
                     m.sender === "user" ? "bg-blue-600 text-white" : "bg-white shadow"
                   }`}
                 >
-                  {m.text || m.message}
+                  {m.text}
                 </div>
               )}
 
               {/* MEDIA */}
-              {(m.type === "media" || m.mediaUrl) && (
+              {(m.type === "image" || m.type === "video") && (
                 <div className="rounded-xl overflow-hidden shadow bg-black">
-                  {m.mediaType === "image" ? (
-                    <img src={m.url || `${BACKEND_URL}${m.mediaUrl}`} className="w-64" />
+                  {m.type === "image" ? (
+                    <img src={m.mediaUrl} className="w-64 rounded-xl" />
                   ) : (
-                    <video src={m.url || `${BACKEND_URL}${m.mediaUrl}`} controls className="w-64" />
+                    <video src={m.mediaUrl} controls className="w-64 rounded-xl" />
                   )}
                 </div>
               )}
@@ -255,7 +255,7 @@ export default function Messages() {
           type="file"
           hidden
           ref={fileRef}
-          accept="image/*,video/mp4"
+          accept="image/*,video/*"
           onChange={handleFileSelect}
         />
 
