@@ -19,25 +19,24 @@ export default function ChatPage() {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
 
-  /* ---------------- SOCKET INIT ---------------- */
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
+  /* ---------------- SOCKET INIT ---------------- */
   useEffect(() => {
     if (!userId || socket.current) return;
-  
+
     socket.current = io(BACKEND_URL, { transports: ["websocket"] });
     socket.current.emit("join", userId);
-  
+
     socket.current.on("receive_message", (msg) => {
       setMessages((prev) => (prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]));
     });
-  
+
     return () => {
       socket.current.disconnect();
       socket.current = null;
     };
   }, [userId]);
-
 
   /* ---------------- LOAD USER ---------------- */
   useEffect(() => {
@@ -67,21 +66,25 @@ export default function ChatPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
-  socket.current = io(BACKEND_URL, { transports: ["websocket"] });
   /* ---------------- SEND TEXT ---------------- */
   const sendText = async () => {
     if (!reply.trim()) return;
 
-    const res = await api.post(
-      "/admin/messages/send",
-      { userId, text: reply, type: "text" },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-    );
+    try {
+      const res = await api.post(
+        "/admin/messages/send",
+        { userId, text: reply, type: "text" },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
 
-    socket.current.emit("send_message", res.data);
-    setReply("");
+      // Optimistic UI update
+      setMessages((prev) => [...prev, res.data]);
+      socket.current.emit("send_message", res.data);
+      setReply("");
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   /* ---------------- FILE HANDLING ---------------- */
@@ -102,22 +105,22 @@ export default function ChatPage() {
     if (fileRef.current) fileRef.current.value = null;
   };
 
-  // SEND MEDIA
+  /* ---------------- SEND MEDIA ---------------- */
   const sendMedia = async () => {
     if (!file) return;
+
     const fd = new FormData();
     fd.append("file", file);
     fd.append("userId", userId);
     fd.append("sender", "admin");
-  
+
     try {
       const res = await api.post("/api/upload/message-media", fd, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-  
-      // Optimistic UI update
-      socket.current.emit("send_message", res.data);
+
       setMessages((prev) => [...prev, res.data]);
+      socket.current.emit("send_message", res.data);
       clearMedia();
     } catch (err) {
       console.error(err);
@@ -138,10 +141,7 @@ export default function ChatPage() {
       {/* MESSAGES */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((m) => (
-          <div
-            key={m._id}
-            className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}
-          >
+          <div key={m._id} className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}>
             <div className="max-w-xs">
               {m.type === "shared_post" ? (
                 <div className="border rounded-xl p-3 bg-white shadow space-y-1">
@@ -164,11 +164,7 @@ export default function ChatPage() {
               ) : m.type === "video" ? (
                 <video src={m.mediaUrl} controls className="rounded-xl shadow" />
               ) : (
-                <div
-                  className={`px-3 py-2 rounded-xl ${
-                    m.sender === "admin" ? "bg-blue-600 text-white" : "bg-white shadow"
-                  }`}
-                >
+                <div className={`px-3 py-2 rounded-xl ${m.sender === "admin" ? "bg-blue-600 text-white" : "bg-white shadow"}`}>
                   {m.text}
                 </div>
               )}
@@ -182,15 +178,8 @@ export default function ChatPage() {
       {preview && (
         <div className="px-3 pb-2 bg-white border-t">
           <div className="relative w-40 rounded-xl overflow-hidden shadow">
-            {preview.type === "image" ? (
-              <img src={preview.url} />
-            ) : (
-              <video src={preview.url} controls />
-            )}
-            <button
-              onClick={clearMedia}
-              className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1"
-            >
+            {preview.type === "image" ? <img src={preview.url} /> : <video src={preview.url} controls />}
+            <button onClick={clearMedia} className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1">
               <X size={14} />
             </button>
           </div>
@@ -205,16 +194,8 @@ export default function ChatPage() {
           placeholder="Type message..."
           className="flex-1 border rounded-xl px-3 py-2"
         />
-        <input
-          type="file"
-          hidden
-          ref={fileRef}
-          accept="image/*,video/*"
-          onChange={handleFile}
-        />
-        <button onClick={() => fileRef.current.click()} className="px-3 py-2 rounded-xl bg-gray-200">
-          📎
-        </button>
+        <input type="file" hidden ref={fileRef} accept="image/*,video/*" onChange={handleFile} />
+        <button onClick={() => fileRef.current.click()} className="px-3 py-2 rounded-xl bg-gray-200">📎</button>
         <button
           onClick={file ? sendMedia : sendText}
           className={`px-4 py-2 rounded-xl text-white ${file ? "bg-green-600" : "bg-blue-600"}`}
