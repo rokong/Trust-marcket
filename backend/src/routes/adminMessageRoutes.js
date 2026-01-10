@@ -7,16 +7,6 @@ import adminOnly from "../middleware/adminOnly.js";
 
 const router = express.Router();
 
-/*
-|--------------------------------------------------------------------------
-| 🔹 1) Get all users who sent messages (Sorted by last message time)
-|--------------------------------------------------------------------------
-|  ➤ আগের সব কাজ same থাকবে
-|  ➤ নতুন extra:  
-|      ✔ কোন user last sms দিয়েছে → উপরে চলে আসবে  
-|      ✔ lastMessageTime সহ user list পাওয়া যাবে  
-|--------------------------------------------------------------------------
-*/
 router.get("/message-users", authMiddleware, adminOnly, async (req, res) => {
   try {
     const lastMessages = await Message.aggregate([
@@ -50,11 +40,7 @@ router.get("/message-users", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-/*
-|--------------------------------------------------------------------------
-| 🔹 2) Get all messages of specific user (OLD feature same রাখা হয়েছে)
-|--------------------------------------------------------------------------
-*/
+
 router.get("/messages/:userId", authMiddleware, adminOnly, async (req, res) => {
   try {
     const messages = await Message.find({ userId: req.params.userId }).sort({
