@@ -72,7 +72,9 @@ export default function ChatPage() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
+  socket.current = io(BACKEND_URL, { transports: ["websocket"] });
   /* ---------------- SEND TEXT ---------------- */
   const sendText = async () => {
     if (!reply.trim()) return;
@@ -105,21 +107,22 @@ export default function ChatPage() {
     if (fileRef.current) fileRef.current.value = null;
   };
 
+  // SEND MEDIA
   const sendMedia = async () => {
     if (!file) return;
-
     const fd = new FormData();
     fd.append("file", file);
     fd.append("userId", userId);
     fd.append("sender", "admin");
-
+  
     try {
-      const res = await api.post("/upload/message-media", fd, {
+      const res = await api.post("/api/upload/message-media", fd, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-
-      // Cloudinary URL used directly
-      socket.current.emit("send_message", { ...res.data, mediaType: res.data.type });
+  
+      // Optimistic UI update
+      socket.current.emit("send_message", res.data);
+      setMessages((prev) => [...prev, res.data]);
       clearMedia();
     } catch (err) {
       console.error(err);
