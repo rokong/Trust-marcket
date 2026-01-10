@@ -5,8 +5,6 @@ import api from "../../../utils/api";
 import { ArrowLeft, X } from "lucide-react";
 import { io } from "socket.io-client";
 
-const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
-
 export default function ChatPage() {
   const router = useRouter();
   const { userId } = router.query;
@@ -25,7 +23,7 @@ export default function ChatPage() {
   useEffect(() => {
     if (!userId || socket.current) return;
 
-    socket.current = io(BACKEND_URL, {
+    socket.current = io(process.env.NEXT_PUBLIC_BACKEND_URL || "", {
       transports: ["websocket"],
       reconnectionAttempts: 5,
       timeout: 10000,
@@ -115,12 +113,17 @@ export default function ChatPage() {
     fd.append("userId", userId);
     fd.append("sender", "admin");
 
-    const res = await api.post("/upload/message-media", fd, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    try {
+      const res = await api.post("/upload/message-media", fd, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
 
-    socket.current.emit("send_message", res.data);
-    clearMedia();
+      // Cloudinary URL used directly
+      socket.current.emit("send_message", { ...res.data, mediaType: res.data.type });
+      clearMedia();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   /* ---------------- RENDER ---------------- */
@@ -139,23 +142,17 @@ export default function ChatPage() {
         {messages.map((m) => (
           <div
             key={m._id}
-            className={`flex ${
-              m.sender === "admin" ? "justify-end" : "justify-start"
-            }`}
+            className={`flex ${m.sender === "admin" ? "justify-end" : "justify-start"}`}
           >
             <div className="max-w-xs">
               {m.type === "shared_post" ? (
                 <div className="border rounded-xl p-3 bg-white shadow space-y-1">
                   <div className="text-sm font-semibold">{m.postTitle}</div>
                   {m.postDescription && (
-                    <div className="text-xs text-gray-600 line-clamp-2">
-                      {m.postDescription}
-                    </div>
+                    <div className="text-xs text-gray-600 line-clamp-2">{m.postDescription}</div>
                   )}
                   {m.postPrice && (
-                    <div className="text-sm font-bold text-green-600">
-                      {m.postPrice} BDT
-                    </div>
+                    <div className="text-sm font-bold text-green-600">{m.postPrice} BDT</div>
                   )}
                   <button
                     onClick={() => router.push(`/admin/posts/${m.postId}`)}
@@ -165,22 +162,13 @@ export default function ChatPage() {
                   </button>
                 </div>
               ) : m.type === "image" ? (
-                <img
-                  src={`${BACKEND_URL}${m.mediaUrl}`}
-                  className="rounded-xl shadow"
-                />
+                <img src={m.mediaUrl} className="rounded-xl shadow" />
               ) : m.type === "video" ? (
-                <video
-                  src={`${BACKEND_URL}${m.mediaUrl}`}
-                  controls
-                  className="rounded-xl shadow"
-                />
+                <video src={m.mediaUrl} controls className="rounded-xl shadow" />
               ) : (
                 <div
                   className={`px-3 py-2 rounded-xl ${
-                    m.sender === "admin"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white shadow"
+                    m.sender === "admin" ? "bg-blue-600 text-white" : "bg-white shadow"
                   }`}
                 >
                   {m.text}
@@ -226,17 +214,12 @@ export default function ChatPage() {
           accept="image/*,video/*"
           onChange={handleFile}
         />
-        <button
-          onClick={() => fileRef.current.click()}
-          className="px-3 py-2 rounded-xl bg-gray-200"
-        >
+        <button onClick={() => fileRef.current.click()} className="px-3 py-2 rounded-xl bg-gray-200">
           📎
         </button>
         <button
           onClick={file ? sendMedia : sendText}
-          className={`px-4 py-2 rounded-xl text-white ${
-            file ? "bg-green-600" : "bg-blue-600"
-          }`}
+          className={`px-4 py-2 rounded-xl text-white ${file ? "bg-green-600" : "bg-blue-600"}`}
         >
           Send
         </button>
