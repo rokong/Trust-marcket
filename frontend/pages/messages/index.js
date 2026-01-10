@@ -8,8 +8,6 @@ const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
 
 export default function Messages() {
   const router = useRouter();
-  const { post } = router.query;
-
   const socket = useRef(null);
   const fileRef = useRef(null);
   const bottomRef = useRef(null);
@@ -17,179 +15,125 @@ export default function Messages() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [userId, setUserId] = useState(null);
-  const [postData, setPostData] = useState(null);
+
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  /* ---------------- User & Socket Init ---------------- */
+  // 🔥 Fullscreen modal
+  const [viewer, setViewer] = useState(null);
+
+  /* INIT */
   useEffect(() => {
     const id = localStorage.getItem("userId");
-    if (!id) {
-      alert("Please log in first!");
-      router.push("/login");
-      return;
-    }
+    if (!id) return router.push("/login");
     setUserId(id);
 
-    // FIX: URL must be string
     socket.current = io(BACKEND_URL);
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((p) => [...p, msg]);
     });
 
-    return () => socket.current?.disconnect();
+    return () => socket.current.disconnect();
   }, []);
 
-  /* ---------------- Load Messages ---------------- */
+  /* LOAD MESSAGES */
   useEffect(() => {
-    if (userId) loadMessages();
+    if (!userId) return;
+    api
+      .get(`/messages/${userId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      })
+      .then((res) => setMessages(res.data));
   }, [userId]);
 
-  const loadMessages = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return router.push("/login");
-
-    try {
-      const res = await api.get(`/messages/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessages(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  /* ---------------- Load Shared Post ---------------- */
-  useEffect(() => {
-    if (!post) return;
-    api.get(`/posts/${post}`)
-      .then((res) => setPostData(res.data))
-      .catch(() => setPostData(null));
-  }, [post]);
-
-  /* ---------------- Auto Scroll ---------------- */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* ---------------- File Handling ---------------- */
-  const handleFileSelect = (e) => {
+  /* MEDIA */
+  const handleFile = (e) => {
     const f = e.target.files[0];
     if (!f) return;
     setFile(f);
     setPreviewUrl(URL.createObjectURL(f));
   };
 
-  const removeMedia = () => {
-    setFile(null);
-    setPreviewUrl(null);
-    if (fileRef.current) fileRef.current.value = null;
-  };
-
-  /* ---------------- Send ---------------- */
   const sendMessage = () => {
     if (!text.trim()) return;
-
     socket.current.emit("send_message", {
       userId,
       sender: "user",
       type: "text",
       text,
     });
-
     setText("");
   };
 
   const sendMedia = async () => {
-    if (!file) return;
-  
     const form = new FormData();
     form.append("file", file);
     form.append("userId", userId);
     form.append("sender", "user");
-  
+
     const res = await api.post("/upload/message-media", form, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
     });
-  
+
     socket.current.emit("send_message", res.data);
-    removeMedia();
+    setFile(null);
+    setPreviewUrl(null);
   };
 
-  const sendSharedPost = async () => {
-    if (!postData) return;
-    try {
-      const res = await api.post(
-        "/messages/send",
-        {
-          userId,
-          type: "shared_post",
-          text: "",
-          postId: postData._id,
-          postTitle: postData.title,
-          postDescription: postData.description,
-          postPrice: postData.price,
-        },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
-      setMessages((prev) => [...prev, res.data]);
-      router.replace("/messages", undefined, { shallow: true });
-      setPostData(null);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const formatTime = (t) =>
+  const time = (t) =>
     new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
+    <div className="h-screen flex flex-col bg-[#f4f6fb]">
       {/* HEADER */}
-      <div className="bg-blue-600 text-white p-4 flex items-center">
-        <button onClick={() => router.back()} className="mr-4 text-2xl">←</button>
-        <h2 className="font-semibold">Chat with Admi</h2>
+      <div className="h-14 bg-blue-600 text-white flex items-center px-4 font-semibold shadow">
+        <button onClick={() => router.back()} className="mr-3 text-xl">←</button>
+        Chat with Admin
       </div>
 
       {/* MESSAGES */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {messages.length === 0 && (
-          <p className="text-center text-gray-400">No messages yet</p>
-        )}
-
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((m) => (
           <div
-            key={m._id || Math.random()}
+            key={m._id}
             className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
           >
-            <div>
-              {m.type === "shared_post" ? (
-                <div className="border rounded-xl p-3 bg-white shadow space-y-1 max-w-xs">
-                  <div className="text-sm font-semibold">{m.postTitle}</div>
-                  {m.postDescription && (
-                    <div className="text-xs text-gray-600 line-clamp-2">
-                      {m.postDescription}
-                    </div>
-                  )}
-                  {m.postPrice && (
-                    <div className="text-sm font-bold text-green-600">
-                      {m.postPrice} BDT
-                    </div>
-                  )}
-                  <button
-                    onClick={() => router.push(`/post/${m.postId}`)}
-                    className="text-xs text-blue-600 underline"
-                  >
-                    View Post
-                  </button>
-                </div>
-              ) : (
-                <div />
+            <div className="max-w-[75%]">
+              {m.type === "image" && (
+                <img
+                  src={m.url}
+                  onClick={() => setViewer(m.url)}
+                  className="rounded-xl cursor-pointer shadow"
+                />
               )}
-              <div className="text-[10px] text-gray-500 text-right">
-                {formatTime(m.createdAt)}
+
+              {m.type === "video" && (
+                <video
+                  src={m.url}
+                  controls
+                  className="rounded-xl shadow"
+                />
+              )}
+
+              {m.type === "text" && (
+                <div
+                  className={`px-4 py-2 rounded-2xl text-sm shadow
+                  ${m.sender === "user"
+                    ? "bg-blue-600 text-white rounded-br-none"
+                    : "bg-white rounded-bl-none"}`}
+                >
+                  {m.text}
+                </div>
+              )}
+
+              <div className="text-[10px] text-gray-400 mt-1 text-right">
+                {time(m.createdAt)}
               </div>
             </div>
           </div>
@@ -197,50 +141,18 @@ export default function Messages() {
         <div ref={bottomRef} />
       </div>
 
-      {/* SHARED POST PREVIEW */}
-      {postData && (
-        <div className="p-2 border-t bg-yellow-50">
-          <div className="text-sm font-medium">{postData.title}</div>
-          <button
-            onClick={sendSharedPost}
-            className="mt-2 w-full bg-green-600 text-white py-2 rounded-lg"
-          >
-            Send Post
-          </button>
-        </div>
-      )}
-
       {/* MEDIA PREVIEW */}
       {previewUrl && (
-        <div className="px-3 pb-2">
-          <div className="relative w-40 rounded-xl overflow-hidden shadow-lg bg-black">
-            {file?.type.startsWith("image") ? (
-              <img src={previewUrl} className="w-full h-40 object-cover" />
-            ) : (
-              <video
-                src={previewUrl}
-                muted
-                autoPlay
-                loop
-                className="w-full h-40 object-cover"
-              />
-            )}
-            <button
-              onClick={removeMedia}
-              className="absolute top-1 right-1 bg-black/70 text-white w-6 h-6 rounded-full flex items-center justify-center"
-            >
-              ×
-            </button>
-          </div>
+        <div className="p-2 border-t bg-white">
+          <img src={previewUrl} className="w-32 rounded-xl shadow" />
         </div>
       )}
 
-      {/* INPUT BAR (FIXED LAYOUT) */}
-      <div className="p-2 border-t bg-white flex gap-2 items-center">
-        {/* ATTACH */}
+      {/* INPUT */}
+      <div className="h-14 bg-white border-t flex items-center px-3 gap-2">
         <button
-          onClick={() => fileRef.current?.click()}
-          className="shrink-0 w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-xl"
+          onClick={() => fileRef.current.click()}
+          className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center"
         >
           📎
         </button>
@@ -248,25 +160,35 @@ export default function Messages() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="flex-1 border rounded-xl p-2"
-          placeholder="Message..."
+          placeholder="Type message…"
+          className="flex-1 border rounded-full px-4 py-2"
         />
 
         <input
-          type="file"
           hidden
           ref={fileRef}
-          accept="image/*,video/mp4"
-          onChange={handleFileSelect}
+          type="file"
+          accept="image/*,video/*"
+          onChange={handleFile}
         />
 
         <button
           onClick={file ? sendMedia : sendMessage}
-          className="shrink-0 bg-blue-600 text-white px-4 h-10 rounded-xl"
+          className="bg-blue-600 text-white px-4 py-2 rounded-full"
         >
           Send
         </button>
       </div>
+
+      {/* 🔥 FULLSCREEN IMAGE MODAL */}
+      {viewer && (
+        <div
+          onClick={() => setViewer(null)}
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
+        >
+          <img src={viewer} className="max-h-[90%] max-w-[90%] rounded-xl" />
+        </div>
+      )}
     </div>
   );
 }
