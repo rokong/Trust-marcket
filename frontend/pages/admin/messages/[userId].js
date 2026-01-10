@@ -22,22 +22,17 @@ export default function ChatPage() {
   /* ---------------- SOCKET INIT ---------------- */
   useEffect(() => {
     if (!userId || socket.current) return;
-
-    socket.current = io(process.env.NEXT_PUBLIC_BACKEND_URL || "", {
-      transports: ["websocket"],
-      reconnectionAttempts: 5,
-      timeout: 10000,
-    });
-
+  
+    socket.current = io(BACKEND_URL, { transports: ["websocket"] });
     socket.current.emit("join", userId);
-
+  
     socket.current.on("receive_message", (msg) => {
       setMessages((prev) => {
         if (prev.find((m) => m._id === msg._id)) return prev;
         return [...prev, msg];
       });
     });
-
+  
     return () => {
       socket.current.disconnect();
       socket.current = null;
