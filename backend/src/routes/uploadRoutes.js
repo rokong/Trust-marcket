@@ -1,40 +1,29 @@
 // backend/src/routes/uploadRoutes.js
 import express from "express";
-import multer from "multer";
 import Message from "../models/Message.js";
+import { parser } from "../utils/cloudinary.js"; // Cloudinary storage
 
-const router = express.Router();
-
-const storage = multer.diskStorage({
-  destination: "uploads/",
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
+const upload = parser;
 
 export default function uploadRoutes(io) {
+  const router = express.Router();
+
   router.post("/message-media", upload.single("file"), async (req, res) => {
     try {
       const { userId, sender } = req.body;
 
-      if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
-      }
+      if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
-      const type = req.file.mimetype.startsWith("video")
-        ? "video"
-        : "image";
+      const type = req.file.mimetype.startsWith("video") ? "video" : "image";
 
       const msg = await Message.create({
         userId,
         sender,
         type,
-        mediaUrl: `/uploads/${req.file.filename}`,
+        mediaUrl: req.file.path, // Cloudinary URL
       });
 
-      // 🔥 REAL-TIME
+      // REAL-TIME socket emit
       io.to(userId.toString()).emit("receive_message", msg);
 
       res.json(msg);
@@ -46,4 +35,3 @@ export default function uploadRoutes(io) {
 
   return router;
 }
-
