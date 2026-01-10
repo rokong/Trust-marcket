@@ -31,7 +31,7 @@ const __dirname = path.dirname(__filename);
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "https://trust-marcket-git-main-nazmuls-projects-dd47be01.vercel.app",
+    "https://trust-marcket.vercel.app",
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
