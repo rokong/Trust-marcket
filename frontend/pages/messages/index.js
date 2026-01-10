@@ -30,11 +30,14 @@ export default function Messages() {
     }
     setUserId(id);
 
-    socket.current = io(BACKEND_URL);
+    socket.current = io(BACKEND_URL, { transports: ["websocket"] });
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
-      setMessages((prev) => [...prev, msg]);
+      setMessages((prev) => {
+        if (prev.find((m) => m._id === msg._id)) return prev;
+        return [...prev, msg];
+      });
     });
 
     return () => socket.current.disconnect();
@@ -44,19 +47,27 @@ export default function Messages() {
   useEffect(() => {
     if (!userId) return;
 
-    const load = async () => {
-      const res = await api.get(`/messages/${userId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      setMessages(res.data);
+    const loadMessages = async () => {
+      try {
+        const res = await api.get(`/messages/${userId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setMessages(res.data);
+      } catch (err) {
+        console.error(err);
+      }
     };
-    load();
+
+    loadMessages();
   }, [userId]);
 
-  /* ---------------- SHARED POST ---------------- */
+  /* ---------------- LOAD SHARED POST ---------------- */
   useEffect(() => {
     if (!post) return;
-    api.get(`/posts/${post}`).then((res) => setPostData(res.data));
+    api
+      .get(`/posts/${post}`)
+      .then((res) => setPostData(res.data))
+      .catch(() => setPostData(null));
   }, [post]);
 
   /* ---------------- SCROLL ---------------- */
@@ -64,7 +75,7 @@ export default function Messages() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* ---------------- MEDIA ---------------- */
+  /* ---------------- FILE ---------------- */
   const handleFileSelect = (e) => {
     const f = e.target.files[0];
     if (!f) return;
@@ -75,7 +86,7 @@ export default function Messages() {
   const removeMedia = () => {
     setFile(null);
     setPreviewUrl(null);
-    fileRef.current.value = null;
+    if (fileRef.current) fileRef.current.value = null;
   };
 
   /* ---------------- SEND ---------------- */
@@ -94,53 +105,89 @@ export default function Messages() {
   };
 
   const sendMedia = async () => {
+    if (!file) return;
+
     const form = new FormData();
     form.append("file", file);
     form.append("userId", userId);
     form.append("sender", "user");
 
-    const res = await api.post("/upload/message-media", form, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
+    try {
+      const res = await api.post("/upload/message-media", form, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      socket.current.emit("send_message", res.data);
+      removeMedia();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    socket.current.emit("send_message", res.data);
-    removeMedia();
+  const sendSharedPost = async () => {
+    if (!postData) return;
+
+    try {
+      const res = await api.post(
+        "/messages/send",
+        {
+          userId,
+          type: "shared_post",
+          text: "",
+          postId: postData._id,
+          postTitle: postData.title,
+          postDescription: postData.description,
+          postPrice: postData.price,
+        },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      setMessages((prev) => [...prev, res.data]);
+      setPostData(null);
+      router.replace("/messages", undefined, { shallow: true });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const formatTime = (t) =>
     new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-  /* ======================= UI ======================= */
+  /* ---------------- UI ---------------- */
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       {/* HEADER */}
       <div className="bg-blue-600 text-white p-4 flex items-center">
-        <button onClick={() => router.back()} className="mr-4 text-xl">←</button>
+        <button onClick={() => router.back()} className="mr-4 text-xl">
+          ←
+        </button>
         <h2 className="font-semibold">Chat with Admin</h2>
       </div>
 
       {/* MESSAGES */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((m, i) => (
+        {messages.map((m) => (
           <div
-            key={i}
+            key={m._id || Math.random()}
             className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
           >
             <div className="max-w-xs space-y-1">
               {/* TEXT */}
-              {m.type === "text" && (
-                <div className="px-3 py-2 rounded-xl bg-white shadow">
-                  {m.text}
+              {(m.type === "text" || m.text) && (
+                <div
+                  className={`px-3 py-2 rounded-xl ${
+                    m.sender === "user" ? "bg-blue-600 text-white" : "bg-white shadow"
+                  }`}
+                >
+                  {m.text || m.message}
                 </div>
               )}
 
               {/* MEDIA */}
-              {m.type === "media" && (
+              {(m.type === "media" || m.mediaUrl) && (
                 <div className="rounded-xl overflow-hidden shadow bg-black">
                   {m.mediaType === "image" ? (
-                    <img src={m.url} className="w-64" />
+                    <img src={m.url || `${BACKEND_URL}${m.mediaUrl}`} className="w-64" />
                   ) : (
-                    <video src={m.url} controls className="w-64" />
+                    <video src={m.url || `${BACKEND_URL}${m.mediaUrl}`} controls className="w-64" />
                   )}
                 </div>
               )}
@@ -149,10 +196,14 @@ export default function Messages() {
               {m.type === "shared_post" && (
                 <div className="border rounded-xl p-3 bg-white shadow">
                   <div className="font-semibold text-sm">{m.postTitle}</div>
-                  <div className="text-xs text-gray-600">{m.postDescription}</div>
-                  <div className="font-bold text-green-600">
-                    {m.postPrice} BDT
-                  </div>
+                  {m.postDescription && <div className="text-xs text-gray-600 line-clamp-2">{m.postDescription}</div>}
+                  {m.postPrice && <div className="font-bold text-green-600">{m.postPrice} BDT</div>}
+                  <button
+                    onClick={() => router.push(`/post/${m.postId}`)}
+                    className="text-xs text-blue-600 underline"
+                  >
+                    View Post
+                  </button>
                 </div>
               )}
 
@@ -215,6 +266,19 @@ export default function Messages() {
           Send
         </button>
       </div>
+
+      {/* SHARED POST PREVIEW */}
+      {postData && (
+        <div className="p-2 border-t bg-yellow-50">
+          <div className="text-sm font-medium">{postData.title}</div>
+          <button
+            onClick={sendSharedPost}
+            className="mt-2 w-full bg-green-600 text-white py-2 rounded-lg"
+          >
+            Send Post
+          </button>
+        </div>
+      )}
     </div>
   );
 }
