@@ -8,6 +8,8 @@ const BACKEND_URL = "https://trust-market-backend-nsao.onrender.com";
 
 export default function Messages() {
   const router = useRouter();
+  const { post } = router.query;
+
   const socket = useRef(null);
   const fileRef = useRef(null);
   const bottomRef = useRef(null);
@@ -15,59 +17,79 @@ export default function Messages() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [userId, setUserId] = useState(null);
-
+  const [postData, setPostData] = useState(null);
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // 🔥 Fullscreen modal
-  const [viewer, setViewer] = useState(null);
-
-  /* INIT */
+  /* ---------------- INIT ---------------- */
   useEffect(() => {
     const id = localStorage.getItem("userId");
-    if (!id) return router.push("/login");
+    if (!id) {
+      router.push("/login");
+      return;
+    }
     setUserId(id);
 
     socket.current = io(BACKEND_URL);
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
-      setMessages((p) => [...p, msg]);
+      setMessages((prev) => [...prev, msg]);
     });
 
     return () => socket.current.disconnect();
   }, []);
 
-  /* LOAD MESSAGES */
+  /* ---------------- LOAD MESSAGES ---------------- */
   useEffect(() => {
     if (!userId) return;
-    api
-      .get(`/messages/${userId}`, {
+
+    const load = async () => {
+      const res = await api.get(`/messages/${userId}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
-      .then((res) => setMessages(res.data));
+      });
+      setMessages(res.data);
+    };
+    load();
   }, [userId]);
 
+  /* ---------------- SHARED POST ---------------- */
+  useEffect(() => {
+    if (!post) return;
+    api.get(`/posts/${post}`).then((res) => setPostData(res.data));
+  }, [post]);
+
+  /* ---------------- SCROLL ---------------- */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* MEDIA */
-  const handleFile = (e) => {
+  /* ---------------- MEDIA ---------------- */
+  const handleFileSelect = (e) => {
     const f = e.target.files[0];
     if (!f) return;
     setFile(f);
     setPreviewUrl(URL.createObjectURL(f));
   };
 
+  const removeMedia = () => {
+    setFile(null);
+    setPreviewUrl(null);
+    fileRef.current.value = null;
+  };
+
+  /* ---------------- SEND ---------------- */
   const sendMessage = () => {
     if (!text.trim()) return;
+
     socket.current.emit("send_message", {
       userId,
       sender: "user",
       type: "text",
       text,
+      createdAt: new Date(),
     });
+
     setText("");
   };
 
@@ -82,58 +104,60 @@ export default function Messages() {
     });
 
     socket.current.emit("send_message", res.data);
-    setFile(null);
-    setPreviewUrl(null);
+    removeMedia();
   };
 
-  const time = (t) =>
+  const formatTime = (t) =>
     new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
+  /* ======================= UI ======================= */
   return (
-    <div className="h-screen flex flex-col bg-[#f4f6fb]">
+    <div className="h-screen flex flex-col bg-gray-100">
       {/* HEADER */}
-      <div className="h-14 bg-blue-600 text-white flex items-center px-4 font-semibold shadow">
-        <button onClick={() => router.back()} className="mr-3 text-xl">←</button>
-        Chat with Admin
+      <div className="bg-blue-600 text-white p-4 flex items-center">
+        <button onClick={() => router.back()} className="mr-4 text-xl">←</button>
+        <h2 className="font-semibold">Chat with Admin</h2>
       </div>
 
       {/* MESSAGES */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {messages.map((m) => (
+        {messages.map((m, i) => (
           <div
-            key={m._id}
+            key={i}
             className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
           >
-            <div className="max-w-[75%]">
-              {m.type === "image" && (
-                <img
-                  src={m.url}
-                  onClick={() => setViewer(m.url)}
-                  className="rounded-xl cursor-pointer shadow"
-                />
-              )}
-
-              {m.type === "video" && (
-                <video
-                  src={m.url}
-                  controls
-                  className="rounded-xl shadow"
-                />
-              )}
-
+            <div className="max-w-xs space-y-1">
+              {/* TEXT */}
               {m.type === "text" && (
-                <div
-                  className={`px-4 py-2 rounded-2xl text-sm shadow
-                  ${m.sender === "user"
-                    ? "bg-blue-600 text-white rounded-br-none"
-                    : "bg-white rounded-bl-none"}`}
-                >
+                <div className="px-3 py-2 rounded-xl bg-white shadow">
                   {m.text}
                 </div>
               )}
 
-              <div className="text-[10px] text-gray-400 mt-1 text-right">
-                {time(m.createdAt)}
+              {/* MEDIA */}
+              {m.type === "media" && (
+                <div className="rounded-xl overflow-hidden shadow bg-black">
+                  {m.mediaType === "image" ? (
+                    <img src={m.url} className="w-64" />
+                  ) : (
+                    <video src={m.url} controls className="w-64" />
+                  )}
+                </div>
+              )}
+
+              {/* SHARED POST */}
+              {m.type === "shared_post" && (
+                <div className="border rounded-xl p-3 bg-white shadow">
+                  <div className="font-semibold text-sm">{m.postTitle}</div>
+                  <div className="text-xs text-gray-600">{m.postDescription}</div>
+                  <div className="font-bold text-green-600">
+                    {m.postPrice} BDT
+                  </div>
+                </div>
+              )}
+
+              <div className="text-[10px] text-gray-400 text-right">
+                {formatTime(m.createdAt)}
               </div>
             </div>
           </div>
@@ -143,16 +167,28 @@ export default function Messages() {
 
       {/* MEDIA PREVIEW */}
       {previewUrl && (
-        <div className="p-2 border-t bg-white">
-          <img src={previewUrl} className="w-32 rounded-xl shadow" />
+        <div className="px-3 pb-2">
+          <div className="relative w-40">
+            {file.type.startsWith("image") ? (
+              <img src={previewUrl} className="rounded-xl" />
+            ) : (
+              <video src={previewUrl} autoPlay loop muted className="rounded-xl" />
+            )}
+            <button
+              onClick={removeMedia}
+              className="absolute top-1 right-1 bg-black text-white rounded-full w-6 h-6"
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
 
       {/* INPUT */}
-      <div className="h-14 bg-white border-t flex items-center px-3 gap-2">
+      <div className="p-2 bg-white border-t flex gap-2">
         <button
           onClick={() => fileRef.current.click()}
-          className="w-9 h-9 bg-gray-200 rounded-full flex items-center justify-center"
+          className="w-10 h-10 bg-gray-200 rounded-full"
         >
           📎
         </button>
@@ -160,35 +196,25 @@ export default function Messages() {
         <input
           value={text}
           onChange={(e) => setText(e.target.value)}
-          placeholder="Type message…"
-          className="flex-1 border rounded-full px-4 py-2"
+          className="flex-1 border rounded-xl px-3"
+          placeholder="Message..."
         />
 
         <input
+          type="file"
           hidden
           ref={fileRef}
-          type="file"
-          accept="image/*,video/*"
-          onChange={handleFile}
+          accept="image/*,video/mp4"
+          onChange={handleFileSelect}
         />
 
         <button
           onClick={file ? sendMedia : sendMessage}
-          className="bg-blue-600 text-white px-4 py-2 rounded-full"
+          className="bg-blue-600 text-white px-4 rounded-xl"
         >
           Send
         </button>
       </div>
-
-      {/* 🔥 FULLSCREEN IMAGE MODAL */}
-      {viewer && (
-        <div
-          onClick={() => setViewer(null)}
-          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50"
-        >
-          <img src={viewer} className="max-h-[90%] max-w-[90%] rounded-xl" />
-        </div>
-      )}
     </div>
   );
 }
