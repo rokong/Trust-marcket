@@ -23,24 +23,20 @@ export default function ChatPage() {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
   useEffect(() => {
-    const id = localStorage.getItem("userId");
-    if (!id) {
-      router.push("/login");
-      return;
-    }
-    setUserId(id);
-  
-    if (socket.current) return;
+    if (!userId || socket.current) return;
   
     socket.current = io(BACKEND_URL, { transports: ["websocket"] });
-    socket.current.emit("join", id);
+    socket.current.emit("join", userId);
   
     socket.current.on("receive_message", (msg) => {
       setMessages((prev) => (prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]));
     });
   
-    return () => socket.current.disconnect();
-  }, []);
+    return () => {
+      socket.current.disconnect();
+      socket.current = null;
+    };
+  }, [userId]);
 
 
   /* ---------------- LOAD USER ---------------- */
