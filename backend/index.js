@@ -70,7 +70,7 @@ app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
 app.use("/api/kyc", kycRoutes);
-app.use("/admin", adminKycRoutes);
+app.use("/api/admin", adminKycRoutes);
 
 app.get("/api/health", (_, res) => res.json({ ok: true }));
 
