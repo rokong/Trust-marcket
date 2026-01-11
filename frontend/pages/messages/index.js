@@ -102,15 +102,13 @@ export default function Messages() {
     form.append("sender", "user");
   
     try {
-      await api.post("/api/upload/message-media", form, {
+      const res = await api.post("/api/upload/message-media", form, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
   
-      // ❌ DO NOT add message manually
-      // backend socket emit করবে
-  
+      // ❌ DO NOT add manually, backend socket emit করবে
       removeMedia();
     } catch (err) {
       console.error("Media upload failed", err);
