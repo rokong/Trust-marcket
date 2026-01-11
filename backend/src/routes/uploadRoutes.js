@@ -25,24 +25,24 @@ export default function uploadRoutes(io) {
     try {
       const { userId, sender } = req.body;
       if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-
+  
       const type = req.file.mimetype.startsWith("video") ? "video" : "image";
-
+  
       const msg = await Message.create({
         userId,
         sender,
         type,
-        mediaUrl: req.file.path, // CloudinaryStorage path
+        mediaUrl: req.file.path, // or req.file.secure_url
       });
-
-      io.to(userId.toString()).emit("receive_message", msg); // emit
-
+  
+      // emit to room
+      io.to(userId.toString()).emit("receive_message", msg);
+  
       res.json(msg);
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Upload failed", error: err.message });
     }
   });
-
   return router;
 }
