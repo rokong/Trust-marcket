@@ -1,10 +1,4 @@
 self.__BUILD_MANIFEST = {
-  "/": [
-    "static/chunks/pages/index.js"
-  ],
-  "/post/[id]": [
-    "static/chunks/pages/post/[id].js"
-  ],
   "__rewrites": {
     "afterFiles": [],
     "beforeFiles": [],
@@ -23,6 +17,7 @@ self.__BUILD_MANIFEST = {
     "/admin/posts",
     "/admin/posts/[id]",
     "/admin/transactions",
+    "/admin/verification",
     "/buy",
     "/create-post",
     "/dashboard",
@@ -32,6 +27,7 @@ self.__BUILD_MANIFEST = {
     "/dashboard/favorites",
     "/dashboard/my-posts",
     "/dashboard/orders",
+    "/dashboard/verification",
     "/forgot-password",
     "/listing/[id]",
     "/login",

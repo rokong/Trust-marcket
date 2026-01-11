@@ -1,4 +1,1 @@
-[00:00:17.559] Server  LOG      ✓ Ready in 10.7s
-[00:03:57.855] Server  LOG      ○ Compiling / ...
-[00:04:14.260] Browser LOG     HEALTH: {"ok":true}
-[00:04:14.260] Browser LOG     BACKEND OK: {"ok":true}
+[00:00:16.729] Server  LOG     ✓ Ready in 10.3s
