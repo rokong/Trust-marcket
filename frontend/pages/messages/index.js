@@ -82,36 +82,26 @@ export default function Messages() {
   /* ---------------- SEND ---------------- */
   const sendMessage = () => {
     if (!text.trim()) return;
-
+  
     socket.current.emit("send_message", {
       userId,
       sender: "user",
       type: "text",
       text,
-      createdAt: new Date(),
     });
-
+  
     setText("");
   };
-
+  
   const sendMedia = async () => {
-    if (!file) return;
-
     const form = new FormData();
     form.append("file", file);
     form.append("userId", userId);
     form.append("sender", "user");
-
-    try {
-      const res = await api.post("/api/upload/message-media", form, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-      // Backend emits receive_message, no need to emit again
-      setMessages((prev) => [...prev, res.data]);
-      removeMedia();
-    } catch (err) {
-      console.error(err);
-    }
+  
+    const res = await api.post("/api/upload/message-media", form);
+    setMessages((prev) => [...prev, res.data]); // optimistic
+    removeMedia();
   };
 
   const sendSharedPost = async () => {
