@@ -102,7 +102,7 @@ export default function Messages() {
     fd.append("sender", "user"); // admin হলে "admin"
   
     try {
-      const res = await api.post("/api/upload/message-media", fd, {
+      const res = await api.post("/upload/message-media", fd, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
   
