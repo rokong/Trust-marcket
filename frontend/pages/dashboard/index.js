@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import api from "../../utils/api";
-import { User, Heart, FileText, LogOut } from "lucide-react";
+import { User, Heart, FileText, ShieldCheck, LogOut } from "lucide-react";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -68,6 +68,38 @@ export default function Dashboard() {
           >
             <Heart className="w-5 h-5 text-red-500" /> Favorites
           </Link>
+
+          {/* KYC Verification */}
+          {user.kyc?.status !== "verified" && (
+            <>
+              {user.kyc?.status === "pending" ? (
+                <div
+                  className="flex items-center gap-3 bg-yellow-100 text-yellow-700 p-4 rounded-xl font-medium cursor-not-allowed"
+                >
+                  <ShieldCheck className="w-5 h-5" />
+                  Verification Pending
+                </div>
+              ) : (
+                <button
+                  onClick={() => router.push("/dashboard/verification")}
+                  className="flex items-center gap-3 bg-green-100 hover:bg-green-200 text-green-700 p-4 rounded-xl font-medium transition w-full"
+                >
+                  <ShieldCheck className="w-5 h-5" />
+                  {user.kyc?.status === "rejected" ? "Re-submit Verification" : "Verify Identity"}
+                </button>
+              )}
+            </>
+          )}
+
+
+          {/* VERIFIED BADGE */}
+          {user.kyc?.status === "verified" && (
+            <div className="flex items-center gap-3 bg-green-600 text-white p-4 rounded-xl font-medium">
+              <ShieldCheck className="w-5 h-5" />
+              Identity Verified
+            </div>
+          )}
+
 
           {/* Account Details */}
           <Link

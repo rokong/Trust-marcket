@@ -6,6 +6,7 @@ import {
   Users,
   MessageCircle,
   Settings,
+  ShieldCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -103,7 +104,7 @@ export default function AdminDashboard() {
         <div className="bg-gray-100 p-4 rounded-lg shadow-sm mb-4 text-center">
           <h2 className="text-lg font-semibold">Welcome Admin 👋</h2>
           <p className="text-gray-600 text-sm mt-1">
-            Use quick links below to manage posts, messages & settings.
+            Use quick links below to manage posts, messages & verification.
           </p>
         </div>
 
@@ -144,7 +145,15 @@ export default function AdminDashboard() {
               All Users
             </Link>
 
-            {/* New Payments Link */}
+            {/* Verification Button */}
+            <Link
+              href="/admin/verification"
+              className="flex items-center gap-3 p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+            >
+              <ShieldCheck className="w-5 h-5 text-green-600" />
+              User Verification
+            </Link>
+
             <Link
               href="/admin/payments"
               className="flex items-center gap-3 p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
