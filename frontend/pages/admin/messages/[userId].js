@@ -114,7 +114,7 @@ export default function ChatPage() {
       // ✅ Add to messages immediately (optimistic)
       
   
-      removeMedia();
+      clearMedia();
     } catch (err) {
       console.error("Media upload failed", err);
     }
