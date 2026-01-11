@@ -69,22 +69,14 @@ export default function ChatPage() {
 
   /* ---------------- SEND TEXT ---------------- */
   const sendText = async () => {
-    if (!reply.trim()) return;
-
-    try {
-      const res = await api.post(
-        "/admin/messages/send",
-        { userId, text: reply, type: "text" },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
-
-      // Optimistic UI update
-      setMessages((prev) => [...prev, res.data]);
-      socket.current.emit("send_message", res.data);
-      setReply("");
-    } catch (err) {
-      console.error(err);
-    }
+    const res = await api.post("/admin/messages/send", {
+      userId,
+      type: "text",
+      text: reply,
+    });
+  
+    socket.current.emit("send_message", res.data);
+    setReply("");
   };
 
   /* ---------------- FILE HANDLING ---------------- */
@@ -107,24 +99,14 @@ export default function ChatPage() {
 
   /* ---------------- SEND MEDIA ---------------- */
   const sendMedia = async () => {
-    if (!file) return;
-
     const fd = new FormData();
     fd.append("file", file);
     fd.append("userId", userId);
     fd.append("sender", "admin");
-
-    try {
-      const res = await api.post("/api/upload/message-media", fd, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      });
-
-      setMessages((prev) => [...prev, res.data]);
-      socket.current.emit("send_message", res.data);
-      clearMedia();
-    } catch (err) {
-      console.error(err);
-    }
+  
+    const res = await api.post("/api/upload/message-media", fd);
+    setMessages((prev) => [...prev, res.data]);
+    clearMedia();
   };
 
   /* ---------------- RENDER ---------------- */
