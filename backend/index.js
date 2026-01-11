@@ -5,9 +5,6 @@ import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
 import { Server as IOServer } from "socket.io";
-import path from "path";
-import { fileURLToPath } from "url";
-
 
 import postsRoutes from "./src/routes/posts.js";
 import authRoutes from "./src/routes/auth.js";
@@ -23,34 +20,16 @@ import uploadRoutes from "./src/routes/uploadRoutes.js";
 import Message from "./src/models/Message.js";
 
 dotenv.config();
+
 const app = express();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// -------------------- MIDDLEWARE --------------------
-app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://trust-marcket.vercel.app",
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-}));
-app.use(express.json());
-app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "uploads"))
-);
-
-
-
-
-// -------------------- CREATE HTTP SERVER --------------------
 const PORT = process.env.PORT || 5000;
-const server = http.createServer(app);
 
-// -------------------- SOCKET.IO --------------------
+// ---------- MIDDLEWARE ----------
+app.use(cors({ origin: "*", credentials: true }));
+app.use(express.json());
+
+// ---------- HTTP + SOCKET ----------
+const server = http.createServer(app);
 const io = new IOServer(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
@@ -58,7 +37,6 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", async (data) => {
     try {
-      // 🚫 MEDIA NEVER COMES HERE
       if (data.type === "image" || data.type === "video") return;
 
       const msg = await Message.create({
@@ -79,15 +57,8 @@ io.on("connection", (socket) => {
   });
 });
 
+// ---------- ROUTES ----------
 app.use("/api/upload", uploadRoutes(io));
-
-mongoose.connect(process.env.MONGO_URI).then(() => {
-  server.listen(process.env.PORT || 5000);
-});
-// -------------------- ROUTES --------------------
-// io এখানে পাঠাতে হবে, কারণ এখন io declare হয়ে গেছে
-app.use("/api/upload", uploadRoutes(io));
-
 app.use("/api/posts", postsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
@@ -97,15 +68,16 @@ app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true });
-});
-// -------------------- MONGO + START SERVER --------------------
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => {
-    server.listen(PORT, () => console.log(`Server running on ${PORT}`));
-    console.log("MongoDB connected");
-  })
-  .catch((err) => console.log(err));
 
-export { server };
+app.get("/api/health", (_, res) => res.json({ ok: true }));
+
+// ---------- START (ONCE) ----------
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log("MongoDB connected");
+    server.listen(PORT, () => {
+      console.log("Server running on", PORT);
+    });
+  })
+  .catch(console.error);
