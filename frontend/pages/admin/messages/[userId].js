@@ -99,15 +99,27 @@ export default function ChatPage() {
 
   /* ---------------- SEND MEDIA ---------------- */
   const sendMedia = async () => {
+    if (!file) return;
+  
     const fd = new FormData();
     fd.append("file", file);
     fd.append("userId", userId);
     fd.append("sender", "admin");
   
-    const res = await api.post("/api/upload/message-media", fd);
-    setMessages((prev) => [...prev, res.data]);
-    clearMedia();
+    try {
+      await api.post("/api/upload/message-media", fd, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      // ❌ no optimistic add
+      clearMedia();
+    } catch (err) {
+      console.error("Admin media upload failed", err);
+    }
   };
+
 
   /* ---------------- RENDER ---------------- */
   return (
