@@ -107,7 +107,7 @@ export default function Messages() {
       });
   
       // ✅ Add to messages immediately (optimistic)
-      setMessages((prev) => [...prev, res.data]);
+      
   
       removeMedia();
     } catch (err) {
