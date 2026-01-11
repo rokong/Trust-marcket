@@ -104,22 +104,21 @@ export default function ChatPage() {
     const fd = new FormData();
     fd.append("file", file);
     fd.append("userId", userId);
-    fd.append("sender", "admin");
+    fd.append("sender", "admin"); // admin হলে "admin"
   
     try {
-      await api.post("/api/upload/message-media", fd, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      const res = await api.post("/api/upload/message-media", fd, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
   
-      // ❌ no optimistic add
-      clearMedia();
+      // ✅ Add to messages immediately (optimistic)
+      setMessages((prev) => [...prev, res.data]);
+  
+      removeMedia();
     } catch (err) {
-      console.error("Admin media upload failed", err);
+      console.error("Media upload failed", err);
     }
   };
-
 
   /* ---------------- RENDER ---------------- */
   return (
