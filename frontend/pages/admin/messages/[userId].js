@@ -112,7 +112,7 @@ export default function ChatPage() {
       });
   
       // ✅ Add to messages immediately (optimistic)
-      setMessages((prev) => [...prev, res.data]);
+      
   
       removeMedia();
     } catch (err) {
