@@ -96,25 +96,24 @@ export default function Messages() {
   const sendMedia = async () => {
     if (!file) return;
   
-    const form = new FormData();
-    form.append("file", file);
-    form.append("userId", userId);
-    form.append("sender", "user");
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("userId", userId);
+    fd.append("sender", "user"); // admin হলে "admin"
   
     try {
-      const res = await api.post("/api/upload/message-media", form, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+      const res = await api.post("/api/upload/message-media", fd, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
   
-      // ❌ DO NOT add manually, backend socket emit করবে
+      // ✅ Add to messages immediately (optimistic)
+      setMessages((prev) => [...prev, res.data]);
+  
       removeMedia();
     } catch (err) {
       console.error("Media upload failed", err);
     }
   };
-
 
   const sendSharedPost = async () => {
     if (!postData) return;
