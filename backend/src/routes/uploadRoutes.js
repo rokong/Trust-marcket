@@ -19,7 +19,7 @@ export default function uploadRoutes(io) {
         userId,
         sender,
         type,
-        mediaUrl: req.file.path, // cloudinary URL
+        mediaUrl: req.file?.path || req.file?.secure_url,
       });
 
       // ✅ ONLY ONE EMIT (source of truth)
