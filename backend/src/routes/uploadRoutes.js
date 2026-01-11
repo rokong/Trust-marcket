@@ -1,7 +1,7 @@
 // backend/src/routes/uploadRoutes.js
 import express from "express";
 import Message from "../models/Message.js";
-import { parser } from "../utils/cloudinary.js"; // Cloudinary storage
+import { parser } from "../utils/cloudinary.js";
 
 const upload = parser;
 
@@ -11,7 +11,6 @@ export default function uploadRoutes(io) {
   router.post("/message-media", upload.single("file"), async (req, res) => {
     try {
       const { userId, sender } = req.body;
-
       if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
       const type = req.file.mimetype.startsWith("video") ? "video" : "image";
@@ -20,10 +19,10 @@ export default function uploadRoutes(io) {
         userId,
         sender,
         type,
-        mediaUrl: req.file.path, // Cloudinary URL
+        mediaUrl: req.file.path, // cloudinary URL
       });
 
-      // REAL-TIME socket emit
+      // ✅ ONLY ONE EMIT (source of truth)
       io.to(userId.toString()).emit("receive_message", msg);
 
       res.json(msg);
