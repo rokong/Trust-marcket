@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import api from "../utils/api";
 import { Home } from "lucide-react"; // Home icon
+import { FcGoogle } from "react-icons/fc"; // Google icon
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -33,6 +34,11 @@ export default function Login() {
       console.log(err);
       setError("Login failed. Invalid email or password.");
     }
+  };
+
+  // 🔹 GOOGLE LOGIN
+  const handleGoogleLogin = () => {
+    window.location.href = "https://trust-market-backend-nsao.onrender.com/api/auth/google"; // backend route
   };
 
   return (
@@ -101,6 +107,22 @@ export default function Login() {
             </button>
           </div>
         </form>
+
+        {/* 🔹 OR divider */}
+        <div className="flex items-center my-4">
+          <hr className="flex-1 border-gray-300" />
+          <span className="px-3 text-gray-500">OR</span>
+          <hr className="flex-1 border-gray-300" />
+        </div>
+
+        {/* 🔹 GOOGLE LOGIN BUTTON */}
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 hover:bg-gray-100 transition-all"
+        >
+          <FcGoogle className="w-6 h-6" />
+          Continue with Google
+        </button>
 
         {/* Forgot password centered */}
         <div className="mt-5 text-center text-sm text-gray-600">

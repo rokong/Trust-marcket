@@ -5,6 +5,8 @@ import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
 import { Server as IOServer } from "socket.io";
+import passport from "passport";
+import { initPassport } from "./src/config/passport.js";
 
 import postsRoutes from "./src/routes/posts.js";
 import authRoutes from "./src/routes/auth.js";
@@ -28,6 +30,9 @@ const PORT = process.env.PORT || 5000;
 // ---------- MIDDLEWARE ----------
 app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
+
+initPassport();                // Google strategy register
+app.use(passport.initialize()); 
 
 // ---------- HTTP + SOCKET ----------
 const server = http.createServer(app);

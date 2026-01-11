@@ -3,6 +3,8 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import passport from "passport";
+import { generateToken } from "../utils/generateToken.js";
 
 const router = express.Router();
 
@@ -103,23 +105,21 @@ router.get("/me", authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-// 🔹 REGISTER GUEST (no email, no password)
-router.post("/register-guest", async (req, res) => {
-  try {
-    const guest = new User({
-      name: "",
-      email: `guest_${Date.now()}@noemail.com`,
-      password: "",
-      role: "guest",
-    });
 
-    await guest.save();
+// 🔹 GOOGLE LOGIN START
+router.get(
+  "/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
 
-    res.json(guest);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Guest registration failed" });
+// 🔹 GOOGLE CALLBACK
+router.get(
+  "/google/callback",
+  passport.authenticate("google", { session: false }),
+  (req, res) => {
+    const token = generateToken(req.user); // JWT helper
+    res.redirect(`${process.env.FRONTEND_URL}/auth-success?token=${token}`);
   }
-});
+);
 
 export default router;
