@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import cors from "cors";
 import http from "http";
-import { Server } from "socket.io";
+import { Server as IOServer } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -51,28 +51,21 @@ const PORT = process.env.PORT || 5000;
 const server = http.createServer(app);
 
 // -------------------- SOCKET.IO --------------------
-// -------------------- SOCKET.IO --------------------
-import { Server as IOServer } from "socket.io"; // just for clarity
-
-const io = new IOServer(server, {
-  cors: { origin: "*" },
-});
+const io = new IOServer(server, { cors: { origin: "*" } });
 
 io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
-
-  socket.on("join", (userId) => {
-    socket.join(userId);
-  });
+  socket.on("join", (userId) => socket.join(userId));
 
   socket.on("send_message", async (data) => {
     try {
+      // 🚫 MEDIA NEVER COMES HERE
+      if (data.type === "image" || data.type === "video") return;
+
       const msg = await Message.create({
         userId: data.userId,
         sender: data.sender,
         type: data.type,
         text: data.text ?? "",
-        mediaUrl: data.mediaUrl ?? null,
         postId: data.postId ?? null,
         postTitle: data.postTitle ?? null,
         postDescription: data.postDescription ?? null,
@@ -81,16 +74,16 @@ io.on("connection", (socket) => {
 
       io.to(data.userId.toString()).emit("receive_message", msg);
     } catch (err) {
-      console.error("send_message failed", err);
+      console.error(err);
     }
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Socket disconnected");
   });
 });
 
+app.use("/api/upload", uploadRoutes(io));
 
+mongoose.connect(process.env.MONGO_URI).then(() => {
+  server.listen(process.env.PORT || 5000);
+});
 // -------------------- ROUTES --------------------
 // io এখানে পাঠাতে হবে, কারণ এখন io declare হয়ে গেছে
 app.use("/api/upload", uploadRoutes(io));
