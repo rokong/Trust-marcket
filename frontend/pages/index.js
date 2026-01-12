@@ -44,19 +44,17 @@ export default function HomePage() {
     };
     loadPosts();
   }, []);
-
-  const handleMessage = (post) => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
-      alert("Please login!");
-      // Alert + push ekshathe sometimes block kore, setTimeout diye fix
+  const handleMessage = (postId = null) => {
+    if (!localStorage.getItem("userId")) {
+      // alert("Please login to view messages!"); // remove or replace with toast
       setTimeout(() => {
         router.push("/login");
       }, 0);
       return;
     }
-    router.push(`/messages?post=${post._id}`);
+    router.push(postId ? `/messages?post=${postId}` : "/messages");
   };
+
 
   // Handlers
   const handleBuy = (post) => {
