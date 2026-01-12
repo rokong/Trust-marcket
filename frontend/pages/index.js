@@ -45,6 +45,19 @@ export default function HomePage() {
     loadPosts();
   }, []);
 
+  const handleMessage = (post) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Please login!");
+      // Alert + push ekshathe sometimes block kore, setTimeout diye fix
+      setTimeout(() => {
+        router.push("/login");
+      }, 0);
+      return;
+    }
+    router.push(`/messages?post=${post._id}`);
+  };
+
   // Handlers
   const handleBuy = (post) => {
     if (!localStorage.getItem("token")) {
