@@ -147,7 +147,7 @@ export default function Messages() {
       {/* HEADER */}
       <div className="bg-blue-600 text-white p-4 flex items-center">
         <button onClick={() => router.back()} className="mr-4 text-xl">←</button>
-        <h2 className="font-semibold">Chat with Admin</h2>
+        <h2 className="font-semibold">Trust Market</h2>
       </div>
 
       {/* MESSAGES */}
