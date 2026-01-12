@@ -132,7 +132,7 @@ export default function ViewPost() {
       <div className="mt-8 sm:mt-12 p-4 sm:p-6 bg-white rounded-2xl shadow-lg border-t-4 border-blue-600 max-w-3xl mx-auto">
         {/* Heading */}
         <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold mb-4 text-gray-800 text-center">
-          Trust Market – আপনার নিরাপদ ও সহজ অনলাইন মার্কেটপ্লেস অ্যাপ
+          Trust Market – আপনার নিরাপদ ও সহজ অনলাইন মার্কেটপ্লেস অ্যাপ,.আপনার নির্বাচিত জিনিস নিতে মেসেজ পেজ এ  যোগা যোগ করুন
         </h3>
 
         {/* Description */}
