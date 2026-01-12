@@ -1,7 +1,7 @@
 // frontend/pages/index.js
-// frontend/pages/index.js
 import { useEffect, useState } from "react";
 import api from "../utils/api";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { 
   Menu, 
@@ -64,11 +64,7 @@ export default function HomePage() {
       router.push("/login");
       return;
     }
-    if (post) {
-      router.push(`/messages?post=${post._id}`);
-    } else {
-      router.push("/messages");
-    }
+    router.push(post ? `/messages?post=${post._id}` : "/messages");
   };
 
   const handleCreatePost = () => {
@@ -95,34 +91,41 @@ export default function HomePage() {
 
         {/* Desktop Menu */}
         <nav className="hidden md:flex space-x-8 text-gray-700 font-medium items-center">
-          <button onClick={() => router.push("/")} className="flex gap-1 hover:text-blue-600">Home</button>
-          <button onClick={() => setShowCategory(!showCategory)} className="flex gap-1 hover:text-blue-600">
+          <Link href="/" className="hover:text-blue-600 transition flex items-center gap-1">
+            Home
+          </Link>
+
+          <button 
+            onClick={() => setShowCategory(!showCategory)} 
+            className="hover:text-blue-600 transition flex items-center gap-1"
+          >
             <Menu className="w-4 h-4" /> Categories
           </button>
-          <button onClick={() => handleMessage()} className="flex items-center gap-1 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
-            <MessageCircle className="w-5 h-5 text-blue-600" /> Messages
+
+          <button onClick={() => handleMessage()} className="hover:text-blue-600 transition flex items-center gap-1">
+            <MessageCircle className="w-4 h-4" /> Messages
           </button>
-          <button onClick={() => router.push("/dashboard")} className="flex gap-1 hover:text-blue-600">
+
+          <Link href="/dashboard" className="hover:text-blue-600 transition flex items-center gap-1">
             <User className="w-4 h-4" /> Account
-          </button>
-          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition">
+          </Link>
+
+          <button 
+            onClick={handleCreatePost} 
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition ml-4"
+          >
             <PlusCircle className="w-5 h-5" /> Create Post
           </button>
         </nav>
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-2">
-          {/* Mobile Message button */}
           <button onClick={() => handleMessage()} className="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
             <MessageCircle className="w-6 h-6" />
           </button>
-
-          {/* Mobile Menu toggle */}
           <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
             <Menu className="w-6 h-6 text-gray-700" />
           </button>
-
-          {/* Mobile Create Post */}
           <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
             <PlusCircle className="w-5 h-5" /> Post
           </button>
@@ -134,10 +137,7 @@ export default function HomePage() {
             {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
               <button 
                 key={cat} 
-                onClick={() => {
-                  setCategory(cat.toLowerCase());
-                  setShowCategory(false);
-                }} 
+                onClick={() => { setCategory(cat.toLowerCase()); setShowCategory(false); }} 
                 className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
               >
                 {cat}
@@ -149,21 +149,18 @@ export default function HomePage() {
         {/* Mobile Menu Dropdown */}
         {showMobileMenu && (
           <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-            <button onClick={() => { router.push("/"); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b">
-              <Home className="w-4 h-4" /> Home
-            </button>
-            <button onClick={() => { handleMessage(); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b">
+            <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
+            <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
               <MessageCircle className="w-4 h-4" /> Messages
             </button>
-            <button onClick={() => { router.push("/dashboard"); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b">
+            <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
               <User className="w-4 h-4" /> Account
-            </button>
-            <button onClick={() => { setShowCategory(!showCategory); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+            </Link>
+            <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
               <Menu className="w-4 h-4" /> Categories
             </button>
           </div>
         )}
-
       </header>
 
       {/* Search Bar */}
