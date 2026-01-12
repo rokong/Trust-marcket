@@ -1,5 +1,4 @@
 // frontend/pages/index.js
-// frontend/pages/index.js
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import { resolveMediaUrl } from "../utils/resolveMediaUrl";
@@ -32,12 +31,8 @@ export default function HomePage() {
 
   useEffect(() => {
     api.get("/health")
-      .then(res => {
-        console.log("BACKEND OK:", res.data);
-      })
-      .catch(err => {
-        console.log("BACKEND FAIL:", err);
-      });
+      .then(res => console.log("BACKEND OK:", res.data))
+      .catch(err => console.log("BACKEND FAIL:", err));
   }, []);
   
   useEffect(() => {
@@ -62,14 +57,14 @@ export default function HomePage() {
     router.push(`/buy?post=${post._id}`);
   };
 
-  const handleMessage = (post) => {
+  const handleMessage = (postId = null) => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
-      alert("Please login!");
+      alert("Please login to view messages!");
       router.push("/login");
       return;
     }
-    router.push(`/messages?post=${post._id}`);
+    router.push(postId ? `/messages?post=${postId}` : "/messages");
   };
 
   const handleCreatePost = () => {
@@ -83,7 +78,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-100 pb-24">
       
       {/* Navbar */}
       <header className="bg-white shadow-md p-4 flex justify-between items-center relative">
@@ -107,10 +102,12 @@ export default function HomePage() {
             <Menu className="w-4 h-4" /> Categories
           </button>
 
-          <Link href="/messages" className="hover:text-blue-600 transition flex items-center gap-1 bg-blue-50 px-4 py-2 rounded-lg">
-            <MessageCircle className="w-5 h-5 text-blue-600" /> 
-            <span className="hidden lg:inline">Messages</span>
-          </Link>
+          <button
+            onClick={() => handleMessage()}
+            className="flex items-center gap-1 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition"
+          >
+            <MessageCircle className="w-5 h-5 text-blue-600" /> Messages
+          </button>
 
           <Link href="/dashboard" className="hover:text-blue-600 transition flex items-center gap-1">
             <User className="w-4 h-4" /> Account
@@ -124,17 +121,17 @@ export default function HomePage() {
           </button>
         </nav>
 
-        {/* Mobile Menu Bar - Messages button added here */}
+        {/* Mobile Menu Bar */}
         <div className="md:hidden flex items-center gap-4">
-          {/* Messages Button - Visible on mobile */}
-          <Link 
-            href="/messages" 
+          {/* Messages Button with login check */}
+          <button
+            onClick={() => handleMessage()}
             className="flex items-center justify-center p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
             title="Messages"
           >
             <MessageCircle className="w-6 h-6" />
-          </Link>
-          
+          </button>
+
           {/* Mobile Menu Toggle */}
           <button 
             onClick={() => setShowMobileMenu(!showMobileMenu)} 
@@ -142,7 +139,7 @@ export default function HomePage() {
           >
             <Menu className="w-6 h-6 text-gray-700" />
           </button>
-          
+
           {/* Create Post Button */}
           <button 
             onClick={handleCreatePost} 
@@ -269,7 +266,7 @@ export default function HomePage() {
                     </Link>
 
                     <button 
-                      onClick={() => handleMessage(post)} 
+                      onClick={() => handleMessage(post._id)} 
                       className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition flex items-center gap-1"
                     >
                       <MessageCircle className="w-4 h-4" /> Message
