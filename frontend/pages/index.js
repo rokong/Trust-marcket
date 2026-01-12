@@ -1,7 +1,6 @@
 // frontend/pages/index.js
 import { useEffect, useState } from "react";
 import api from "../utils/api";
-import { resolveMediaUrl } from "../utils/resolveMediaUrl";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { 
@@ -22,19 +21,19 @@ export default function HomePage() {
   const router = useRouter();
   const [search, setSearch] = useState("");
 
+  // Health check
   useEffect(() => {
     fetch("https://trust-market-backend-nsao.onrender.com/api/health")
       .then(res => res.json())
       .then(data => console.log("HEALTH:", data))
       .catch(err => console.error("HEALTH ERR:", err));
-  }, []);
 
-  useEffect(() => {
     api.get("/health")
       .then(res => console.log("BACKEND OK:", res.data))
       .catch(err => console.log("BACKEND FAIL:", err));
   }, []);
-  
+
+  // Load posts
   useEffect(() => {
     const loadPosts = async () => {
       try {
@@ -47,6 +46,7 @@ export default function HomePage() {
     loadPosts();
   }, []);
 
+  // Buy post
   const handleBuy = (post) => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -57,6 +57,7 @@ export default function HomePage() {
     router.push(`/buy?post=${post._id}`);
   };
 
+  // Message post
   const handleMessage = (postId = null) => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
@@ -67,6 +68,7 @@ export default function HomePage() {
     router.push(postId ? `/messages?post=${postId}` : "/messages");
   };
 
+  // Create post
   const handleCreatePost = () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -121,9 +123,9 @@ export default function HomePage() {
           </button>
         </nav>
 
-        {/* Mobile Menu Bar */}
+        {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-4">
-          {/* Messages Button with login check */}
+          {/* Messages button */}
           <button
             onClick={() => handleMessage()}
             className="flex items-center justify-center p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
@@ -132,7 +134,7 @@ export default function HomePage() {
             <MessageCircle className="w-6 h-6" />
           </button>
 
-          {/* Mobile Menu Toggle */}
+          {/* Menu toggle */}
           <button 
             onClick={() => setShowMobileMenu(!showMobileMenu)} 
             className="flex items-center justify-center p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
@@ -140,7 +142,7 @@ export default function HomePage() {
             <Menu className="w-6 h-6 text-gray-700" />
           </button>
 
-          {/* Create Post Button */}
+          {/* Create post */}
           <button 
             onClick={handleCreatePost} 
             className="bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-1"
@@ -150,7 +152,7 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Category Dropdown */}
+        {/* Category dropdown */}
         {showCategory && (
           <div className="absolute right-4 top-16 bg-white border rounded-lg shadow-lg w-56 z-10">
             {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
@@ -168,7 +170,7 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Mobile Menu Dropdown */}
+        {/* Mobile dropdown menu */}
         {showMobileMenu && (
           <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
             <Link 
@@ -199,8 +201,8 @@ export default function HomePage() {
           </div>
         )}
       </header>
-      
-      {/* Search Bar */}
+
+      {/* Search */}
       <div className="bg-white border-b p-4 flex justify-center">
         <input
           type="text"
@@ -211,7 +213,7 @@ export default function HomePage() {
         />
       </div>
 
-      {/* Category Filter */}
+      {/* Category filter */}
       <div className="bg-white border-b p-3 flex justify-center gap-4 flex-wrap">
         {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
           <button 
