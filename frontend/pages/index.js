@@ -44,17 +44,6 @@ export default function HomePage() {
     };
     loadPosts();
   }, []);
-  const handleMessage = (postId = null) => {
-    if (!localStorage.getItem("userId")) {
-      // alert("Please login to view messages!"); // remove or replace with toast
-      setTimeout(() => {
-        router.push("/login");
-      }, 0);
-      return;
-    }
-    router.push(postId ? `/messages?post=${postId}` : "/messages");
-  };
-
 
   // Handlers
   const handleBuy = (post) => {
@@ -69,7 +58,9 @@ export default function HomePage() {
   const handleMessage = (postId = null) => {
     if (!localStorage.getItem("userId")) {
       alert("Please login to view messages!");
-      router.push("/login");
+      setTimeout(() => {
+        router.push("/login");
+      }, 0);
       return;
     }
     router.push(postId ? `/messages?post=${postId}` : "/messages");
@@ -84,7 +75,6 @@ export default function HomePage() {
     router.push("/create-post");
   };
 
-  // Render
   return (
     <div className="min-h-screen bg-gray-100 pb-24">
 
@@ -92,9 +82,7 @@ export default function HomePage() {
       <header className="bg-white shadow-md p-4 flex justify-between items-center relative">
         <div className="flex items-center gap-2">
           <Home className="text-blue-600 w-6 h-6" />
-          <h1 className="text-2xl font-extrabold text-blue-600 tracking-wide">
-            Trust Market
-          </h1>
+          <h1 className="text-2xl font-extrabold text-blue-600 tracking-wide">Trust Market</h1>
         </div>
 
         {/* Desktop menu */}
@@ -132,9 +120,7 @@ export default function HomePage() {
           <div className="absolute right-4 top-16 bg-white border rounded-lg shadow-lg w-56 z-10">
             {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
               <button key={cat} onClick={() => { setCategory(cat.toLowerCase()); setShowCategory(false); }} 
-                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize">
-                {cat}
-              </button>
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize">{cat}</button>
             ))}
           </div>
         )}
@@ -178,9 +164,7 @@ export default function HomePage() {
           <button key={cat} onClick={() => setCategory(cat.toLowerCase())} 
                   className={`px-4 py-2 rounded-full border transition ${
                     category === cat.toLowerCase() ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-blue-50"
-                  }`}>
-            {cat}
-          </button>
+                  }`}>{cat}</button>
         ))}
       </div>
 
