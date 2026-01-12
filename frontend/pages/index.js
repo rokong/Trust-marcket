@@ -47,7 +47,8 @@ export default function HomePage() {
 
   // Handlers
   const handleBuy = (post) => {
-    if (!localStorage.getItem("token")) {
+    const token = localStorage.getItem("token");
+    if (!token) {
       alert("Please login to buy!");
       router.push("/login");
       return;
@@ -55,19 +56,19 @@ export default function HomePage() {
     router.push(`/buy?post=${post._id}`);
   };
 
-  const handleMessage = (postId = null) => {
-    if (!localStorage.getItem("userId")) {
-      alert("Please login to view messages!");
-      setTimeout(() => {
-        router.push("/login");
-      }, 0);
+  const handleMessage = (post) => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Please login!");
+      router.push("/login");
       return;
     }
-    router.push(postId ? `/messages?post=${postId}` : "/messages");
+    router.push(`/messages?post=${post._id}`);
   };
 
   const handleCreatePost = () => {
-    if (!localStorage.getItem("token")) {
+    const token = localStorage.getItem("token");
+    if (!token) {
       alert("Please login to create a post!");
       router.push("/login");
       return;
@@ -76,7 +77,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 pb-24">
+    <div className="min-h-screen bg-gray-100">
 
       {/* Navbar */}
       <header className="bg-white shadow-md p-4 flex justify-between items-center relative">
@@ -85,37 +86,42 @@ export default function HomePage() {
           <h1 className="text-2xl font-extrabold text-blue-600 tracking-wide">Trust Market</h1>
         </div>
 
-        {/* Desktop menu */}
-        <nav className="hidden md:flex space-x-8 items-center font-medium text-gray-700">
-          <button onClick={() => router.push("/")} className="flex gap-1 hover:text-blue-600">Home</button>
-          <button onClick={() => setShowCategory(!showCategory)} className="flex gap-1 hover:text-blue-600">
+        {/* Desktop Menu */}
+        <nav className="hidden md:flex space-x-8 text-gray-700 font-medium items-center">
+          <button onClick={() => router.push("/")} className="hover:text-blue-600 transition flex items-center gap-1">Home</button>
+          <button onClick={() => setShowCategory(!showCategory)} className="hover:text-blue-600 transition flex items-center gap-1">
             <Menu className="w-4 h-4" /> Categories
           </button>
-          <button onClick={() => handleMessage()} className="flex items-center gap-1 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
-            <MessageCircle className="w-5 h-5 text-blue-600" /> Messages
+          <button onClick={() => handleMessage()} className="hover:text-blue-600 transition flex items-center gap-1">
+            <MessageCircle className="w-4 h-4" /> Messages
           </button>
-          <button onClick={() => router.push("/dashboard")} className="flex gap-1 hover:text-blue-600">
+          <button onClick={() => router.push("/dashboard")} className="hover:text-blue-600 transition flex items-center gap-1">
             <User className="w-4 h-4" /> Account
           </button>
-          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition">
+          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition ml-4">
             <PlusCircle className="w-5 h-5" /> Create Post
           </button>
         </nav>
 
-        {/* Mobile menu */}
+        {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-2">
+          {/* Mobile Messages Button (Samne) */}
           <button onClick={() => handleMessage()} className="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
             <MessageCircle className="w-6 h-6" />
           </button>
+
+          {/* Mobile Menu Toggle */}
           <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
             <Menu className="w-6 h-6 text-gray-700" />
           </button>
-          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-1">
+
+          {/* Mobile Create Post */}
+          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
             <PlusCircle className="w-5 h-5" /> Post
           </button>
         </div>
 
-        {/* Category dropdown */}
+        {/* Category Dropdown */}
         {showCategory && (
           <div className="absolute right-4 top-16 bg-white border rounded-lg shadow-lg w-56 z-10">
             {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
@@ -125,23 +131,15 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Mobile dropdown */}
+        {/* Mobile Menu Dropdown */}
         {showMobileMenu && (
           <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-            <button onClick={() => { router.push("/"); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b">
-              <Home className="w-4 h-4" /> Home
-            </button>
-            <button onClick={() => { setShowCategory(!showCategory); setShowMobileMenu(false); }} 
-                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b text-left">
-              <Menu className="w-4 h-4" /> Categories
-            </button>
-            <button onClick={() => { handleMessage(); setShowMobileMenu(false); }} 
-                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b text-left">
-              <MessageCircle className="w-4 h-4" /> Messages
-            </button>
-            <button onClick={() => { router.push("/dashboard"); setShowMobileMenu(false); }} 
-                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 text-left">
+            <button onClick={() => { router.push("/"); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100">Home</button>
+            <button onClick={() => { router.push("/dashboard"); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
               <User className="w-4 h-4" /> Account
+            </button>
+            <button onClick={() => { setShowCategory(!showCategory); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+              <Menu className="w-4 h-4" /> Categories
             </button>
           </div>
         )}
@@ -153,18 +151,18 @@ export default function HomePage() {
           type="text"
           placeholder="Search post by title..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-full max-w-xl border rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
-      {/* Category filter */}
+      {/* Category Filter */}
       <div className="bg-white border-b p-3 flex justify-center gap-4 flex-wrap">
         {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
           <button key={cat} onClick={() => setCategory(cat.toLowerCase())} 
-                  className={`px-4 py-2 rounded-full border transition ${
-                    category === cat.toLowerCase() ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-blue-50"
-                  }`}>{cat}</button>
+                  className={`px-4 py-2 rounded-full border transition ${category === cat.toLowerCase() ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-blue-50"}`}>
+            {cat}
+          </button>
         ))}
       </div>
 
@@ -174,26 +172,26 @@ export default function HomePage() {
           <p className="text-center text-gray-500">No posts available yet.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {posts.filter(p => (category === "all" || p.category?.toLowerCase() === category) &&
-                               p.title?.toLowerCase().includes(search.toLowerCase()))
-                  .map(post => (
-              <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
-                {post.images?.[0] && <img src={post.images[0]} alt="Post" className="w-full max-h-72 object-cover rounded-xl mb-3" />}
-                {post.videos?.[0] && <video controls className="w-full max-h-72 rounded-xl object-cover mb-3"><source src={post.videos[0]} type="video/mp4" /></video>}
-                <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
-                <p className="text-gray-600 mb-3 line-clamp-3">{post.description}</p>
-                <p className="text-blue-600 font-bold text-lg mb-3">🤑 {post.price} BDT</p>
+            {posts
+              .filter(p => (category === "all" || p.category?.toLowerCase() === category))
+              .map(post => (
+                <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
+                  {post.images?.[0] && <img src={post.images[0]} alt="Post" className="w-full max-h-72 object-cover rounded-xl mb-3" />}
+                  {post.videos?.[0] && <video controls className="w-full max-h-72 rounded-xl object-cover mb-3"><source src={post.videos[0]} type="video/mp4" /></video>}
+                  <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
+                  <p className="text-gray-600 mb-3 line-clamp-3">{post.description}</p>
+                  <p className="text-blue-600 font-bold text-lg mb-3">🤑 {post.price} BDT</p>
 
-                <div className="flex justify-between items-center mt-auto">
-                  <button onClick={() => handleMessage(post._id)} className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center gap-1">
-                    <MessageCircle className="w-4 h-4" /> Message
-                  </button>
-                  <button onClick={() => handleBuy(post)} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-1">
-                    <ShoppingCart className="w-4 h-4" /> Buy
-                  </button>
+                  <div className="flex justify-between items-center mt-auto">
+                    <button onClick={() => handleMessage(post)} className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center gap-1">
+                      <MessageCircle className="w-4 h-4" /> Message
+                    </button>
+                    <button onClick={() => handleBuy(post)} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-1">
+                      <ShoppingCart className="w-4 h-4" /> Buy
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </main>
