@@ -1,7 +1,6 @@
 // frontend/pages/index.js
 import { useEffect, useState } from "react";
 import api from "../utils/api";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { 
   Menu, 
@@ -18,8 +17,8 @@ export default function HomePage() {
   const [category, setCategory] = useState("all");
   const [showCategory, setShowCategory] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const router = useRouter();
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   // Health check
   useEffect(() => {
@@ -46,10 +45,9 @@ export default function HomePage() {
     loadPosts();
   }, []);
 
-  // Buy post
+  // Handlers
   const handleBuy = (post) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!localStorage.getItem("token")) {
       alert("Please login to buy!");
       router.push("/login");
       return;
@@ -57,10 +55,8 @@ export default function HomePage() {
     router.push(`/buy?post=${post._id}`);
   };
 
-  // Message post
   const handleMessage = (postId = null) => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) {
+    if (!localStorage.getItem("userId")) {
       alert("Please login to view messages!");
       router.push("/login");
       return;
@@ -68,10 +64,8 @@ export default function HomePage() {
     router.push(postId ? `/messages?post=${postId}` : "/messages");
   };
 
-  // Create post
   const handleCreatePost = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!localStorage.getItem("token")) {
       alert("Please login to create a post!");
       router.push("/login");
       return;
@@ -79,9 +73,10 @@ export default function HomePage() {
     router.push("/create-post");
   };
 
+  // Render
   return (
     <div className="min-h-screen bg-gray-100 pb-24">
-      
+
       {/* Navbar */}
       <header className="bg-white shadow-md p-4 flex justify-between items-center relative">
         <div className="flex items-center gap-2">
@@ -91,64 +86,33 @@ export default function HomePage() {
           </h1>
         </div>
 
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex space-x-8 text-gray-700 font-medium items-center">
-          <Link href="/" className="hover:text-blue-600 transition flex items-center gap-1">
-            Home
-          </Link>
-
-          <button 
-            onClick={() => setShowCategory(!showCategory)} 
-            className="hover:text-blue-600 transition flex items-center gap-1"
-          >
+        {/* Desktop menu */}
+        <nav className="hidden md:flex space-x-8 items-center font-medium text-gray-700">
+          <button onClick={() => router.push("/")} className="flex gap-1 hover:text-blue-600">Home</button>
+          <button onClick={() => setShowCategory(!showCategory)} className="flex gap-1 hover:text-blue-600">
             <Menu className="w-4 h-4" /> Categories
           </button>
-
-          <button
-            onClick={() => handleMessage()}
-            className="flex items-center gap-1 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition"
-          >
+          <button onClick={() => handleMessage()} className="flex items-center gap-1 bg-blue-50 px-4 py-2 rounded-lg hover:bg-blue-100 transition">
             <MessageCircle className="w-5 h-5 text-blue-600" /> Messages
           </button>
-
-          <Link href="/dashboard" className="hover:text-blue-600 transition flex items-center gap-1">
+          <button onClick={() => router.push("/dashboard")} className="flex gap-1 hover:text-blue-600">
             <User className="w-4 h-4" /> Account
-          </Link>
-
-          <button 
-            onClick={handleCreatePost} 
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition ml-4"
-          >
+          </button>
+          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition">
             <PlusCircle className="w-5 h-5" /> Create Post
           </button>
         </nav>
 
-        {/* Mobile Menu */}
-        <div className="md:hidden flex items-center gap-4">
-          {/* Messages button */}
-          <button
-            onClick={() => handleMessage()}
-            className="flex items-center justify-center p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-            title="Messages"
-          >
+        {/* Mobile menu */}
+        <div className="md:hidden flex items-center gap-2">
+          <button onClick={() => handleMessage()} className="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
             <MessageCircle className="w-6 h-6" />
           </button>
-
-          {/* Menu toggle */}
-          <button 
-            onClick={() => setShowMobileMenu(!showMobileMenu)} 
-            className="flex items-center justify-center p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
-          >
+          <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
             <Menu className="w-6 h-6 text-gray-700" />
           </button>
-
-          {/* Create post */}
-          <button 
-            onClick={handleCreatePost} 
-            className="bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-1"
-          >
-            <PlusCircle className="w-5 h-5" /> 
-            <span className="hidden sm:inline">Post</span>
+          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-1">
+            <PlusCircle className="w-5 h-5" /> Post
           </button>
         </div>
 
@@ -156,48 +120,32 @@ export default function HomePage() {
         {showCategory && (
           <div className="absolute right-4 top-16 bg-white border rounded-lg shadow-lg w-56 z-10">
             {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
-              <button 
-                key={cat} 
-                onClick={() => {
-                  setCategory(cat.toLowerCase());
-                  setShowCategory(false);
-                }} 
-                className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
-              >
+              <button key={cat} onClick={() => { setCategory(cat.toLowerCase()); setShowCategory(false); }} 
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize">
                 {cat}
               </button>
             ))}
           </div>
         )}
 
-        {/* Mobile dropdown menu */}
+        {/* Mobile dropdown */}
         {showMobileMenu && (
           <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-            <Link 
-              href="/" 
-              className="px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b"
-              onClick={() => setShowMobileMenu(false)}
-            >
+            <button onClick={() => { router.push("/"); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b">
               <Home className="w-4 h-4" /> Home
-            </Link>
-            
-            <button 
-              onClick={() => {
-                setShowCategory(!showCategory);
-                setShowMobileMenu(false);
-              }} 
-              className="px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b text-left"
-            >
+            </button>
+            <button onClick={() => { setShowCategory(!showCategory); setShowMobileMenu(false); }} 
+                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b text-left">
               <Menu className="w-4 h-4" /> Categories
             </button>
-            
-            <Link 
-              href="/dashboard" 
-              className="px-4 py-3 hover:bg-gray-100 flex items-center gap-2"
-              onClick={() => setShowMobileMenu(false)}
-            >
+            <button onClick={() => { handleMessage(); setShowMobileMenu(false); }} 
+                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 border-b text-left">
+              <MessageCircle className="w-4 h-4" /> Messages
+            </button>
+            <button onClick={() => { router.push("/dashboard"); setShowMobileMenu(false); }} 
+                    className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1 text-left">
               <User className="w-4 h-4" /> Account
-            </Link>
+            </button>
           </div>
         )}
       </header>
@@ -208,7 +156,7 @@ export default function HomePage() {
           type="text"
           placeholder="Search post by title..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={e => setSearch(e.target.value)}
           className="w-full max-w-xl border rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
@@ -216,15 +164,10 @@ export default function HomePage() {
       {/* Category filter */}
       <div className="bg-white border-b p-3 flex justify-center gap-4 flex-wrap">
         {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map(cat => (
-          <button 
-            key={cat} 
-            onClick={() => setCategory(cat.toLowerCase())} 
-            className={`px-4 py-2 rounded-full border transition ${
-              category === cat.toLowerCase() 
-                ? "bg-blue-600 text-white border-blue-600" 
-                : "bg-white text-gray-700 hover:bg-blue-50"
-            }`}
-          >
+          <button key={cat} onClick={() => setCategory(cat.toLowerCase())} 
+                  className={`px-4 py-2 rounded-full border transition ${
+                    category === cat.toLowerCase() ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-blue-50"
+                  }`}>
             {cat}
           </button>
         ))}
@@ -236,53 +179,26 @@ export default function HomePage() {
           <p className="text-center text-gray-500">No posts available yet.</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {posts
-              .filter(p =>
-                (category === "all" || p.category?.toLowerCase() === category) &&
-                p.title?.toLowerCase().includes(search.toLowerCase())
-              )
-              .map(post => (
-                <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
-                  {post.images?.length > 0 && (
-                    <div className="w-full rounded-xl overflow-hidden bg-gray-200 mb-3">
-                      {post.images?.[0] && (
-                        <img src={post.images[0]} alt="Post Image" className="w-full max-h-72 object-cover rounded-xl" />
-                      )}
-                    </div>
-                  )}
-                  {post.videos?.[0] && (
-                    <video controls className="w-full max-h-72 rounded-xl object-cover">
-                      <source src={post.videos[0]} type="video/mp4" />
-                    </video>
-                  )}
-                  <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
-                  <p className="text-gray-600 mb-3 line-clamp-3">{post.description}</p>
-                  <p className="text-blue-600 font-bold text-lg mb-3">🤑 {post.price} BDT</p>
+            {posts.filter(p => (category === "all" || p.category?.toLowerCase() === category) &&
+                               p.title?.toLowerCase().includes(search.toLowerCase()))
+                  .map(post => (
+              <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
+                {post.images?.[0] && <img src={post.images[0]} alt="Post" className="w-full max-h-72 object-cover rounded-xl mb-3" />}
+                {post.videos?.[0] && <video controls className="w-full max-h-72 rounded-xl object-cover mb-3"><source src={post.videos[0]} type="video/mp4" /></video>}
+                <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
+                <p className="text-gray-600 mb-3 line-clamp-3">{post.description}</p>
+                <p className="text-blue-600 font-bold text-lg mb-3">🤑 {post.price} BDT</p>
 
-                  <div className="flex justify-between items-center mt-auto">
-                    <Link 
-                      href={`/post/${post._id}`} 
-                      className="text-blue-600 hover:underline font-medium flex items-center gap-1"
-                    >
-                      <Heart className="w-4 h-4" /> View
-                    </Link>
-
-                    <button 
-                      onClick={() => handleMessage(post._id)} 
-                      className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition flex items-center gap-1"
-                    >
-                      <MessageCircle className="w-4 h-4" /> Message
-                    </button>
-
-                    <button 
-                      onClick={() => handleBuy(post)} 
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition flex items-center gap-1"
-                    >
-                      <ShoppingCart className="w-4 h-4" /> Buy
-                    </button>
-                  </div>
+                <div className="flex justify-between items-center mt-auto">
+                  <button onClick={() => handleMessage(post._id)} className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center gap-1">
+                    <MessageCircle className="w-4 h-4" /> Message
+                  </button>
+                  <button onClick={() => handleBuy(post)} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-1">
+                    <ShoppingCart className="w-4 h-4" /> Buy
+                  </button>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         )}
       </main>
