@@ -1,4 +1,5 @@
 // frontend/pages/index.js
+// frontend/pages/index.js
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import { resolveMediaUrl } from "../utils/resolveMediaUrl";
@@ -106,8 +107,9 @@ export default function HomePage() {
             <Menu className="w-4 h-4" /> Categories
           </button>
 
-          <Link href="/messages" className="hover:text-blue-600 transition flex items-center gap-1">
-            <MessageCircle className="w-4 h-4" /> Messages
+          <Link href="/messages" className="hover:text-blue-600 transition flex items-center gap-1 bg-blue-50 px-4 py-2 rounded-lg">
+            <MessageCircle className="w-5 h-5 text-blue-600" /> 
+            <span className="hidden lg:inline">Messages</span>
           </Link>
 
           <Link href="/dashboard" className="hover:text-blue-600 transition flex items-center gap-1">
@@ -122,16 +124,32 @@ export default function HomePage() {
           </button>
         </nav>
 
-        {/* Mobile Menu */}
-        <div className="md:hidden flex items-center gap-2">
-          <button onClick={() => setShowMobileMenu(!showMobileMenu)}>
-            <Menu className="w-6 h-6 text-blue-600" />
+        {/* Mobile Menu Bar - Messages button added here */}
+        <div className="md:hidden flex items-center gap-4">
+          {/* Messages Button - Visible on mobile */}
+          <Link 
+            href="/messages" 
+            className="flex items-center justify-center p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
+            title="Messages"
+          >
+            <MessageCircle className="w-6 h-6" />
+          </Link>
+          
+          {/* Mobile Menu Toggle */}
+          <button 
+            onClick={() => setShowMobileMenu(!showMobileMenu)} 
+            className="flex items-center justify-center p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
+          >
+            <Menu className="w-6 h-6 text-gray-700" />
           </button>
+          
+          {/* Create Post Button */}
           <button 
             onClick={handleCreatePost} 
-            className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1"
+            className="bg-blue-600 text-white px-3 py-2 rounded-lg flex items-center gap-1"
           >
-            <PlusCircle className="w-5 h-5" /> Post
+            <PlusCircle className="w-5 h-5" /> 
+            <span className="hidden sm:inline">Post</span>
           </button>
         </div>
 
@@ -156,25 +174,31 @@ export default function HomePage() {
         {/* Mobile Menu Dropdown */}
         {showMobileMenu && (
           <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-            <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
             <Link 
-              href="/messages" 
-              className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1"
+              href="/" 
+              className="px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b"
+              onClick={() => setShowMobileMenu(false)}
             >
-              <MessageCircle className="w-4 h-4" /> Messages
+              <Home className="w-4 h-4" /> Home
             </Link>
-            <Link 
-              href="/dashboard" 
-              className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1"
-            >
-              <User className="w-4 h-4" /> Account
-            </Link>
+            
             <button 
-              onClick={() => setShowCategory(!showCategory)} 
-              className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1"
+              onClick={() => {
+                setShowCategory(!showCategory);
+                setShowMobileMenu(false);
+              }} 
+              className="px-4 py-3 hover:bg-gray-100 flex items-center gap-2 border-b text-left"
             >
               <Menu className="w-4 h-4" /> Categories
             </button>
+            
+            <Link 
+              href="/dashboard" 
+              className="px-4 py-3 hover:bg-gray-100 flex items-center gap-2"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <User className="w-4 h-4" /> Account
+            </Link>
           </div>
         )}
       </header>
