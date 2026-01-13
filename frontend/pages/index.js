@@ -19,8 +19,15 @@ export default function HomePage() {
   const [showCategory, setShowCategory] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [search, setSearch] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0); // ✅ NEW
   const router = useRouter();
 
+  // Load unread count
+  useEffect(() => {
+    const count = localStorage.getItem("unreadCount");
+    if (count) setUnreadCount(parseInt(count));
+  }, []);
+  
   // Health check
   useEffect(() => {
     fetch("https://trust-market-backend-nsao.onrender.com/api/health")
@@ -57,6 +64,11 @@ export default function HomePage() {
     router.push(`/buy?post=${post._id}`);
   };
 
+  const resetUnread = () => {
+    localStorage.setItem("unreadCount", "0");
+    setUnreadCount(0);
+  };
+  
   const handleMessage = (post = null) => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
@@ -64,6 +76,7 @@ export default function HomePage() {
       router.push("/login");
       return;
     }
+    resetUnread(); // ✅ clear badge
     router.push(post ? `/messages?post=${post._id}` : "/messages");
   };
 
@@ -102,8 +115,17 @@ export default function HomePage() {
             <Menu className="w-4 h-4" /> Categories
           </button>
 
-          <button onClick={() => handleMessage()} className="hover:text-blue-600 transition flex items-center gap-1">
+          {/* ✅ Messages with badge */}
+          <button
+            onClick={() => handleMessage()}
+            className="relative hover:text-blue-600 transition flex items-center gap-1"
+          >
             <MessageCircle className="w-4 h-4" /> Messages
+            {unreadCount > 0 && (
+              <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 rounded-full">
+                {unreadCount}
+              </span>
+            )}
           </button>
 
           <Link href="/dashboard" className="hover:text-blue-600 transition flex items-center gap-1">
