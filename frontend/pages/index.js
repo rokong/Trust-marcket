@@ -22,11 +22,23 @@ export default function HomePage() {
   const [unreadCount, setUnreadCount] = useState(0); // ✅ NEW
   const router = useRouter();
 
-  // Load unread count
+  // 🔥 keep unreadCount always in sync
   useEffect(() => {
-    const count = localStorage.getItem("unreadCount");
-    if (count) setUnreadCount(parseInt(count));
+    const syncUnread = () => {
+      const count = parseInt(localStorage.getItem("unreadCount") || "0");
+      setUnreadCount(count);
+    };
+
+    syncUnread(); // initial
+    window.addEventListener("storage", syncUnread);
+    window.addEventListener("focus", syncUnread);
+  
+    return () => {
+      window.removeEventListener("storage", syncUnread);
+      window.removeEventListener("focus", syncUnread);
+    };
   }, []);
+
   
   // Health check
   useEffect(() => {
