@@ -41,13 +41,17 @@ export default function Messages() {
       setMessages((prev) =>
         prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
       );
-
-      /* 🔴 INCREMENT UNREAD ONLY IF PAGE NOT ACTIVE */
-      if (document.visibilityState !== "visible" && msg.sender === "admin") {
-        const current = parseInt(localStorage.getItem("unreadCount") || "0");
-        localStorage.setItem("unreadCount", String(current + 1));
+    
+      // 🔥 unread only if NOT on messages page
+      if (msg.sender === "admin") {
+        const onMessagesPage = router.pathname === "/messages";
+        if (!onMessagesPage) {
+          const current = parseInt(localStorage.getItem("unreadCount") || "0");
+          localStorage.setItem("unreadCount", String(current + 1));
+        }
       }
     });
+
 
     return () => socket.current.disconnect();
   }, [])
