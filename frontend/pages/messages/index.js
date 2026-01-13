@@ -21,6 +21,11 @@ export default function Messages() {
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
+  /* 🔴 RESET UNREAD ON PAGE OPEN */
+  useEffect(() => {
+    localStorage.setItem("unreadCount", "0");
+  }, []);
+  
   /* ---------------- INIT SOCKET ---------------- */
   useEffect(() => {
     const id = localStorage.getItem("userId");
@@ -33,11 +38,19 @@ export default function Messages() {
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
-      setMessages((prev) => (prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]));
+      setMessages((prev) =>
+        prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
+      );
+
+      /* 🔴 INCREMENT UNREAD ONLY IF PAGE NOT ACTIVE */
+      if (document.visibilityState !== "visible" && msg.sender === "admin") {
+        const current = parseInt(localStorage.getItem("unreadCount") || "0");
+        localStorage.setItem("unreadCount", String(current + 1));
+      }
     });
 
     return () => socket.current.disconnect();
-  }, []);
+  }, [])
 
   /* ---------------- LOAD MESSAGES ---------------- */
   useEffect(() => {
