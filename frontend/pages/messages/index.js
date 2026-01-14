@@ -48,8 +48,8 @@ export default function Messages() {
         prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
       );
   
-      // 🔴 Messages page এ না থাকলে unread trigger
-      if (router.pathname !== "/messages") {
+      // 🔴 only admin message triggers unread
+      if (msg.sender === "admin") {
         localStorage.setItem("hasUnread", "1");
       }
     });
