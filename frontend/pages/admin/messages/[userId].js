@@ -18,34 +18,33 @@ export default function ChatPage() {
   const [user, setUser] = useState(null);
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const receivedIds = useRef(new Set()); // duplicate tracker
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
   /* ---------------- SOCKET INIT ---------------- */
+  // SOCKET LISTENER
   useEffect(() => {
     if (!userId) return;
   
     if (!socket.current) {
       socket.current = io(BACKEND_URL, { transports: ["websocket"] });
-      
+  
       socket.current.on("receive_message", (msg) => {
-        setMessages((prev) => {
-          // ✅ Prevent duplicate
-          if (prev.some((m) => m._id === msg._id)) return prev;
-          return [...prev, msg];
-        });
+        if (receivedIds.current.has(msg._id)) return; // skip duplicate
+        receivedIds.current.add(msg._id);
+        setMessages((prev) => [...prev, msg]);
       });
     }
   
-    // Join room
     socket.current.emit("join", userId);
   
     return () => {
       socket.current?.disconnect();
       socket.current = null;
+      receivedIds.current.clear();
     };
   }, [userId]);
-
 
   /* ---------------- LOAD USER ---------------- */
   useEffect(() => {
@@ -81,26 +80,17 @@ export default function ChatPage() {
     if (!reply.trim()) return;
   
     try {
-      const res = await api.post("/admin/messages/send", {
-        userId,
-        type: "text",
-        text: reply,
-      });
-  
-      // ✅ Optimistic update
-      setMessages((prev) => {
-        if (prev.some((m) => m._id === res.data._id)) return prev;
-        return [...prev, res.data];
-      });
-      
-  
+      const res = await api.post("/admin/messages/send", { userId, type: "text", text: reply });
+      if (!receivedIds.current.has(res.data._id)) {
+        receivedIds.current.add(res.data._id);
+        setMessages((prev) => [...prev, res.data]);
+      }
       socket.current.emit("send_message", res.data);
       setReply("");
     } catch (err) {
       console.error("Send text failed", err);
     }
   };
-
   /* ---------------- FILE HANDLING ---------------- */
   const handleFile = (e) => {
     const f = e.target.files[0];
