@@ -18,7 +18,7 @@ export default function Messages() {
   const [postData, setPostData] = useState(null);
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
-  const userId = typeof window !== "undefined" && localStorage.getItem("userId");
+  
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
