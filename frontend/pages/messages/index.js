@@ -12,7 +12,7 @@ export default function Messages() {
   const fileRef = useRef(null);
   const bottomRef = useRef(null);
 
-  const [messages, setMessages] = useState([]);
+  
   const [text, setText] = useState("");
   const [userId, setUserId] = useState(null);
   const [postData, setPostData] = useState(null);
