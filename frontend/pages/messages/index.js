@@ -80,18 +80,31 @@ export default function Messages() {
   };
 
   /* ---------------- SEND ---------------- */
-  const sendMessage = () => {
-    if (!text.trim()) return;
+  const sendText = async () => {
+    if (!message.trim()) return;
   
-    socket.current.emit("send_message", {
-      userId,
-      sender: "user",
-      type: "text",
-      text,
-    });
+    try {
+      const res = await api.post("/messages/send", {
+        receiverId: adminId,   // ⚠️ admin/user id যাকে পাঠাচ্ছো
+        type: "text",
+        text: message,
+      });
   
-    setText("");
+      // 🔒 duplicate guard (same as admin)
+      if (!receivedIds.current.has(res.data._id)) {
+        receivedIds.current.add(res.data._id);
+        setMessages((prev) => [...prev, res.data]);
+      }
+  
+      // 📡 realtime broadcast
+      socket.current.emit("send_message", res.data);
+  
+      setMessage("");
+    } catch (err) {
+      console.error("User send text failed", err);
+    }
   };
+
 
   const sendMedia = async () => {
     if (!file) return;
