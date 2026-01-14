@@ -19,26 +19,23 @@ export default function HomePage() {
   const [showCategory, setShowCategory] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [search, setSearch] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0); // ✅ NEW
   const router = useRouter();
+  const [hasUnread, setHasUnread] = useState(false);
 
-  // 🔥 keep unreadCount always in sync
   useEffect(() => {
-    const syncUnread = () => {
-      const count = parseInt(localStorage.getItem("unreadCount") || "0");
-      setUnreadCount(count);
+    const sync = () => {
+      setHasUnread(localStorage.getItem("hasUnread") === "1");
     };
-
-    syncUnread(); // initial
-    window.addEventListener("storage", syncUnread);
-    window.addEventListener("focus", syncUnread);
+  
+    sync();
+    window.addEventListener("storage", sync);
+    window.addEventListener("focus", sync);
   
     return () => {
-      window.removeEventListener("storage", syncUnread);
-      window.removeEventListener("focus", syncUnread);
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("focus", sync);
     };
   }, []);
-
   
   // Health check
   useEffect(() => {
@@ -127,16 +124,13 @@ export default function HomePage() {
             <Menu className="w-4 h-4" /> Categories
           </button>
 
-          {/* ✅ Messages with badge */}
           <button
             onClick={() => handleMessage()}
             className="relative hover:text-blue-600 transition flex items-center gap-1"
           >
             <MessageCircle className="w-4 h-4" /> Messages
-            {unreadCount > 0 && (
-              <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 rounded-full">
-                {unreadCount}
-              </span>
+            {hasUnread && (
+              <span className="absolute -top-1 -right-2 w-3 h-3 bg-red-600 rounded-full" />
             )}
           </button>
 
