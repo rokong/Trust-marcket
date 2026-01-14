@@ -42,13 +42,14 @@ export default function Messages() {
   
     s.emit("join", id);
   
+    // ✅ এখানেই receive_message listener থাকবে
     s.on("receive_message", (msg) => {
       setMessages((prev) =>
         prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
       );
-
-      // 🔥 ONLY ADMIN → USER triggers red dot
-      if (msg.sender === "admin" && window.location.pathname !== "/messages") {
+  
+      // 🔴 Messages page এ না থাকলে unread trigger
+      if (router.pathname !== "/messages") {
         localStorage.setItem("hasUnread", "1");
       }
     });
@@ -58,6 +59,7 @@ export default function Messages() {
       s.disconnect();
     };
   }, []);
+
 
 
   /* ---------------- LOAD MESSAGES ---------------- */
