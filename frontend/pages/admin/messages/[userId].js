@@ -78,7 +78,8 @@ export default function ChatPage() {
     );
   
     
-  
+    // 1️⃣ Update UI immediately
+    setMessages((prev) => [...prev, res.data]);
     // notify user
     socket.current.emit("send_message", res.data);
   
