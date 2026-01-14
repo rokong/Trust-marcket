@@ -74,8 +74,6 @@ export default function ChatPage() {
       type: "text",
       text: reply,
     });
-  
-    socket.current.emit("send_message", res.data);
     setReply("");
   };
 
