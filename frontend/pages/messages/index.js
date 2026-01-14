@@ -83,26 +83,25 @@ export default function Messages() {
   const sendMessage = async () => {
     if (!text.trim()) return;
   
-    const res = await api.post(
-      "/messages/send",
-      {
-        userId,
-        type: "text",
-        text,
-      },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-    );
+    try {
+      const res = await api.post(
+        "/messages/send",
+        { userId, type: "text", text },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
   
-    
-    // 1️⃣ Update UI immediately
-    setMessages((prev) => [...prev, res.data]);
-    // notify admin
-    socket.current.emit("send_message", res.data);
+      // ✅ Add to messages immediately
+      setMessages((prev) => [...prev, res.data]);
   
-    setText("");
+      // ✅ Notify admin
+      socket.current.emit("send_message", res.data);
+  
+      setText("");
+    } catch (err) {
+      console.error("Send message failed", err);
+    }
   };
 
-  
   const sendMedia = async () => {
     if (!file) return;
   
