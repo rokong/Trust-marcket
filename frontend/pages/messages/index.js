@@ -93,8 +93,7 @@ export default function Messages() {
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
   
-    // sender side UI update
-    setMessages((prev) => [...prev, res.data]);
+    
   
     // notify admin
     socket.current.emit("send_message", res.data);
