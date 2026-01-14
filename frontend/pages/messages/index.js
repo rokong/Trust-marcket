@@ -80,18 +80,28 @@ export default function Messages() {
   };
 
   /* ---------------- SEND ---------------- */
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!text.trim()) return;
   
-    socket.current.emit("send_message", {
-      userId,
-      sender: "user",
-      type: "text",
-      text,
-    });
+    const res = await api.post(
+      "/messages/send",
+      {
+        userId,
+        type: "text",
+        text,
+      },
+      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+    );
+  
+    // sender side UI update
+    setMessages((prev) => [...prev, res.data]);
+  
+    // notify admin
+    socket.current.emit("send_message", res.data);
   
     setText("");
   };
+
   
   const sendMedia = async () => {
     if (!file) return;
