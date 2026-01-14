@@ -72,11 +72,6 @@ export default function HomePage() {
     }
     router.push(`/buy?post=${post._id}`);
   };
-
-  const resetUnread = () => {
-    localStorage.setItem("unreadCount", "0");
-    setUnreadCount(0);
-  };
   
   const handleMessage = (post = null) => {
     const userId = localStorage.getItem("userId");
@@ -85,7 +80,7 @@ export default function HomePage() {
       router.push("/login");
       return;
     }
-    resetUnread(); // ✅ clear badge
+    localStorage.setItem("hasUnread", "0"); // ✅ clear badge
     router.push(post ? `/messages?post=${post._id}` : "/messages");
   };
 
