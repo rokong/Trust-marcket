@@ -69,13 +69,26 @@ export default function ChatPage() {
 
   /* ---------------- SEND TEXT ---------------- */
   const sendText = async () => {
-    const res = await api.post("/admin/messages/send", {
-      userId,
-      type: "text",
-      text: reply,
-    });
-    socket.current.emit("send_message", res.data);
-    setReply("");
+    if (!reply.trim()) return;
+  
+    try {
+      const res = await api.post("/admin/messages/send", {
+        userId,
+        type: "text",
+        text: reply,
+      });
+  
+      // ✅ Add message to state immediately
+      setMessages((prev) => {
+        if (prev.some((m) => m._id === res.data._id)) return prev;
+        return [...prev, res.data];
+      });
+  
+      socket.current.emit("send_message", res.data);
+      setReply("");
+    } catch (err) {
+      console.error("Send text failed", err);
+    }
   };
 
   /* ---------------- FILE HANDLING ---------------- */
