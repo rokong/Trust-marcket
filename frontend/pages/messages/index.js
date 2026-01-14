@@ -40,16 +40,7 @@ export default function Messages() {
     socket.current.on("receive_message", (msg) => {
       setMessages((prev) =>
         prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
-      );
-    
-      // 🔥 unread only if NOT on messages page
-      if (msg.sender === "admin") {
-        const onMessagesPage = router.pathname === "/messages";
-        if (!onMessagesPage) {
-          const current = parseInt(localStorage.getItem("unreadCount") || "0");
-          localStorage.setItem("unreadCount", String(current + 1));
-        }
-      }
+      };
     });
 
 
