@@ -78,7 +78,11 @@ export default function ChatPage() {
         text: reply,
       });
   
-      // ✅ Add message to state immediately
+      // ✅ Optimistic update
+      setMessages((prev) => {
+        if (prev.some((m) => m._id === res.data._id)) return prev;
+        return [...prev, res.data];
+      });
       
   
       socket.current.emit("send_message", res.data);
