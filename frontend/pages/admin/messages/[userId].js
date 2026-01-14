@@ -77,8 +77,7 @@ export default function ChatPage() {
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
   
-    // sender side UI update
-    setMessages((prev) => [...prev, res.data]);
+    
   
     // notify user
     socket.current.emit("send_message", res.data);
