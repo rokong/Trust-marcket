@@ -80,26 +80,17 @@ export default function Messages() {
   };
 
   /* ---------------- SEND ---------------- */
-  const sendMessage = async () => {
+  const sendMessage = () => {
     if (!text.trim()) return;
   
-    try {
-      const res = await api.post(
-        "/messages/send",
-        { userId, type: "text", text },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-      );
+    socket.current.emit("send_message", {
+      userId,
+      sender: "user",
+      type: "text",
+      text,
+    });
   
-      // ✅ Add to messages immediately
-      setMessages((prev) => [...prev, res.data]);
-  
-      // ✅ Notify admin
-      socket.current.emit("send_message", res.data);
-  
-      setText("");
-    } catch (err) {
-      console.error("Send message failed", err);
-    }
+    setText("");
   };
 
   const sendMedia = async () => {
