@@ -29,23 +29,30 @@ export default function Messages() {
   /* ---------------- INIT SOCKET ---------------- */
   useEffect(() => {
     const id = localStorage.getItem("userId");
-    if (!id) return router.push("/login");
-
+    if (!id) {
+      router.push("/login");
+      return;
+    }
+  
     setUserId(id);
-    if (socket.current) return;
-
-    socket.current = io(BACKEND_URL, { transports: ["websocket"] });
-    socket.current.emit("join", id);
-
-    socket.current.on("receive_message", (msg) => {
+  
+    const s = io(BACKEND_URL, { transports: ["websocket"] });
+    socket.current = s;
+  
+    s.emit("join", id);
+  
+    s.on("receive_message", (msg) => {
       setMessages((prev) =>
         prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
-      };
+      );
     });
+  
+    return () => {
+      s.off("receive_message");
+      s.disconnect();
+    };
+  }, []);
 
-
-    return () => socket.current.disconnect();
-  }, [])
 
   /* ---------------- LOAD MESSAGES ---------------- */
   useEffect(() => {
