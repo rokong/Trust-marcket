@@ -41,10 +41,17 @@ export default function Messages() {
   
     s.emit("join", id);
   
+    // 🔴 এখানেই বসবে
     s.on("receive_message", (msg) => {
       setMessages((prev) =>
         prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
       );
+  
+      // 🔥 unread badge increment
+      if (router.pathname !== "/messages") {
+        const current = Number(localStorage.getItem("unreadCount") || 0);
+        localStorage.setItem("unreadCount", current + 1);
+      }
     });
   
     return () => {
