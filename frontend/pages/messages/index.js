@@ -49,7 +49,7 @@ export default function Messages() {
       );
   
       // 🔴 only admin message triggers unread
-      if (msg.sender === "admin") {
+      if (msg.sender === "admin" && router.pathname !== "/messages") {
         localStorage.setItem("hasUnread", "1");
       }
     });
