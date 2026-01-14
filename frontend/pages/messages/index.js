@@ -94,7 +94,8 @@ export default function Messages() {
     );
   
     
-  
+    // 1️⃣ Update UI immediately
+    setMessages((prev) => [...prev, res.data]);
     // notify admin
     socket.current.emit("send_message", res.data);
   
