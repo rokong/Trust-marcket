@@ -18,12 +18,13 @@ export default function Messages() {
   const [postData, setPostData] = useState(null);
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const userId = typeof window !== "undefined" && localStorage.getItem("userId");
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
-  /* 🔴 RESET UNREAD ON PAGE OPEN */
+  // 🔴 CLEAR RED DOT WHEN OPEN PAGE
   useEffect(() => {
-    localStorage.setItem("unreadCount", "0");
+    localStorage.setItem("hasUnread", "0");
   }, []);
   
   /* ---------------- INIT SOCKET ---------------- */
@@ -41,16 +42,14 @@ export default function Messages() {
   
     s.emit("join", id);
   
-    // 🔴 এখানেই বসবে
     s.on("receive_message", (msg) => {
       setMessages((prev) =>
         prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
       );
-  
-      // 🔥 unread badge increment
-      if (router.pathname !== "/messages") {
-        const current = Number(localStorage.getItem("unreadCount") || 0);
-        localStorage.setItem("unreadCount", current + 1);
+
+      // 🔥 ONLY ADMIN → USER triggers red dot
+      if (msg.sender === "admin" && window.location.pathname !== "/messages") {
+        localStorage.setItem("hasUnread", "1");
       }
     });
   
