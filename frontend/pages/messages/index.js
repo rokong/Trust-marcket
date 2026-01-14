@@ -19,9 +19,7 @@ export default function Messages() {
   const [file, setFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  const BACKEND_URL =
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    "https://localhost:5000";
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
   /* ---------------- INIT SOCKET ---------------- */
   useEffect(() => {
@@ -35,39 +33,39 @@ export default function Messages() {
     socket.current.emit("join", id);
 
     socket.current.on("receive_message", (msg) => {
-      setMessages((prev) =>
-        prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]
-      );
+      setMessages((prev) => (prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]));
     });
 
     return () => socket.current.disconnect();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem("unreadCount", "0");
-  }, []);
-
   /* ---------------- LOAD MESSAGES ---------------- */
   useEffect(() => {
     if (!userId) return;
-    api
-      .get(`/messages/${userId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
-      .then((res) => setMessages(res.data))
-      .catch(console.error);
+    (async () => {
+      try {
+        const res = await api.get(`/messages/${userId}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        });
+        setMessages(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    })();
   }, [userId]);
 
-  /* ---------------- SHARED POST ---------------- */
+  /* ---------------- LOAD SHARED POST ---------------- */
   useEffect(() => {
     if (!post) return;
-    api.get(`/posts/${post}`).then((res) => setPostData(res.data));
+    api.get(`/posts/${post}`).then((res) => setPostData(res.data)).catch(() => setPostData(null));
   }, [post]);
 
+  /* ---------------- SCROLL ---------------- */
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  /* ---------------- FILE ---------------- */
   const handleFileSelect = (e) => {
     const f = e.target.files[0];
     if (!f) return;
@@ -81,104 +79,101 @@ export default function Messages() {
     if (fileRef.current) fileRef.current.value = null;
   };
 
-  const sendMessage = async () => {
+  /* ---------------- SEND ---------------- */
+  const sendMessage = () => {
     if (!text.trim()) return;
-    const token = localStorage.getItem("token");
-    if (!token) return router.push("/login");
-
+  
+    socket.current.emit("send_message", {
+      userId,
+      sender: "user",
+      type: "text",
+      text,
+    });
+  
+    setText("");
+  };
+  
+  const sendMedia = async () => {
+    if (!file) return;
+  
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("userId", userId);
+    fd.append("sender", "user"); // admin হলে "admin"
+  
     try {
-      const res = await api.post(
-        "/messages/send",
-        { text, type: "text" },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      setMessages(prev => [...prev, res.data]);
-      socket.current.emit("send_message", res.data);
-      setText("");
+      const res = await api.post("/upload/message-media", fd, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+  
+      // ✅ Add to messages immediately (optimistic)
+      
+  
+      removeMedia();
     } catch (err) {
-      console.error(err.response?.data || err);
+      console.error("Media upload failed", err);
     }
   };
 
-
-  const sendMedia = async () => {
-    if (!file) return;
-    const form = new FormData();
-    form.append("file", file);
-    form.append("userId", userId);
-    form.append("sender", "user");
-
-    const res = await api.post("/upload/message-media", form, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-    });
-
-    setMessages((prev) => [...prev, res.data]);
-    removeMedia();
+  const sendSharedPost = async () => {
+    if (!postData) return;
+    try {
+      const res = await api.post(
+        "/messages/send",
+        {
+          userId,
+          type: "shared_post",
+          text: "",
+          postId: postData._id,
+          postTitle: postData.title,
+          postDescription: postData.description,
+          postPrice: postData.price,
+        },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      setMessages((prev) => [...prev, res.data]);
+      setPostData(null);
+      router.replace("/messages", undefined, { shallow: true });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const formatTime = (t) =>
     new Date(t).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="relative h-screen flex flex-col text-white overflow-hidden">
-
-      {/* BACKGROUND */}
-      <div className="absolute inset-0 
-        bg-gradient-to-br from-[#020617] via-[#020617] to-black" />
-
-      {/* LOGO WATERMARK */}
-      <div
-        className="absolute inset-0 opacity-[0.06] bg-center bg-no-repeat bg-contain"
-        style={{ backgroundImage: "url('/logo-watermark.png')" }}
-      />
-
-      {/* GLASS OVERLAY */}
-      <div className="absolute inset-0 backdrop-blur-[6px] bg-black/40" />
-
+    <div className="h-screen flex flex-col bg-gray-100">
       {/* HEADER */}
-      <div className="relative z-10 
-        flex items-center gap-3 px-4 py-3
-        bg-white/5 backdrop-blur-xl border-b border-white/10">
-        <button onClick={() => router.back()} className="text-xl opacity-80 hover:opacity-100">
-          ←
-        </button>
-        <h2 className="font-semibold tracking-wide">Trust Market Support</h2>
+      <div className="bg-blue-600 text-white p-4 flex items-center">
+        <button onClick={() => router.back()} className="mr-4 text-xl">←</button>
+        <h2 className="font-semibold">Chat with Admin</h2>
       </div>
 
       {/* MESSAGES */}
-      <div className="relative z-10 flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
         {messages.map((m) => (
-          <div
-            key={m._id || Math.random()}
-            className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}
-          >
-            <div className="max-w-[80%] sm:max-w-[60%] space-y-1">
+          <div key={m._id || Math.random()} className={`flex ${m.sender === "user" ? "justify-end" : "justify-start"}`}>
+            <div className="max-w-xs space-y-1">
               {m.type === "text" && (
-                <div
-                  className={`px-4 py-2 rounded-2xl text-sm
-                  ${m.sender === "user"
-                      ? "bg-blue-600 text-white"
-                      : "bg-white/10 backdrop-blur border border-white/10"
-                    }`}
-                >
+                <div className={`px-3 py-2 rounded-xl ${m.sender === "user" ? "bg-blue-600 text-white" : "bg-white shadow"}`}>
                   {m.text}
                 </div>
               )}
-
               {(m.type === "image" || m.type === "video") && (
-                <div className="rounded-2xl overflow-hidden border border-white/10">
-                  {m.type === "image" ? (
-                    <img src={m.mediaUrl} className="w-64" />
-                  ) : (
-                    <video src={m.mediaUrl} controls className="w-64" />
-                  )}
+                <div className="rounded-xl overflow-hidden shadow bg-black">
+                  {m.type === "image" ? <img src={m.mediaUrl} className="w-64 rounded-xl" /> : <video src={m.mediaUrl} controls className="w-64 rounded-xl" />}
                 </div>
               )}
-
-              <div className="text-[10px] opacity-50 text-right">
-                {formatTime(m.createdAt)}
-              </div>
+              {m.type === "shared_post" && (
+                <div className="border rounded-xl p-3 bg-white shadow">
+                  <div className="font-semibold text-sm">{m.postTitle}</div>
+                  {m.postDescription && <div className="text-xs text-gray-600 line-clamp-2">{m.postDescription}</div>}
+                  {m.postPrice && <div className="font-bold text-green-600">{m.postPrice} BDT</div>}
+                  <button onClick={() => router.push(`/post/${m.postId}`)} className="text-xs text-blue-600 underline">View Post</button>
+                </div>
+              )}
+              <div className="text-[10px] text-gray-400 text-right">{formatTime(m.createdAt)}</div>
             </div>
           </div>
         ))}
@@ -187,56 +182,29 @@ export default function Messages() {
 
       {/* MEDIA PREVIEW */}
       {previewUrl && (
-        <div className="relative z-10 px-4 pb-2">
+        <div className="px-3 pb-2">
           <div className="relative w-40">
-            {file.type.startsWith("image") ? (
-              <img src={previewUrl} className="rounded-xl" />
-            ) : (
-              <video src={previewUrl} autoPlay loop muted className="rounded-xl" />
-            )}
-            <button
-              onClick={removeMedia}
-              className="absolute -top-2 -right-2 bg-black text-white w-6 h-6 rounded-full"
-            >
-              ×
-            </button>
+            {file.type.startsWith("image") ? <img src={previewUrl} className="rounded-xl" /> : <video src={previewUrl} autoPlay loop muted className="rounded-xl" />}
+            <button onClick={removeMedia} className="absolute top-1 right-1 bg-black text-white rounded-full w-6 h-6">×</button>
           </div>
         </div>
       )}
 
       {/* INPUT */}
-      <div className="relative z-10 p-3 
-        bg-white/5 backdrop-blur-xl border-t border-white/10 flex gap-2">
-        <button
-          onClick={() => fileRef.current.click()}
-          className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/20"
-        >
-          📎
-        </button>
-
-        <input
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Write a message..."
-          className="flex-1 bg-transparent border border-white/10 rounded-xl px-3 focus:outline-none"
-        />
-
-        <input
-          type="file"
-          hidden
-          ref={fileRef}
-          accept="image/*,video/*"
-          onChange={handleFileSelect}
-        />
-
-        <button
-          onClick={file ? sendMedia : sendMessage}
-          className="px-4 rounded-xl bg-blue-600 hover:bg-blue-700"
-        >
-          Send
-        </button>
+      <div className="p-2 bg-white border-t flex gap-2">
+        <button onClick={() => fileRef.current.click()} className="w-10 h-10 bg-gray-200 rounded-full">📎</button>
+        <input value={text} onChange={(e) => setText(e.target.value)} className="flex-1 border rounded-xl px-3" placeholder="Message..." />
+        <input type="file" hidden ref={fileRef} accept="image/*,video/*" onChange={handleFileSelect} />
+        <button onClick={file ? sendMedia : sendMessage} className="bg-blue-600 text-white px-4 rounded-xl">Send</button>
       </div>
+
+      {/* SHARED POST PREVIEW */}
+      {postData && (
+        <div className="p-2 border-t bg-yellow-50">
+          <div className="text-sm font-medium">{postData.title}</div>
+          <button onClick={sendSharedPost} className="mt-2 w-full bg-green-600 text-white py-2 rounded-lg">Send Post</button>
+        </div>
+      )}
     </div>
   );
 }
-
