@@ -71,21 +71,24 @@ export default function ChatPage() {
   const sendText = async () => {
     if (!reply.trim()) return;
   
-    const res = await api.post(
-      "/admin/messages/send",
-      { userId, type: "text", text: reply },
-      { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-    );
+    try {
+      const res = await api.post(
+        "/admin/messages/send",
+        { userId, type: "text", text: reply },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
   
-    
-    // 1️⃣ Update UI immediately
-    setMessages((prev) => [...prev, res.data]);
-    // notify user
-    socket.current.emit("send_message", res.data);
+      // ✅ Update UI immediately
+      setMessages((prev) => [...prev, res.data]);
   
-    setReply("");
+      // ✅ Notify user
+      socket.current.emit("send_message", res.data);
+  
+      setReply("");
+    } catch (err) {
+      console.error("Send text failed", err);
+    }
   };
-
 
   /* ---------------- FILE HANDLING ---------------- */
   const handleFile = (e) => {
