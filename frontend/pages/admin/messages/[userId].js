@@ -29,7 +29,7 @@ export default function ChatPage() {
     socket.current.emit("join", userId);
 
     socket.current.on("receive_message", (msg) => {
-      setMessages((prev) => (prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]));
+      setMessages((prev) => (prev.some((m) => m._id === msg._id) ? prev : [...prev, msg]));
     });
 
     return () => {
