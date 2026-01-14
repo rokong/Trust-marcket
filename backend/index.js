@@ -49,7 +49,7 @@ io.on("connection", (socket) => {
         userId: data.userId,
         sender: data.sender,
         type: data.type,
-        
+        text: data.text ?? "",
         postId: data.postId ?? null,
         postTitle: data.postTitle ?? null,
         postDescription: data.postDescription ?? null,
