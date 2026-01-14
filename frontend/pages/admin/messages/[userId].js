@@ -23,20 +23,29 @@ export default function ChatPage() {
 
   /* ---------------- SOCKET INIT ---------------- */
   useEffect(() => {
-    if (!userId || socket.current) return;
-
-    socket.current = io(BACKEND_URL, { transports: ["websocket"] });
+    if (!userId) return;
+  
+    if (!socket.current) {
+      socket.current = io(BACKEND_URL, { transports: ["websocket"] });
+      
+      socket.current.on("receive_message", (msg) => {
+        setMessages((prev) => {
+          // ✅ Prevent duplicate
+          if (prev.some((m) => m._id === msg._id)) return prev;
+          return [...prev, msg];
+        });
+      });
+    }
+  
+    // Join room
     socket.current.emit("join", userId);
-
-    socket.current.on("receive_message", (msg) => {
-      setMessages((prev) => (prev.some((m) => m._id === msg._id) ? prev : [...prev, msg]));
-    });
-
+  
     return () => {
-      socket.current.disconnect();
+      socket.current?.disconnect();
       socket.current = null;
     };
   }, [userId]);
+
 
   /* ---------------- LOAD USER ---------------- */
   useEffect(() => {
@@ -53,14 +62,14 @@ export default function ChatPage() {
   /* ---------------- LOAD MESSAGES ---------------- */
   useEffect(() => {
     if (!userId) return;
-
-    api
-      .get(`/admin/messages/${userId}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-      })
-      .then((res) => setMessages(res.data))
-      .catch(console.error);
+  
+    api.get(`/admin/messages/${userId}`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+    })
+    .then((res) => setMessages(res.data))
+    .catch(console.error);
   }, [userId]);
+  
 
   /* ---------------- AUTO SCROLL ---------------- */
   useEffect(() => {
