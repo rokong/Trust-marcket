@@ -19,22 +19,23 @@ export default function HomePage() {
   const [showCategory, setShowCategory] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [search, setSearch] = useState("");
-  const [hasUnread, setHasUnread] = useState(false); // 🔴 RED DOT
+  const [unreadCount, setUnreadCount] = useState(0); // ✅ NEW
   const router = useRouter();
 
-  // 🔥 sync unread red dot
+  // 🔥 keep unreadCount always in sync
   useEffect(() => {
-    const sync = () => {
-      setHasUnread(localStorage.getItem("hasUnread") === "1");
+    const syncUnread = () => {
+      const count = parseInt(localStorage.getItem("unreadCount") || "0");
+      setUnreadCount(count);
     };
 
-    sync();
-    window.addEventListener("storage", sync);
-    window.addEventListener("focus", sync);
-
+    syncUnread(); // initial
+    window.addEventListener("storage", syncUnread);
+    window.addEventListener("focus", syncUnread);
+  
     return () => {
-      window.removeEventListener("storage", sync);
-      window.removeEventListener("focus", sync);
+      window.removeEventListener("storage", syncUnread);
+      window.removeEventListener("focus", syncUnread);
     };
   }, []);
 
@@ -126,11 +127,16 @@ export default function HomePage() {
             <Menu className="w-4 h-4" /> Categories
           </button>
 
-          {/* 🔴 MESSAGE RED DOT */}
-          <button onClick={() => handleMessage()} className="relative">
-            <MessageCircle className="w-5 h-5" />
-            {hasUnread && (
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-600 rounded-full"></span>
+          {/* ✅ Messages with badge */}
+          <button
+            onClick={() => handleMessage()}
+            className="relative hover:text-blue-600 transition flex items-center gap-1"
+          >
+            <MessageCircle className="w-4 h-4" /> Messages
+            {unreadCount > 0 && (
+              <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 rounded-full">
+                {unreadCount}
+              </span>
             )}
           </button>
 
