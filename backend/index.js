@@ -45,16 +45,7 @@ io.on("connection", (socket) => {
     try {
       if (data.type === "image" || data.type === "video") return;
 
-      const msg = await Message.create({
-        userId: data.userId,
-        sender: data.sender,
-        type: data.type,
-        text: data.text ?? "",
-        postId: data.postId ?? null,
-        postTitle: data.postTitle ?? null,
-        postDescription: data.postDescription ?? null,
-        postPrice: data.postPrice ?? null,
-      });
+      
 
       io.to(data.userId.toString()).emit("receive_message", msg);
     } catch (err) {
