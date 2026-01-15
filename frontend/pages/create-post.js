@@ -15,13 +15,16 @@ export default function CreatePost() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🔒 submit lock
 
   const router = useRouter();
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, "");
     if (value.length > 11) return;
+
     setPhone(value);
+
     if (!value.startsWith("01")) {
       setPhoneError("Phone number must start with 01");
     } else if (value.length !== 11) {
@@ -35,14 +38,27 @@ export default function CreatePost() {
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
+
+    // 🔒 double click kill
+    if (isSubmitting) return;
+
     if (phoneError || phone.length !== 11) {
       setError("❌ Invalid phone number");
       setSuccess("");
       return;
     }
 
+    setIsSubmitting(true);
+
     const token = localStorage.getItem("token");
-    if (!token) return router.push("/login");
+    if (!token) {
+      setIsSubmitting(false);
+      return router.push("/login");
+    }
+
+    // 🆔 idempotency key
+    const requestId =
+      crypto.randomUUID?.() || Date.now() + "-" + Math.random();
 
     const formData = new FormData();
     formData.append("title", title);
@@ -50,8 +66,14 @@ export default function CreatePost() {
     formData.append("price", calculatedPrice);
     formData.append("category", category);
     formData.append("phone", phone);
-    Array.from(images).forEach((file) => formData.append("images", file));
-    Array.from(videos).forEach((file) => formData.append("videos", file));
+    formData.append("requestId", requestId);
+
+    Array.from(images).forEach((file) =>
+      formData.append("images", file)
+    );
+    Array.from(videos).forEach((file) =>
+      formData.append("videos", file)
+    );
 
     try {
       await api.post("/posts/create", formData, {
@@ -60,15 +82,14 @@ export default function CreatePost() {
           "Content-Type": "multipart/form-data",
         },
       });
-      setSuccess(`✅ Post created successfully! Price: ${calculatedPrice}`);
-      setError("");
-      setTitle(""); setDescription(""); setPrice("");
-      setCategory("Gaming"); setImages([]); setVideos([]);
-      setPhone(""); setPhoneError("");
+
+      // ✅ success → refresh once (no resubmit on back)
+      router.replace("/");
     } catch (err) {
       console.error(err?.response?.data || err);
       setError("❌ Failed to create post.");
       setSuccess("");
+      setIsSubmitting(false); // unlock on error
     }
   };
 
@@ -136,43 +157,49 @@ export default function CreatePost() {
           <option>YouTube Channel</option>
         </select>
 
-        {/* Image Upload Premium */}
+        {/* Image Upload */}
         <label
           className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
-            images.length > 0 ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-blue-500"
+            images.length > 0
+              ? "border-green-500 bg-green-50"
+              : "border-gray-300 hover:border-blue-500"
           }`}
         >
           <span className="text-gray-500 mb-2">Select Images</span>
           <input
             type="file"
-            name="images"
             accept="image/*"
             multiple
             onChange={(e) => setImages(e.target.files)}
             className="hidden"
           />
           {images.length > 0 && (
-            <p className="text-sm text-gray-600 mt-2">{images.length} file(s) selected</p>
+            <p className="text-sm text-gray-600 mt-2">
+              {images.length} file(s) selected
+            </p>
           )}
         </label>
 
-        {/* Video Upload Premium */}
+        {/* Video Upload */}
         <label
           className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
-            videos.length > 0 ? "border-green-500 bg-green-50" : "border-gray-300 hover:border-blue-500"
+            videos.length > 0
+              ? "border-green-500 bg-green-50"
+              : "border-gray-300 hover:border-blue-500"
           }`}
         >
           <span className="text-gray-500 mb-2">Select Videos</span>
           <input
             type="file"
-            name="videos" 
             accept="video/*"
             multiple
             onChange={(e) => setVideos(e.target.files)}
             className="hidden"
           />
           {videos.length > 0 && (
-            <p className="text-sm text-gray-600 mt-2">{videos.length} file(s) selected</p>
+            <p className="text-sm text-gray-600 mt-2">
+              {videos.length} file(s) selected
+            </p>
           )}
         </label>
 
@@ -183,13 +210,21 @@ export default function CreatePost() {
           onChange={handlePhoneChange}
           className="border border-gray-300 p-4 rounded-lg w-full focus:ring-2 focus:ring-blue-400"
         />
-        {phoneError && <p className="text-red-600 text-sm">{phoneError}</p>}
+        {phoneError && (
+          <p className="text-red-600 text-sm">{phoneError}</p>
+        )}
 
         <button
           type="submit"
-          className="bg-blue-600 text-white w-full py-4 rounded-lg font-semibold hover:bg-blue-700 transition"
+          disabled={isSubmitting}
+          className={`w-full py-4 rounded-lg font-semibold transition
+            ${
+              isSubmitting
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
         >
-          Create Post
+          {isSubmitting ? "Posting..." : "Create Post"}
         </button>
       </form>
     </div>
