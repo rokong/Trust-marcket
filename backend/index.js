@@ -41,25 +41,8 @@ const io = new IOServer(server, { cors: { origin: "*" } });
 io.on("connection", (socket) => {
   socket.on("join", (userId) => socket.join(userId));
 
-  socket.on("send_message", async (data) => {
-    try {
-      if (data.type === "image" || data.type === "video") return;
-
-      const msg = await Message.create({
-        userId: data.userId,
-        sender: data.sender,
-        type: data.type,
-        text: data.text ?? "",
-        postId: data.postId ?? null,
-        postTitle: data.postTitle ?? null,
-        postDescription: data.postDescription ?? null,
-        postPrice: data.postPrice ?? null,
-      });
-
-      io.to(data.userId.toString()).emit("receive_message", msg);
-    } catch (err) {
-      console.error(err);
-    }
+  socket.on("send_message", (msg) => {
+    io.to(msg.userId.toString()).emit("receive_message", msg);
   });
 });
 
