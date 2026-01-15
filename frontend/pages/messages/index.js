@@ -80,17 +80,33 @@ export default function Messages() {
   };
 
   /* ---------------- SEND ---------------- */
-  const sendMessage = () => {
+  const sendMessage = async () => {
     if (!text.trim()) return;
   
-    socket.current.emit("send_message", {
-      userId,
-      sender: "user",
-      type: "text",
-      text,
-    });
+    try {
+      // 1️⃣ REST → DB save
+      const res = await api.post(
+        "/messages/send",
+        {
+          userId,
+          type: "text",
+          text,
+        },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
   
-    setText("");
+      // 2️⃣ optimistic UI
+      setMessages((prev) =>
+        prev.find((m) => m._id === res.data._id) ? prev : [...prev, res.data]
+      );
+  
+      // 3️⃣ socket broadcast
+      socket.current.emit("send_message", res.data);
+  
+      setText("");
+    } catch (err) {
+      console.error("User send failed", err);
+    }
   };
 
   const sendMedia = async () => {
