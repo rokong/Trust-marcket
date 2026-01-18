@@ -1,5 +1,6 @@
 // frontend/pages/index.js
 import { useEffect, useState } from "react";
+import { useRef } from "react";
 import api from "../utils/api";
 import Link from "next/link";
 import Image from "next/image";
