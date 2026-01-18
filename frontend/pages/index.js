@@ -68,6 +68,16 @@ export default function HomePage({ posts }) {
   }, []);
 
   useEffect(() => {
+    if (!("Notification" in window)) return;
+    
+    if (Notification.permission === "default") {
+      Notification.requestPermission().then((permission) => {
+        console.log("Notification permission:", permission);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
     const id = localStorage.getItem("userId");
     if (!id) return;
 
