@@ -52,7 +52,7 @@ app.use("/api/posts", postsRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/admin", adminMessageRoutes(io));
+app.use("/api/admin", adminMessageRoutes);
 app.use("/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
