@@ -36,18 +36,6 @@ export default function HomePage() {
       window.removeEventListener("focus", sync);
     };
   }, []);
-  
-  // Health check
-  useEffect(() => {
-    fetch("https://trust-market-backend-nsao.onrender.com/api/health")
-      .then(res => res.json())
-      .then(data => console.log("HEALTH:", data))
-      .catch(err => console.error("HEALTH ERR:", err));
-
-    api.get("/health")
-      .then(res => console.log("BACKEND OK:", res.data))
-      .catch(err => console.log("BACKEND FAIL:", err));
-  }, []);
 
   // Load posts
   useEffect(() => {
