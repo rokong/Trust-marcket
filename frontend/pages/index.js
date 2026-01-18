@@ -61,18 +61,6 @@ export default function HomePage({ posts }) {
     };
   }, []);
   
-  // Health check
-  useEffect(() => {
-    fetch("https://trust-market-backend-nsao.onrender.com/api/health")
-      .then(res => res.json())
-      .then(data => console.log("HEALTH:", data))
-      .catch(err => console.error("HEALTH ERR:", err));
-
-    api.get("/health")
-      .then(res => console.log("BACKEND OK:", res.data))
-      .catch(err => console.log("BACKEND FAIL:", err));
-  }, []);
-
   // Handlers
   const handleBuy = (post) => {
     const token = localStorage.getItem("token");
