@@ -19,6 +19,8 @@ export default function AdminDashboard() {
   const socket = useRef(null);
   const [users, setUsers] = useState([]);
   const adminId = "ADMIN_UNIQUE_ID"; // localStorage.getItem("adminId") বা hardcode
+  const [liveViews, setLiveViews] = useState(0);
+
 
    useEffect(() => {
     if (!socket.current) {
@@ -27,6 +29,10 @@ export default function AdminDashboard() {
       socket.current.on("connect", () => {
         console.log("Admin socket connected");
         socket.current.emit("join", adminId); // join admin room
+      });
+
+      socket.current.on("live_views", (count) => {
+        setLiveViews(count);
       });
 
       socket.current.on("receive_message", (msg) => {
@@ -120,7 +126,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="p-4 rounded-lg bg-blue-50 text-center shadow-sm">
             <p className="text-gray-600 text-sm">Views</p>
-            <h2 className="text-xl font-semibold">12.9k</h2>
+            <h2 className="text-xl font-semibold">{liveViews}</h2>
           </div>
 
           <div className="p-4 rounded-lg bg-green-50 text-center shadow-sm">
