@@ -8,16 +8,34 @@ import { parser } from "../utils/cloudinary.js";
 
 const router = express.Router();
 
-// ------------------ GET All Posts ------------------
+// ------------------ GET All Posts (with filter) ------------------
 router.get("/", async (req, res) => {
   try {
-    const posts = await Post.find().sort({ createdAt: -1 });
+    const { category, search, limit = 20 } = req.query;
+
+    let query = {};
+
+    // category filter
+    if (category && category !== "all") {
+      query.category = category;
+    }
+
+    // search by title
+    if (search) {
+      query.title = { $regex: search, $options: "i" };
+    }
+
+    const posts = await Post.find(query)
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+
     res.json(posts);
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to load posts" });
   }
 });
+
 
 // ------------------ GET My Posts ------------------
 router.get("/my-posts", auth, async (req, res) => {
