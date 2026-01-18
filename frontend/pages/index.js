@@ -170,8 +170,9 @@ export default function HomePage({ posts }) {
 
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center gap-2">
-          <button onClick={() => handleMessage()} className="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100">
+          <button onClick={() => handleMessage()} className="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 relative">
             <MessageCircle className="w-6 h-6" />
+            {hasUnread && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>}
           </button>
           <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
             <Menu className="w-6 h-6 text-gray-700" />
