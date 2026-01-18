@@ -48,10 +48,21 @@ io.on("connection", (socket) => {
     socket.join(roomId);
   });
 
-  // 🔥 USER HOME PAGE VIEW
+  // ✅ HOME PAGE VIEW
   socket.on("home_view", () => {
-    liveViews++;
-    io.to(ADMIN_ROOM).emit("live_views", liveViews);
+    if (!homeViewSockets.has(socket.id)) {
+      homeViewSockets.add(socket.id);
+      liveViews = homeViewSockets.size;
+      io.emit("live_views", liveViews); // 🔥 broadcast
+    }
+  });
+
+  socket.on("disconnect", () => {
+    if (homeViewSockets.has(socket.id)) {
+      homeViewSockets.delete(socket.id);
+      liveViews = homeViewSockets.size;
+      io.emit("live_views", liveViews);
+    }
   });
 
   // 💬 MESSAGE SYSTEM (unchanged logic, but safer)
@@ -59,11 +70,6 @@ io.on("connection", (socket) => {
     if (msg?.userId) {
       io.to(msg.userId.toString()).emit("receive_message", msg);
     }
-  });
-
-  socket.on("disconnect", () => {
-    liveViews = Math.max(0, liveViews - 1);
-    io.to(ADMIN_ROOM).emit("live_views", liveViews);
   });
 });
 
