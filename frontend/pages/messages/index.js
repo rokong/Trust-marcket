@@ -33,23 +33,44 @@ export default function Messages() {
   useEffect(() => {
     const id = localStorage.getItem("userId");
     if (!id) return router.push("/login");
-
+  
     setUserId(id);
     if (socket.current) return;
-
+  
     socket.current = io(BACKEND_URL, { transports: ["websocket"] });
     socket.current.emit("join", id);
-
+  
     socket.current.on("receive_message", (msg) => {
       setMessages((prev) => (prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]));
       
       // যদি user এখন chat page এ না থাকে, unread add করো
       if (router.pathname !== "/messages") {
         addUnread(msg._id);
-        // Optionally, trigger a state update if using context or parent component
         window.dispatchEvent(new Event("unreadChange"));
+  
+        // ---------------- Notification + Click Redirect ----------------
+        if ("Notification" in window && Notification.permission === "granted") {
+          const n = new Notification("New Message from Admin", {
+            body: msg.text || "You have a new message",
+            icon: "/favicon.ico", // public folder এ logo
+          });
+  
+          // click করলে chat page open
+          n.onclick = () => {
+            window.focus();
+            router.push("/messages");
+          };
+  
+          // 🔊 Sound play
+          const audio = new Audio("/notification.mp3");
+          audio.play();
+        } else {
+          // fallback
+          alert("You have a new message!");
+        }
       }
     });
+  
     return () => socket.current.disconnect();
   }, []);
 
