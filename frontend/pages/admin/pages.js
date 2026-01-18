@@ -119,7 +119,7 @@ export default function AdminDashboard() {
         {/* Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="p-4 rounded-lg bg-blue-50 text-center shadow-sm">
-            <p className="text-gray-600 text-sm">Visitors</p>
+            <p className="text-gray-600 text-sm">Views</p>
             <h2 className="text-xl font-semibold">12.9k</h2>
           </div>
 
@@ -129,13 +129,8 @@ export default function AdminDashboard() {
           </div>
 
           <div className="p-4 rounded-lg bg-yellow-50 text-center shadow-sm">
-            <p className="text-gray-600 text-sm">Messages</p>
+            <p className="text-gray-600 text-sm">Accounts</p>
             <h2 className="text-xl font-semibold">42</h2>
-          </div>
-
-          <div className="p-4 rounded-lg bg-purple-50 text-center shadow-sm">
-            <p className="text-gray-600 text-sm">Sales</p>
-            <h2 className="text-xl font-semibold">183</h2>
           </div>
         </div>
 
