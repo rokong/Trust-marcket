@@ -39,6 +39,7 @@ const server = http.createServer(app);
 const io = new IOServer(server, { cors: { origin: "*" } });
 
 let liveViews = 0;
+const homeViewSockets = new Set();
 const ADMIN_ROOM = "ADMIN_UNIQUE_ID";
 
 io.on("connection", (socket) => {
