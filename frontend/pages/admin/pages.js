@@ -1,5 +1,5 @@
 // frontend/pages/admin/pages.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Search,
   BarChart2,
@@ -10,12 +10,51 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { io } from "socket.io-client";
 
 export default function AdminDashboard() {
   const [adminEmail, setAdminEmail] = useState("");
   const [dropdown, setDropdown] = useState(false);
   const router = useRouter();
+  const socket = useRef(null);
+  const [users, setUsers] = useState([]);
+  const adminId = "ADMIN_UNIQUE_ID"; // localStorage.getItem("adminId") বা hardcode
 
+   useEffect(() => {
+    if (!socket.current) {
+      socket.current = io(process.env.NEXT_PUBLIC_BACKEND_URL);
+
+      socket.current.on("connect", () => {
+        console.log("Admin socket connected");
+        socket.current.emit("join", adminId); // join admin room
+      });
+
+      socket.current.on("receive_message", (msg) => {
+        console.log("Admin received message:", msg);
+
+        // Update users array
+        setUsers((prev) => {
+          const exists = prev.find((u) => u._id === msg.userId);
+          if (exists) {
+            return prev.map((u) =>
+              u._id === msg.userId ? { ...u, unreadCount: (u.unreadCount || 0) + 1, lastMessageTime: msg.createdAt } : u
+            );
+          } else {
+            return [
+              { _id: msg.userId, name: msg.senderName || "User", email: "", unreadCount: 1, lastMessageTime: msg.createdAt },
+              ...prev,
+            ];
+          }
+        });
+      });
+    }
+
+    return () => {
+      socket.current?.disconnect();
+      socket.current = null;
+    };
+  }, []);
+  
   useEffect(() => {
     const allowedAdminEmail = "mdnajmullhassan938@gmail.com";
     const email = localStorage.getItem("userEmail");
@@ -129,14 +168,14 @@ export default function AdminDashboard() {
               Posts
             </Link>
 
-            <Link
-              href="/admin/messages"
-              className="flex items-center gap-3 p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
-            >
+            <Link href="/admin/messages" className="flex items-center gap-3 p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition relative">
               <MessageCircle className="w-5 h-5" />
               Messages
+              {users.some(u => u.unreadCount > 0) && (
+                <span className="absolute top-2 right-2 w-3 h-3 bg-red-500 rounded-full"></span>
+              )}
             </Link>
-
+              
             <Link
               href="/admin/all-users"
               className="flex items-center gap-3 p-3 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
