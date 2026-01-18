@@ -21,7 +21,7 @@ router.post("/send", authMiddleware, async (req, res) => {
       postPrice: postPrice || null,
     });
     
-    io.to(userId.toString()).emit("receive_message", msg); // নিজের জন্য (optional)
+    
     io.to("ADMIN_UNIQUE_ID").emit("receive_message", msg); // admin room
     
     res.json(msg);
