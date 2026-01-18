@@ -38,11 +38,32 @@ app.use(passport.initialize());
 const server = http.createServer(app);
 const io = new IOServer(server, { cors: { origin: "*" } });
 
-io.on("connection", (socket) => {
-  socket.on("join", (userId) => socket.join(userId));
+let liveViews = 0;
+const ADMIN_ROOM = "ADMIN_UNIQUE_ID";
 
+io.on("connection", (socket) => {
+  console.log("Socket connected:", socket.id);
+
+  socket.on("join", (roomId) => {
+    socket.join(roomId);
+  });
+
+  // 🔥 USER HOME PAGE VIEW
+  socket.on("home_view", () => {
+    liveViews++;
+    io.to(ADMIN_ROOM).emit("live_views", liveViews);
+  });
+
+  // 💬 MESSAGE SYSTEM (unchanged logic, but safer)
   socket.on("send_message", (msg) => {
-    io.to(msg.userId.toString()).emit("receive_message", msg);
+    if (msg?.userId) {
+      io.to(msg.userId.toString()).emit("receive_message", msg);
+    }
+  });
+
+  socket.on("disconnect", () => {
+    liveViews = Math.max(0, liveViews - 1);
+    io.to(ADMIN_ROOM).emit("live_views", liveViews);
   });
 });
 
