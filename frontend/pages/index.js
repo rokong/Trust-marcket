@@ -78,42 +78,46 @@ export default function HomePage({ posts }) {
   }, []);
 
   useEffect(() => {
-    const id = localStorage.getItem("userId");
-    if (!id) return;
-  
-    socket.current = io("https://trust-market-backend-nsao.onrender.com", { transports: ["websocket"] });
-    socket.current.emit("join", id);
-  
-    socket.current.on("receive_message", (msg) => {
-      if (router.pathname !== "/messages") {
-        addUnread(msg._id);
-        window.dispatchEvent(new Event("unreadChange"));
-  
-        // Desktop notification + sound
-        if ("Notification" in window && Notification.permission === "granted") {
-          const n = new Notification("New Message from Admin", {
-            body: msg.text || "You have a new message",
-            icon: "/favicon.ico",
-          });
-  
-          n.onclick = () => {
-            window.focus();
-            router.push("/messages");
-          };
-  
-          // optional sound
-          const audio = new Audio("/notification.mp3");
-          audio.play();
-        } else {
-          console.log("New message:", msg.text); // fallback
-        }
-      }
+    // 🔥 ALWAYS connect for live view count (guest included)
+    socket.current = io("https://trust-market-backend-nsao.onrender.com", {
+      transports: ["websocket"],
     });
   
-    return () => socket.current.disconnect();
-  }, []);
-
+    // 🔥 HOME PAGE VIEW COUNT
+    socket.current.emit("home_view");
   
+    // 🔐 If logged in → join personal room for messages
+    const id = localStorage.getItem("userId");
+    if (id) {
+      socket.current.emit("join", id);
+  
+      socket.current.on("receive_message", (msg) => {
+        if (router.pathname !== "/messages") {
+          addUnread(msg._id);
+          window.dispatchEvent(new Event("unreadChange"));
+  
+          if ("Notification" in window && Notification.permission === "granted") {
+            const n = new Notification("New Message from Admin", {
+              body: msg.text || "You have a new message",
+              icon: "/favicon.ico",
+            });
+  
+            n.onclick = () => {
+              window.focus();
+              router.push("/messages");
+            };
+  
+            new Audio("/notification.mp3").play();
+          }
+        }
+      });
+    }
+  
+    return () => {
+      socket.current?.disconnect();
+    };
+  }, []);
+    
   // Handlers
   const handleBuy = (post) => {
     const token = localStorage.getItem("token");
