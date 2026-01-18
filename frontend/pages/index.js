@@ -4,6 +4,7 @@ import api from "../utils/api";
 import Link from "next/link";
 import Image from "next/image";
 import { getUnread } from "../utils/unread";
+import { clearAllUnread } from "../utils/unread";
 import { useRouter } from "next/router";
 import { 
   Menu, 
@@ -80,7 +81,10 @@ export default function HomePage({ posts }) {
       router.push("/login");
       return;
     }
-    localStorage.setItem("hasUnread", "0"); // ✅ clear badge
+    // ✅ সব unread মেসেজ clear করো
+    clearAllUnread();
+    window.dispatchEvent(new Event("unreadChange")); // red dot update
+    
     router.push(post ? `/messages?post=${post._id}` : "/messages");
   };
 
