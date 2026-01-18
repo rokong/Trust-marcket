@@ -22,7 +22,7 @@ router.post("/send", authMiddleware, async (req, res) => {
     });
     
     
-    io.to("ADMIN_UNIQUE_ID").emit("receive_message", msg); // admin room
+    
     
     res.json(msg);
   } catch (err) {
