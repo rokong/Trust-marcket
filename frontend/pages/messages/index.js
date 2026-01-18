@@ -2,6 +2,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import api from "../../utils/api";
+import { addUnread } from "../../utils/unread";
+import { clearAllUnread } from "../../utils/unread";
 import { io } from "socket.io-client";
 
 export default function Messages() {
@@ -21,6 +23,12 @@ export default function Messages() {
 
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "https://trust-market-backend-nsao.onrender.com";
 
+  useEffect(() => {
+    // page load বা open হলে unread clear
+    clearAllUnread();
+    window.dispatchEvent(new Event("unreadChange")); // red dot update
+  }, []);
+  
   /* ---------------- INIT SOCKET ---------------- */
   useEffect(() => {
     const id = localStorage.getItem("userId");
@@ -34,8 +42,14 @@ export default function Messages() {
 
     socket.current.on("receive_message", (msg) => {
       setMessages((prev) => (prev.find((m) => m._id === msg._id) ? prev : [...prev, msg]));
+      
+      // যদি user এখন chat page এ না থাকে, unread add করো
+      if (router.pathname !== "/messages") {
+        addUnread(msg._id);
+        // Optionally, trigger a state update if using context or parent component
+        window.dispatchEvent(new Event("unreadChange"));
+      }
     });
-
     return () => socket.current.disconnect();
   }, []);
 
