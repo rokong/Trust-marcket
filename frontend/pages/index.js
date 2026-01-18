@@ -5,6 +5,7 @@ import api from "../utils/api";
 import Link from "next/link";
 import Image from "next/image";
 import { getUnread } from "../utils/unread";
+import { addUnread } from "../utils/unread";
 import { clearAllUnread } from "../utils/unread";
 import { useRouter } from "next/router";
 import { io } from "socket.io-client";
