@@ -80,22 +80,39 @@ export default function HomePage({ posts }) {
   useEffect(() => {
     const id = localStorage.getItem("userId");
     if (!id) return;
-
-    // connect socket
+  
     socket.current = io("https://trust-market-backend-nsao.onrender.com", { transports: ["websocket"] });
     socket.current.emit("join", id);
-
-    // new message from admin
+  
     socket.current.on("receive_message", (msg) => {
-      // যদি user এখন /messages page-এ না থাকে
       if (router.pathname !== "/messages") {
         addUnread(msg._id);
         window.dispatchEvent(new Event("unreadChange"));
+  
+        // Desktop notification + sound
+        if ("Notification" in window && Notification.permission === "granted") {
+          const n = new Notification("New Message from Admin", {
+            body: msg.text || "You have a new message",
+            icon: "/favicon.ico",
+          });
+  
+          n.onclick = () => {
+            window.focus();
+            router.push("/messages");
+          };
+  
+          // optional sound
+          const audio = new Audio("/notification.mp3");
+          audio.play();
+        } else {
+          console.log("New message:", msg.text); // fallback
+        }
       }
     });
-
+  
     return () => socket.current.disconnect();
   }, []);
+
   
   // Handlers
   const handleBuy = (post) => {
