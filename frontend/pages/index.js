@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import api from "../utils/api";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { 
   Menu, 
@@ -37,8 +38,7 @@ export async function getServerSideProps() {
   }
 }
 
-export default function HomePage() {
-  const [posts, setPosts] = useState([]);
+export default function HomePage({ posts }) {
   const [category, setCategory] = useState("all");
   const [showCategory, setShowCategory] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -240,7 +240,15 @@ export default function HomePage() {
                 <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
                   {post.images?.[0] && (
                     <div className="w-full rounded-xl overflow-hidden bg-gray-200 mb-3">
-                      <img src={post.images[0]} alt="Post Image" className="w-full max-h-72 object-cover rounded-xl" />
+                      <Image
+                        src={post.images[0]}
+                        alt="Post Image"
+                        width={400}
+                        height={300}
+                        className="w-full max-h-72 object-cover rounded-xl"
+                        loading="lazy"
+                        quality={70}
+                      />
                     </div>
                   )}
                   {post.videos?.[0] && (
