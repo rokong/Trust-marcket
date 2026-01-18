@@ -54,11 +54,6 @@ export default function AdminDashboard() {
         });
       });
     }
-
-    return () => {
-      socket.current?.disconnect();
-      socket.current = null;
-    };
   }, []);
   
   useEffect(() => {
