@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import api from "../utils/api";
 import Link from "next/link";
 import Image from "next/image";
+import { getUnread } from "../utils/unread";
 import { useRouter } from "next/router";
 import { 
   Menu, 
@@ -47,17 +48,17 @@ export default function HomePage({ posts }) {
   const [hasUnread, setHasUnread] = useState(false);
 
   useEffect(() => {
-    const sync = () => {
-      setHasUnread(localStorage.getItem("hasUnread") === "1");
-    };
-  
-    sync();
-    window.addEventListener("storage", sync);
-    window.addEventListener("focus", sync);
-  
+    const checkUnread = () => setHasUnread(getUnread().length > 0);
+
+    checkUnread();
+    window.addEventListener("unreadChange", checkUnread);
+
+    // multi-tab handle
+    window.addEventListener("storage", checkUnread);
+
     return () => {
-      window.removeEventListener("storage", sync);
-      window.removeEventListener("focus", sync);
+      window.removeEventListener("unreadChange", checkUnread);
+      window.removeEventListener("storage", checkUnread);
     };
   }, []);
   
@@ -124,7 +125,7 @@ export default function HomePage({ posts }) {
           >
             <MessageCircle className="w-4 h-4" /> Messages
             {hasUnread && (
-              <span className="absolute -top-1 -right-2 w-3 h-3 bg-red-600 rounded-full" />
+              <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></span>
             )}
           </button>
 
