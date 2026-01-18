@@ -6,6 +6,7 @@ import Image from "next/image";
 import { getUnread } from "../utils/unread";
 import { clearAllUnread } from "../utils/unread";
 import { useRouter } from "next/router";
+import { io } from "socket.io-client";
 import { 
   Menu, 
   MessageCircle, 
@@ -46,6 +47,7 @@ export default function HomePage({ posts }) {
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [search, setSearch] = useState("");
   const router = useRouter();
+  const socket = useRef(null);
   const [hasUnread, setHasUnread] = useState(false);
 
   useEffect(() => {
@@ -61,6 +63,26 @@ export default function HomePage({ posts }) {
       window.removeEventListener("unreadChange", checkUnread);
       window.removeEventListener("storage", checkUnread);
     };
+  }, []);
+
+  useEffect(() => {
+    const id = localStorage.getItem("userId");
+    if (!id) return;
+
+    // connect socket
+    socket.current = io("https://trust-market-backend-nsao.onrender.com", { transports: ["websocket"] });
+    socket.current.emit("join", id);
+
+    // new message from admin
+    socket.current.on("receive_message", (msg) => {
+      // যদি user এখন /messages page-এ না থাকে
+      if (router.pathname !== "/messages") {
+        addUnread(msg._id);
+        window.dispatchEvent(new Event("unreadChange"));
+      }
+    });
+
+    return () => socket.current.disconnect();
   }, []);
   
   // Handlers
