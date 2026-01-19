@@ -34,7 +34,22 @@ export default function CreatePost() {
     }
   };
 
-  const calculatedPrice = price ? (parseFloat(price) * 1.2).toFixed(2) : 0;
+  const calculatedPrice = calculateFinalPrice(price);
+
+  const calculateFinalPrice = (basePrice) => {
+    const p = Number(basePrice);
+    if (!p || p <= 0) return 0;
+  
+    let percent = 0;
+  
+    if (p <= 1000) percent = 10;
+    else if (p <= 2000) percent = 7;
+    else if (p <= 3000) percent = 5;
+    else percent = 2;
+  
+    return Math.round(p + (p * percent) / 100);
+  };
+
 
   const handleCreatePost = async (e) => {
     e.preventDefault();
@@ -140,7 +155,7 @@ export default function CreatePost() {
           />
           {price && (
             <span className="absolute right-4 top-4 text-gray-500 font-medium">
-              +20% → {calculatedPrice}
+              Final Price → {calculatedPrice}
             </span>
           )}
         </div>
