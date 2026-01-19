@@ -92,7 +92,11 @@ export default function HomePage({ posts }) {
         socket.current.emit("join", id);
       }
     });
-  
+
+    socket.current.on("live_views", (count) => {
+      setLiveViews(count); // frontend update
+    });
+    
     const handleReceiveMessage = (msg) => {
       if (router.pathname !== "/messages") {
         addUnread(msg._id);
@@ -118,6 +122,7 @@ export default function HomePage({ posts }) {
   
     return () => {
       socket.current.off("receive_message", handleReceiveMessage);
+      socket.current.off("live_views");
       socket.current.disconnect();
     };
   }, []);
