@@ -38,7 +38,6 @@ app.use(passport.initialize());
 const server = http.createServer(app);
 const io = new IOServer(server, { cors: { origin: "*" } });
 
-let liveViews = 0;
 const homeViewSockets = new Set();
 const ADMIN_ROOM = "ADMIN_UNIQUE_ID";
 
@@ -47,22 +46,22 @@ io.on("connection", (socket) => {
 
   socket.on("join", (roomId) => {
     socket.join(roomId);
-  });
 
-  // ✅ HOME PAGE VIEW
-  socket.on("home_view", () => {
-    if (!homeViewSockets.has(socket.id)) {
-      homeViewSockets.add(socket.id);
-      liveViews = homeViewSockets.size;
-      io.emit("live_views", liveViews); // 🔥 broadcast
+    // 🔥 admin join করলে current views পাঠাও
+    if (roomId === ADMIN_ROOM) {
+      io.to(socket.id).emit("live_views", homeViewSockets.size);
     }
   });
 
+  // ✅ HOME PAGE VIEW
+  socket.once("home_view", () => {
+    homeViewSockets.add(socket.id);
+    io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
+  });
+
   socket.on("disconnect", () => {
-    if (homeViewSockets.has(socket.id)) {
-      homeViewSockets.delete(socket.id);
-      liveViews = homeViewSockets.size;
-      io.emit("live_views", liveViews);
+    if (homeViewSockets.delete(socket.id)) {
+      io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
     }
   });
 
