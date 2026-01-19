@@ -53,16 +53,11 @@ io.on("connection", (socket) => {
     }
   });
 
-  // ✅ HOME PAGE VIEW
-  socket.once("home_view", () => {
-    homeViewSockets.add(socket.id);
-    io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
-  });
-
-  socket.on("disconnect", () => {
-    if (homeViewSockets.delete(socket.id)) {
-      io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
-    }
+  + socket.on("home_view", () => {
+      if (!homeViewSockets.has(socket.id)) {
+        homeViewSockets.add(socket.id);
+        io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
+      }
   });
 
   // 💬 MESSAGE SYSTEM (unchanged logic, but safer)
