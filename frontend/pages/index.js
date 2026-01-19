@@ -51,7 +51,7 @@ export default function HomePage({ posts }) {
   const router = useRouter();
   const socket = useRef(null);
   const [hasUnread, setHasUnread] = useState(false);
-  const [liveViews, setLiveViews] = useState(0);
+
 
   useEffect(() => {
     const checkUnread = () => setHasUnread(getUnread().length > 0);
