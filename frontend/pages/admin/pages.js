@@ -22,39 +22,64 @@ export default function AdminDashboard() {
   const [liveViews, setLiveViews] = useState(0);
 
 
-   useEffect(() => {
-    if (!socket.current) {
-      socket.current = io(process.env.NEXT_PUBLIC_BACKEND_URL);
-
-      socket.current.on("connect", () => {
-        console.log("Admin socket connected");
-        socket.current.emit("join", adminId); // join admin room
+  useEffect(() => {
+    if (socket.current) return;
+  
+    socket.current = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
+      transports: ["websocket"], // 🔥 MUST
+    });
+  
+    const s = socket.current;
+  
+    s.on("connect", () => {
+      console.log("Admin socket connected:", s.id);
+  
+      // ✅ join SAME room backend uses
+      s.emit("join", "ADMIN_UNIQUE_ID");
+    });
+  
+    s.on("live_views", (count) => {
+      setLiveViews(count);
+    });
+  
+    s.on("receive_message", (msg) => {
+      setUsers((prev) => {
+        const exists = prev.find((u) => u._id === msg.userId);
+  
+        if (exists) {
+          return prev.map((u) =>
+            u._id === msg.userId
+              ? {
+                  ...u,
+                  unreadCount: (u.unreadCount || 0) + 1,
+                  lastMessageTime: msg.createdAt,
+                }
+              : u
+          );
+        }
+  
+        return [
+          {
+            _id: msg.userId,
+            name: msg.senderName || "User",
+            email: "",
+            unreadCount: 1,
+            lastMessageTime: msg.createdAt,
+          },
+          ...prev,
+        ];
       });
-
-      socket.current.on("live_views", (count) => {
-        setLiveViews(count);
-      });
-
-      socket.current.on("receive_message", (msg) => {
-        console.log("Admin received message:", msg);
-
-        // Update users array
-        setUsers((prev) => {
-          const exists = prev.find((u) => u._id === msg.userId);
-          if (exists) {
-            return prev.map((u) =>
-              u._id === msg.userId ? { ...u, unreadCount: (u.unreadCount || 0) + 1, lastMessageTime: msg.createdAt } : u
-            );
-          } else {
-            return [
-              { _id: msg.userId, name: msg.senderName || "User", email: "", unreadCount: 1, lastMessageTime: msg.createdAt },
-              ...prev,
-            ];
-          }
-        });
-      });
-    }
+    });
+  
+    // ✅ CLEANUP (non-negotiable)
+    return () => {
+      s.off("live_views");
+      s.off("receive_message");
+      s.disconnect();
+      socket.current = null;
+    };
   }, []);
+
   
   useEffect(() => {
     const allowedAdminEmail = "mdnajmullhassan938@gmail.com";
