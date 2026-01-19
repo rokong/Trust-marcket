@@ -21,28 +21,15 @@ export default function AdminDashboard() {
   const adminId = "ADMIN_UNIQUE_ID"; // localStorage.getItem("adminId") বা hardcode
   const [liveViews, setLiveViews] = useState(0);
 
-
   useEffect(() => {
-    if (socket.current) return;
-  
-    socket.current = io(process.env.NEXT_PUBLIC_BACKEND_URL, {
-      transports: ["websocket"], // 🔥 MUST
+    const s = io("https://trust-market-backend-nsao.onrender.com", {
+      transports: ["websocket"],
     });
+    socket.current = s;
   
-    const s = socket.current;
+    const handleLiveViews = (count) => setLiveViews(count);
   
-    s.on("connect", () => {
-      console.log("Admin socket connected:", s.id);
-  
-      // ✅ join SAME room backend uses
-      s.emit("join", "ADMIN_UNIQUE_ID");
-    });
-  
-    s.on("live_views", (count) => {
-      setLiveViews(count);
-    });
-  
-    s.on("receive_message", (msg) => {
+    const handleReceiveMessage = (msg) => {
       setUsers((prev) => {
         const exists = prev.find((u) => u._id === msg.userId);
   
@@ -69,17 +56,22 @@ export default function AdminDashboard() {
           ...prev,
         ];
       });
+    };
+  
+    s.on("connect", () => {
+      s.emit("join", "ADMIN_UNIQUE_ID");
     });
   
-    // ✅ CLEANUP (non-negotiable)
+    s.on("live_views", handleLiveViews);
+    s.on("receive_message", handleReceiveMessage);
+  
     return () => {
-      s.off("live_views");
-      s.off("receive_message");
+      s.off("live_views", handleLiveViews);
+      s.off("receive_message", handleReceiveMessage);
       s.disconnect();
       socket.current = null;
     };
   }, []);
-
   
   useEffect(() => {
     const allowedAdminEmail = "mdnajmullhassan938@gmail.com";
