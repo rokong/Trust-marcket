@@ -51,6 +51,7 @@ export default function HomePage({ posts }) {
   const router = useRouter();
   const socket = useRef(null);
   const [hasUnread, setHasUnread] = useState(false);
+  const [liveViews, setLiveViews] = useState(0);
 
 
   useEffect(() => {
@@ -127,7 +128,6 @@ export default function HomePage({ posts }) {
       socket.current.disconnect();
     };
   }, []);
-  
       
   // Handlers
   const handleBuy = (post) => {
