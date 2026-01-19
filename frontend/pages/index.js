@@ -78,46 +78,51 @@ export default function HomePage({ posts }) {
   }, []);
 
   useEffect(() => {
-    // 🔥 ALWAYS connect for live view count (guest included)
     socket.current = io("https://trust-market-backend-nsao.onrender.com", {
       transports: ["websocket"],
     });
   
-    // 🔥 HOME PAGE VIEW COUNT
-    socket.current.emit("home_view");
+    socket.current.on("connect", () => {
+      // 🔥 COUNT HOME VIEW (guest + logged-in)
+      socket.current.emit("home_view");
   
-    // 🔐 If logged in → join personal room for messages
-    const id = localStorage.getItem("userId");
-    if (id) {
-      socket.current.emit("join", id);
+      // 🔐 Join personal room AFTER connect
+      const id = localStorage.getItem("userId");
+      if (id) {
+        socket.current.emit("join", id);
+      }
+    });
   
-      socket.current.on("receive_message", (msg) => {
-        if (router.pathname !== "/messages") {
-          addUnread(msg._id);
-          window.dispatchEvent(new Event("unreadChange"));
+    const handleReceiveMessage = (msg) => {
+      if (router.pathname !== "/messages") {
+        addUnread(msg._id);
+        window.dispatchEvent(new Event("unreadChange"));
   
-          if ("Notification" in window && Notification.permission === "granted") {
-            const n = new Notification("New Message from Admin", {
-              body: msg.text || "You have a new message",
-              icon: "/favicon.ico",
-            });
+        if ("Notification" in window && Notification.permission === "granted") {
+          const n = new Notification("New Message from Admin", {
+            body: msg.text || "You have a new message",
+            icon: "/favicon.ico",
+          });
   
-            n.onclick = () => {
-              window.focus();
-              router.push("/messages");
-            };
+          n.onclick = () => {
+            window.focus();
+            router.push("/messages");
+          };
   
-            new Audio("/notification.mp3").play();
-          }
+          new Audio("/notification.mp3").play();
         }
-      });
-    }
+      }
+    };
+  
+    socket.current.on("receive_message", handleReceiveMessage);
   
     return () => {
-      socket.current?.disconnect();
+      socket.current.off("receive_message", handleReceiveMessage);
+      socket.current.disconnect();
     };
   }, []);
-    
+  
+      
   // Handlers
   const handleBuy = (post) => {
     const token = localStorage.getItem("token");
