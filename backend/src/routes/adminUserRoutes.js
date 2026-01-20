@@ -1,3 +1,4 @@
+//backend/src/routes/adminUserRoutes.js
 import express from "express";
 import User from "../models/User.js";
 import authMiddleware from "../middleware/authMiddleware.js";
