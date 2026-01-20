@@ -20,8 +20,11 @@ const calculateFinalPrice = (basePrice) => {
   const rules = [
     { upto: 500, percent: 10 },
     { upto: 1000, percent: 7 },
+    { upto: 1500, percent: 5 },
     { upto: 2000, percent: 4 },
     { upto: 3000, percent: 5 },
+    { upto: 3500, percent: 4 },
+    { upto: 4000, percent: 3 },
     { upto: Infinity, percent: 2 },
   ];
 
