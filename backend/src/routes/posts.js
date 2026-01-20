@@ -11,16 +11,21 @@ const router = express.Router();
 
 const calculateFinalPrice = (basePrice) => {
   const p = Number(basePrice);
-  if (!p || p <= 0) return 0;
 
-  let percent = 0;
+  // hard validation
+  if (!Number.isFinite(p) || p <= 0 || p > 10_000_000) {
+    throw new Error("Invalid price");
+  }
 
-  if (p <= 1000) percent = 10;
-  else if (p <= 2000) percent = 7;
-  else if (p <= 3000) percent = 5;
-  else percent = 2;
+  const rules = [
+    { upto: 1000, percent: 10 },
+    { upto: 2000, percent: 7 },
+    { upto: 3000, percent: 5 },
+    { upto: Infinity, percent: 2 },
+  ];
 
-  return Math.round(p + (p * percent) / 100);
+  const rule = rules.find(r => p <= r.upto);
+  return Math.round(p * (1 + rule.percent / 100));
 };
 
 // ------------------ GET All Posts (with filter) ------------------
