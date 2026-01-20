@@ -34,7 +34,7 @@ export default function CreatePost() {
     }
   };
 
-  const calculatedPrice = calculateFinalPrice(price);
+  
 
   const calculateFinalPrice = (basePrice) => {
     const p = Number(basePrice);
@@ -50,7 +50,8 @@ export default function CreatePost() {
     return Math.round(p + (p * percent) / 100);
   };
 
-
+  const calculatedPrice = calculateFinalPrice(price);
+  
   const handleCreatePost = async (e) => {
     e.preventDefault();
 
@@ -78,7 +79,7 @@ export default function CreatePost() {
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
-    formData.append("price", calculatedPrice);
+    formData.append("price", price);
     formData.append("category", category);
     formData.append("phone", phone);
     formData.append("requestId", requestId);
