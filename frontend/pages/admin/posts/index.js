@@ -1,3 +1,4 @@
+//frontend/pages/admin/posts/index.js
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import api from "../../../utils/api";
