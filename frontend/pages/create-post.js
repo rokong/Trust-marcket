@@ -42,8 +42,9 @@ export default function CreatePost() {
   
     let percent = 0;
   
-    if (p <= 1000) percent = 10;
-    else if (p <= 2000) percent = 7;
+    if (p <= 500) percent = 10;
+    else if (p <= 1000) percent = 7;
+    else if (p <= 2000) percent = 4;
     else if (p <= 3000) percent = 5;
     else percent = 2;
   
