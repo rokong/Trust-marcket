@@ -6,7 +6,22 @@ import Post from "../models/Post.js";
 import User from "../models/User.js";
 import { parser } from "../utils/cloudinary.js";
 
+
 const router = express.Router();
+
+const calculateFinalPrice = (basePrice) => {
+  const p = Number(basePrice);
+  if (!p || p <= 0) return 0;
+
+  let percent = 0;
+
+  if (p <= 1000) percent = 10;
+  else if (p <= 2000) percent = 7;
+  else if (p <= 3000) percent = 5;
+  else percent = 2;
+
+  return Math.round(p + (p * percent) / 100);
+};
 
 // ------------------ GET All Posts (with filter) ------------------
 router.get("/", async (req, res) => {
@@ -75,15 +90,16 @@ router.post(
   ]),
   async (req, res) => {
     try {
-      const { title, description, price, category, phone } = req.body;
+      const { title, description, price: basePrice, category, phone } = req.body;
 
       const images = req.files?.images?.map((f) => f.path) || [];
       const videos = req.files?.videos?.map((f) => f.path) || [];
-
+      const finalPrice = calculateFinalPrice(basePrice);
+      
       const newPost = await Post.create({
         title,
         description,
-        price,
+        price: finalPrice,
         category,
         phone,
         images, // Cloudinary URLs
@@ -120,9 +136,16 @@ router.put(
 
       post.title = title ?? post.title;
       post.description = description ?? post.description;
-      post.price = price ?? post.price;
       post.category = category ?? post.category;
       post.phone = phone ?? post.phone;
+
+      if (price !== undefined) {
+        if (Number(price) <= 0) {
+          return res.status(400).json({ message: "Invalid price" });
+        }
+        post.price = calculateFinalPrice(price);
+      }
+
 
       if (req.files?.images) {
         post.images.push(...req.files.images.map((f) => f.path));
