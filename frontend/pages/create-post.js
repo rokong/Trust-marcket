@@ -44,8 +44,11 @@ export default function CreatePost() {
   
     if (p <= 500) percent = 10;
     else if (p <= 1000) percent = 7;
+    else if (p <= 1500) percent = 5;
     else if (p <= 2000) percent = 4;
     else if (p <= 3000) percent = 5;
+    else if (p <= 3500) percent = 4;
+    else if (p <= 4000) percent = 3;
     else percent = 2;
   
     return Math.round(p + (p * percent) / 100);
