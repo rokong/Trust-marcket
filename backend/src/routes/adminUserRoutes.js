@@ -18,4 +18,27 @@ router.get("/admin/users", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
+// ✅ DELETE user (ADMIN ONLY)
+router.delete("/admin/users/:id", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // 🔒 Optional safety: verified user delete block
+    if (user.kyc?.status === "verified") {
+      return res
+        .status(403)
+        .json({ message: "Verified user cannot be deleted" });
+    }
+
+    await user.deleteOne();
+    res.json({ message: "User deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to delete user" });
+  }
+});
+
 export default router;
