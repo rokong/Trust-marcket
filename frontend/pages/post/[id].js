@@ -15,6 +15,25 @@ export default function ViewPost() {
 
   useEffect(() => {
     if (!id) return;
+  
+    const loadPost = async () => {
+      try {
+        // 1️⃣ Increment view
+        await api.put(`/posts/view/${id}`);
+  
+        // 2️⃣ Fetch post
+        const res = await api.get(`/posts/${id}`);
+        setPost(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+  
+    loadPost();
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
     const loadPost = async () => {
       try {
         const res = await api.get(`/posts/${id}`);
