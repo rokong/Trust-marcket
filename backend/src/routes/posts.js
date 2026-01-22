@@ -32,6 +32,23 @@ const calculateFinalPrice = (basePrice) => {
   return Math.round(p * (1 + rule.percent / 100));
 };
 
+// ------------------ INCREMENT POST VIEW ------------------
+router.put("/view/:id", async (req, res) => {
+  try {
+    const post = await Post.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    );
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    res.json({ success: true, views: post.views });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to increment view" });
+  }
+});
+
 // ------------------ GET All Posts (with filter) ------------------
 router.get("/", async (req, res) => {
   try {
