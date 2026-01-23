@@ -172,7 +172,7 @@ export default function HomePage({ posts }) {
         <div className="flex items-center gap-2">
           <Home className="text-blue-600 w-6 h-6" />
           <h1 className="text-2xl font-extrabold text-blue-600 tracking-wide">
-            Trust Market
+            Zivora 🛒
           </h1>
         </div>
 
