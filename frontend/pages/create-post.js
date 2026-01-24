@@ -14,6 +14,8 @@ export default function CreatePost() {
   const [phoneError, setPhoneError] = useState("");
 
   const [error, setError] = useState("");
+  const [uploadPercent, setUploadPercent] = useState(0);
+
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // 🔒 submit lock
   const MAX_IMAGE_MB = 10;
@@ -106,13 +108,19 @@ export default function CreatePost() {
 
     try {
       await api.post("/posts/create", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+        headers: { Authorization: `Bearer ${token}` },
+        onUploadProgress: (progressEvent) => {
+          if (!progressEvent.total) return;
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadPercent(percent);
         },
       });
 
       // ✅ success → refresh once (no resubmit on back)
       router.replace("/");
+      setUploadPercent(0);
     } catch (err) {
       console.error(err?.response?.data || err);
       setError("❌ Failed to create post.");
@@ -248,13 +256,24 @@ export default function CreatePost() {
           type="submit"
           disabled={isSubmitting}
           className={`w-full py-4 rounded-lg font-semibold transition
-            ${
-              isSubmitting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
+            ${isSubmitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
             }`}
         >
-          {isSubmitting ? "Posting..." : "Create Post"}
+          {isSubmitting ? (
+            <div className="space-y-2">
+              <p className="text-sm">Posting… {uploadPercent}%</p>
+              <div className="w-full h-2 bg-gray-200 rounded">
+                <div
+                  className="h-2 bg-blue-600 rounded transition-all duration-300"
+                  style={{ width: `${uploadPercent}%` }}
+                />
+              </div>
+            </div>
+          ) : (
+            "Create Post"
+          )}
         </button>
       </form>
     </div>
