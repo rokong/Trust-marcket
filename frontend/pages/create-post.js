@@ -206,9 +206,15 @@ export default function CreatePost() {
           <option>YouTube Channel</option>
         </select>
 
-        {/* Images */}
-        <label className="border-2 border-dashed p-6 rounded-xl text-center cursor-pointer">
-          Select Images (max {MAX_IMAGE_MB}MB each)
+        {/* Images – PRIMARY */}
+        <label className="border-2 border-dashed border-blue-400 p-6 rounded-xl text-center cursor-pointer hover:bg-blue-50 transition">
+          <p className="font-medium text-blue-600">
+            Select Images (max {MAX_IMAGE_MB}MB each)
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            First image will be cover
+          </p>
+        
           <input
             type="file"
             accept="image/*"
@@ -217,13 +223,19 @@ export default function CreatePost() {
             onClick={(e) => (e.target.value = null)}
             onChange={(e) => setImages([...e.target.files])}
           />
-          {images.map((f, i) => (
-            <p key={i} className="text-xs mt-1">{f.name}</p>
-          ))}
+        
+          {images.length > 0 && (
+            <p className="mt-2 text-sm text-gray-600">
+              {images.length} image(s) selected
+            </p>
+          )}
         </label>
-        {/* Videos */}
-        <label className="border-2 border-dashed p-6 rounded-xl text-center cursor-pointer">
-          Select Videos (max {MAX_VIDEO_MB}MB each)
+        {/* Videos – SECONDARY */}
+        <label className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50 transition">
+          <p className="font-medium text-gray-700">
+            Select Videos (optional, max {MAX_VIDEO_MB}MB each)
+          </p>
+        
           <input
             type="file"
             accept="video/*"
@@ -232,9 +244,12 @@ export default function CreatePost() {
             onClick={(e) => (e.target.value = null)}
             onChange={(e) => setVideos([...e.target.files])}
           />
-          {videos.map((f, i) => (
-            <p key={i} className="text-xs mt-1">{f.name}</p>
-          ))}
+        
+          {videos.length > 0 && (
+            <p className="mt-2 text-sm text-gray-600">
+              {videos.length} video(s) selected
+            </p>
+          )}
         </label>
 
         <input
