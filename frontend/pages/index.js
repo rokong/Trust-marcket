@@ -144,7 +144,7 @@ export default function HomePage({ posts }) {
 
   const handleMessage = (post = null) => {
     const userId = localStorage.getItem("userId");
-    if (!userId) {
+    if (!token) {
       alert("Please login!");
       router.push("/login");
       return;
