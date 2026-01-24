@@ -143,7 +143,7 @@ export default function HomePage({ posts }) {
   };
 
   const handleMessage = (post = null) => {
-    const userId = localStorage.getItem("userId");
+    const userId = localStorage.getItem("token");
     if (!token) {
       alert("Please login!");
       router.push("/login");
