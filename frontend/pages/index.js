@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import api from "../utils/api";
 import { useRouter } from "next/router";
 import { io } from "socket.io-client";
 import { motion } from "framer-motion";
@@ -49,6 +50,7 @@ export default function HomePage({ posts }) {
   const [hasUnread, setHasUnread] = useState(false);
   const router = useRouter();
   const socket = useRef(null);
+  const [liveViews, setLiveViews] = useState(0);
 
   const filteredPosts = useMemo(() => {
     return posts.filter(
@@ -70,55 +72,100 @@ export default function HomePage({ posts }) {
   }, []);
 
   useEffect(() => {
-    socket.current = io("https://trust-market-backend-nsao.onrender.com", { transports: ["websocket"] });
-    socket.current.on("connect", () => {
-      socket.current.emit("home_view");
-      const id = localStorage.getItem("userId");
-      if (id) socket.current.emit("join", id);
+    if (!("Notification" in window)) return;
+    
+    if (Notification.permission === "default") {
+      Notification.requestPermission().then((permission) => {
+        console.log("Notification permission:", permission);
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    socket.current = io("https://trust-market-backend-nsao.onrender.com", {
+      transports: ["websocket"],
     });
-    const onMsg = (msg) => {
+  
+    socket.current.on("connect", () => {
+      // 🔥 COUNT HOME VIEW (guest + logged-in)
+      socket.current.emit("home_view");
+  
+      // 🔐 Join personal room AFTER connect
+      const id = localStorage.getItem("userId");
+      if (id) {
+        socket.current.emit("join", id);
+      }
+    });
+
+    socket.current.on("live_views", (count) => {
+      setLiveViews(count); // frontend update
+    });
+    
+    const handleReceiveMessage = (msg) => {
       if (router.pathname !== "/messages") {
         addUnread(msg._id);
         window.dispatchEvent(new Event("unreadChange"));
+  
+        if ("Notification" in window && Notification.permission === "granted") {
+          const n = new Notification("New Message from Admin", {
+            body: msg.text || "You have a new message",
+            icon: "/favicon.ico",
+          });
+  
+          n.onclick = () => {
+            window.focus();
+            router.push("/messages");
+          };
+  
+          new Audio("/notification.mp3").play();
+        }
       }
     };
-    socket.current.on("receive_message", onMsg);
+  
+    socket.current.on("receive_message", handleReceiveMessage);
+  
     return () => {
-      socket.current.off("receive_message", onMsg);
+      socket.current.off("receive_message", handleReceiveMessage);
+      socket.current.off("live_views");
       socket.current.disconnect();
     };
-  }, [router.pathname]);
+  }, []);
 
-  const requireAuth = () => {
-    if (!localStorage.getItem("token")) {
-      alert("Please login first");
-      router.push("/login");
-      return false;
-    }
-    return true;
-  };
-
+  // Handlers
   const handleBuy = (post) => {
-    if (!requireAuth()) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to buy!");
+      router.push("/login");
+      return;
+    }
     router.push(`/buy?post=${post._id}`);
   };
 
   const handleMessage = (post = null) => {
-    if (!localStorage.getItem("userId")) {
-      alert("Please login first");
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Please login!");
       router.push("/login");
       return;
     }
+    // ✅ সব unread মেসেজ clear করো
     clearAllUnread();
-    window.dispatchEvent(new Event("unreadChange"));
+    window.dispatchEvent(new Event("unreadChange")); // red dot update
+      
     router.push(post ? `/messages?post=${post._id}` : "/messages");
   };
 
   const handleCreatePost = () => {
-    if (!requireAuth()) return;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login to create a post!");
+      router.push("/login");
+      return;
+    }
     router.push("/create-post");
   };
-
+  
   return (
     <motion.div variants={page} initial="hidden" animate="show" className="min-h-screen bg-zinc-950 text-white pb-24 overflow-x-hidden">
       {/* Navbar */}
