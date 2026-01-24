@@ -175,7 +175,7 @@ export default function HomePage({ posts }) {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
           <div className="flex items-center gap-2 font-black text-xl">
             <Home className="text-blue-500" />
-            <button onClick={() => router.push("/")} className="hover:underline">Trust Market</button>
+            <button onClick={() => router.push("/")} className="hover:underline">Fytra🛒</button>
           </div>
       
           {/* Desktop nav */}
