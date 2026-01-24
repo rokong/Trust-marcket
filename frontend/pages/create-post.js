@@ -206,52 +206,54 @@ export default function CreatePost() {
           <option>YouTube Channel</option>
         </select>
 
-        {/* Images – PRIMARY */}
-        <label className="border-2 border-dashed border-blue-400 p-6 rounded-xl text-center cursor-pointer hover:bg-blue-50 transition">
-          <p className="font-medium text-blue-600">
-            Select Images (max {MAX_IMAGE_MB}MB each)
-          </p>
-          <p className="text-xs text-gray-500 mt-1">
-            First image will be cover
-          </p>
-        
+        {/* Image Upload */}
+        <label
+          className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
+            images.length > 0
+              ? "border-green-500 bg-green-50"
+              : "border-gray-300 hover:border-blue-500"
+          }`}
+        >
+          <span className="text-gray-500 mb-2">Select Images</span>
           <input
             type="file"
             accept="image/*"
             multiple
-            className="hidden"
             onClick={(e) => (e.target.value = null)}
             onChange={(e) => setImages([...e.target.files])}
-          />
-        
-          {images.length > 0 && (
-            <p className="mt-2 text-sm text-gray-600">
-              {images.length} image(s) selected
-            </p>
-          )}
-        </label>
-        {/* Videos – SECONDARY */}
-        <label className="border-2 border-dashed border-gray-300 p-6 rounded-xl text-center cursor-pointer hover:bg-gray-50 transition">
-          <p className="font-medium text-gray-700">
-            Select Videos (optional, max {MAX_VIDEO_MB}MB each)
-          </p>
-        
-          <input
-            type="file"
-            accept="video/*"
-            multiple
             className="hidden"
-            onClick={(e) => (e.target.value = null)}
-            onChange={(e) => setVideos([...e.target.files])}
           />
-        
-          {videos.length > 0 && (
-            <p className="mt-2 text-sm text-gray-600">
-              {videos.length} video(s) selected
+          {images.length > 0 && (
+            <p className="text-sm text-gray-600 mt-2">
+              {images.length} file(s) selected
             </p>
           )}
         </label>
 
+        {/* Video Upload */}
+        <label
+          className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
+            videos.length > 0
+              ? "border-green-500 bg-green-50"
+              : "border-gray-300 hover:border-blue-500"
+          }`}
+        >
+          <span className="text-gray-500 mb-2">Select Videos</span>
+          <input
+            type="file"
+            accept="video/*"
+            multiple
+            onClick={(e) => (e.target.value = null)}
+            onChange={(e) => setVideos([...e.target.files])}
+            className="hidden"
+          />
+          {videos.length > 0 && (
+            <p className="text-sm text-gray-600 mt-2">
+              {videos.length} file(s) selected
+            </p>
+          )}
+        </label>
+          
         <input
           type="text"
           placeholder="Phone (01XXXXXXXXX)"
