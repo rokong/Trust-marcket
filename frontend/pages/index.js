@@ -143,16 +143,18 @@ export default function HomePage({ posts }) {
   };
 
   const handleMessage = (post = null) => {
-    const userId = localStorage.getItem("token");
+    const token = localStorage.getItem("token"); // ✅ fix: define token
     if (!token) {
       alert("Please login!");
       router.push("/login");
       return;
     }
-    // ✅ সব unread মেসেজ clear করো
+  
+    // Clear unread red dot
     clearAllUnread();
-    window.dispatchEvent(new Event("unreadChange")); // red dot update
-      
+    window.dispatchEvent(new Event("unreadChange"));
+  
+    // Navigate
     router.push(post ? `/messages?post=${post._id}` : "/messages");
   };
 
