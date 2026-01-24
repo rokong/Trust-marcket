@@ -1,5 +1,4 @@
 // frontend/pages/index.js
-// frontend/pages/index.js
 import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
