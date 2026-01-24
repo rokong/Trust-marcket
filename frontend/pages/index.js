@@ -142,33 +142,22 @@ export default function HomePage({ posts }) {
           </nav>
 
           {/* Mobile Buttons */}
-          <div className="md:hidden flex gap-2 items-center relative">
-            <button onClick={handleMessage} className="relative p-2 rounded-full bg-blue-50 text-blue-600">
-              <MessageCircle className="w-6 h-6" />
-              {hasUnread && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />}
-            </button>
-            <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-              <Menu className="w-6 h-6 text-gray-700" />
-            </button>
-            <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
-              <PlusCircle className="w-5 h-5" /> Post
-            </button>
-
-            {/* Mobile Menu Dropdown */}
-            {showMobileMenu && (
-              <div className="absolute top-14 right-0 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-                <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
-                <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-                  <MessageCircle className="w-4 h-4" /> Messages
-                </button>
-                <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-                  <User className="w-4 h-4" /> Account
-                </Link>
-                <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-                  <Menu className="w-4 h-4" /> Categories
-                </button>
-              </div>
-            )}
+          {showMobileMenu && (
+            <div className="absolute top-14 right-0 bg-white text-gray-800 border rounded-lg shadow-lg w-52 z-20 flex flex-col">
+              <Link href="/" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+                <Home className="w-4 h-4" /> Home
+              </Link>
+              <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+                <MessageCircle className="w-4 h-4" /> Messages
+              </button>
+              <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+                <User className="w-4 h-4" /> Account
+              </Link>
+              <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+                <Menu className="w-4 h-4" /> Categories
+              </button>
+            </div>
+          )}
           </div>
         </div>
       </motion.header>
