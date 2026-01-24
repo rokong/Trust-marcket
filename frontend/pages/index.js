@@ -180,7 +180,7 @@ export default function HomePage({ posts }) {
       
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-6 text-sm relative">
-            <button onClick={() => router.push("/")} className="hover:underline">Home</button>
+            <button onClick={() => router.push('/').then(() => window.location.reload())}>Home</button>
             
             {/* Category Dropdown */}
             <div className="relative">
