@@ -189,7 +189,8 @@ export default function CreatePost() {
             type="file"
             accept="image/*"
             multiple
-            onChange={(e) => setImages(e.target.files)}
+            onClick={(e) => (e.target.value = null)}
+            onChange={(e) => setImages([...e.target.files])}
             className="hidden"
           />
           {images.length > 0 && (
@@ -212,7 +213,8 @@ export default function CreatePost() {
             type="file"
             accept="video/*"
             multiple
-            onChange={(e) => setVideos(e.target.files)}
+            onClick={(e) => (e.target.value = null)}
+            onChange={(e) => setVideos([...e.target.files])}
             className="hidden"
           />
           {videos.length > 0 && (
