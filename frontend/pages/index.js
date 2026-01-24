@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { io } from "socket.io-client";
+import { motion } from "framer-motion";
 import {
   Menu,
   MessageCircle,
@@ -17,7 +18,7 @@ import {
 
 import { getUnread, addUnread, clearAllUnread } from "../utils/unread";
 
-// ================== SSR ==================
+/* ================== SSR ================== */
 export async function getServerSideProps() {
   try {
     const res = await fetch(
@@ -33,17 +34,41 @@ export async function getServerSideProps() {
 
 const CATEGORIES = ["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"];
 
-// ================== PAGE ==================
+/* ================== ANIMATION VARIANTS ================== */
+const fadeDown = {
+  hidden: { opacity: 0, y: -20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 20 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
+
+const gridStagger = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.08 },
+  },
+};
+
+const cardAnim = {
+  hidden: { opacity: 0, y: 25 },
+  show: { opacity: 1, y: 0 },
+};
+
+/* ================== PAGE ================== */
 export default function HomePage({ posts }) {
   const [category, setCategory] = useState("all");
   const [showCategory, setShowCategory] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [search, setSearch] = useState("");
   const [hasUnread, setHasUnread] = useState(false);
+
   const router = useRouter();
   const socket = useRef(null);
 
-  // ---------- FILTER ----------
+  /* ---------- FILTER ---------- */
   const filteredPosts = useMemo(() => {
     return posts.filter(
       (p) =>
@@ -53,7 +78,7 @@ export default function HomePage({ posts }) {
     );
   }, [posts, category, search]);
 
-  // ---------- UNREAD ----------
+  /* ---------- UNREAD ---------- */
   useEffect(() => {
     const checkUnread = () => setHasUnread(getUnread().length > 0);
     checkUnread();
@@ -65,7 +90,7 @@ export default function HomePage({ posts }) {
     };
   }, []);
 
-  // ---------- SOCKET ----------
+  /* ---------- SOCKET ---------- */
   useEffect(() => {
     socket.current = io("https://trust-market-backend-nsao.onrender.com", {
       transports: ["websocket"],
@@ -92,7 +117,7 @@ export default function HomePage({ posts }) {
     };
   }, [router.pathname]);
 
-  // ---------- HANDLERS ----------
+  /* ---------- HANDLERS ---------- */
   const handleBuy = (post) => {
     if (!localStorage.getItem("token")) {
       alert("Please login first");
@@ -119,17 +144,22 @@ export default function HomePage({ posts }) {
     router.push("/create-post");
   };
 
-  // ================== UI ==================
+  /* ================== UI ================== */
   return (
     <div className="min-h-screen bg-zinc-950 text-white pb-24">
-      {/* Background glow */}
+      {/* Glow */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/10 blur-[140px]" />
         <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-purple-600/10 blur-[140px]" />
       </div>
 
       {/* ================= NAVBAR ================= */}
-      <header className="fixed top-0 w-full z-50 bg-zinc-900/80 backdrop-blur border-b border-zinc-800">
+      <motion.header
+        variants={fadeDown}
+        initial="hidden"
+        animate="show"
+        className="fixed top-0 w-full z-50 bg-zinc-900/80 backdrop-blur border-b border-zinc-800"
+      >
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2 font-black text-xl">
             <Home className="text-blue-500" />
@@ -137,8 +167,10 @@ export default function HomePage({ posts }) {
           </div>
 
           <nav className="hidden md:flex items-center gap-6 text-sm">
-            <Link href="/" className="hover:text-blue-400">Home</Link>
-            <button onClick={() => setShowCategory(!showCategory)}>Categories</button>
+            <Link href="/">Home</Link>
+            <button onClick={() => setShowCategory(!showCategory)}>
+              Categories
+            </button>
             <button onClick={() => handleMessage()} className="relative">
               Messages
               {hasUnread && (
@@ -154,7 +186,6 @@ export default function HomePage({ posts }) {
             </button>
           </nav>
 
-          {/* Mobile */}
           <div className="md:hidden flex gap-3">
             <button onClick={() => handleMessage()} className="relative">
               <MessageCircle />
@@ -167,27 +198,15 @@ export default function HomePage({ posts }) {
             </button>
           </div>
         </div>
-
-        {showCategory && (
-          <div className="absolute right-6 top-16 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
-            {CATEGORIES.map((c) => (
-              <button
-                key={c}
-                onClick={() => {
-                  setCategory(c.toLowerCase());
-                  setShowCategory(false);
-                }}
-                className="block w-full px-4 py-2 hover:bg-zinc-800 text-left"
-              >
-                {c}
-              </button>
-            ))}
-          </div>
-        )}
-      </header>
+      </motion.header>
 
       {/* ================= SEARCH ================= */}
-      <div className="pt-28 px-6">
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate="show"
+        className="pt-28 px-6"
+      >
         <div className="max-w-3xl mx-auto flex items-center bg-zinc-900 border border-zinc-800 rounded-full px-5">
           <Search className="text-zinc-500 w-5 h-5" />
           <input
@@ -197,10 +216,15 @@ export default function HomePage({ posts }) {
             className="flex-1 bg-transparent px-4 py-4 focus:outline-none"
           />
         </div>
-      </div>
+      </motion.div>
 
       {/* ================= GRID ================= */}
-      <main className="max-w-7xl mx-auto px-6 mt-16">
+      <motion.main
+        variants={gridStagger}
+        initial="hidden"
+        animate="show"
+        className="max-w-7xl mx-auto px-6 mt-16"
+      >
         {filteredPosts.length === 0 ? (
           <p className="text-center text-zinc-500 py-32">
             No posts found
@@ -208,9 +232,12 @@ export default function HomePage({ posts }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post) => (
-              <div
+              <motion.div
                 key={post._id}
-                className="bg-zinc-900/40 border border-zinc-800 rounded-2xl overflow-hidden hover:shadow-xl transition flex flex-col"
+                variants={cardAnim}
+                whileHover={{ y: -6, scale: 1.01 }}
+                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                className="bg-zinc-900/40 border border-zinc-800 rounded-2xl overflow-hidden"
               >
                 {post.images?.[0] && (
                   <div className="relative h-52">
@@ -223,7 +250,7 @@ export default function HomePage({ posts }) {
                   </div>
                 )}
 
-                <div className="p-4 flex flex-col gap-2 flex-1">
+                <div className="p-4 flex flex-col gap-2">
                   <h3 className="font-semibold">{post.title}</h3>
                   <p className="text-sm text-zinc-400 line-clamp-3">
                     {post.description}
@@ -255,11 +282,11 @@ export default function HomePage({ posts }) {
                     </button>
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
-      </main>
+      </motion.main>
 
       {/* ================= FOOTER ================= */}
       <footer className="mt-24 border-t border-zinc-800 py-6 text-center text-zinc-500 text-sm">
@@ -268,3 +295,4 @@ export default function HomePage({ posts }) {
     </div>
   );
 }
+
