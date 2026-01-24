@@ -221,7 +221,6 @@ export default function CreatePost() {
             <p key={i} className="text-xs mt-1">{f.name}</p>
           ))}
         </label>
-
         {/* Videos */}
         <label className="border-2 border-dashed p-6 rounded-xl text-center cursor-pointer">
           Select Videos (max {MAX_VIDEO_MB}MB each)
