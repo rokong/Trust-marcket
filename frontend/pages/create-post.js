@@ -16,8 +16,17 @@ export default function CreatePost() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false); // 🔒 submit lock
-
+  const MAX_IMAGE_MB = 10;
+  const MAX_VIDEO_MB = 100;
   const router = useRouter();
+
+  const validateFiles = (files, maxMB, type) => {
+    for (let f of files) {
+      if (f.size > maxMB * 1024 * 1024) {
+        throw new Error(`${type} size exceeds ${maxMB}MB`);
+      }
+    }
+  };
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, "");
