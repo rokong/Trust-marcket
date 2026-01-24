@@ -149,7 +149,23 @@ export default function HomePage({ posts }) {
           </div>
         </div>
       </motion.header>
-
+      {/* Mobile Menu Dropdown */}
+          {showMobileMenu && (
+            <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
+              <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
+              <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+                <MessageCircle className="w-4 h-4" /> Messages
+              </button>
+              <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+                <User className="w-4 h-4" /> Account
+              </Link>
+              <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+                <Menu className="w-4 h-4" /> Categories
+              </button>
+            </div>
+          )}
+        </div>
+      </motion.header>
       {/* Search */}
       <motion.div variants={fadeUp} className="pt-28 px-6">
         <div className="max-w-3xl mx-auto flex items-center bg-zinc-900/80 border border-zinc-800 rounded-full px-6">
