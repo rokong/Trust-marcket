@@ -13,6 +13,7 @@ import {
   ShoppingCart,
   PlusCircle,
   Search,
+  User,
 } from "lucide-react";
 
 import { getUnread, addUnread, clearAllUnread } from "../utils/unread";
@@ -44,6 +45,7 @@ export default function HomePage({ posts }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [showCategory, setShowCategory] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [hasUnread, setHasUnread] = useState(false);
   const router = useRouter();
   const socket = useRef(null);
@@ -121,7 +123,7 @@ export default function HomePage({ posts }) {
     <motion.div variants={page} initial="hidden" animate="show" className="min-h-screen bg-zinc-950 text-white pb-24 overflow-x-hidden">
       {/* Navbar */}
       <motion.header variants={fadeDown} className="fixed top-0 w-full z-50 backdrop-blur-xl bg-zinc-950/70 border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
           <div className="flex items-center gap-2 font-black text-xl">
             <Home className="text-blue-500" />
             Trust Market
@@ -138,34 +140,39 @@ export default function HomePage({ posts }) {
               <PlusCircle className="w-5 h-5" /> Create Post
             </button>
           </nav>
-          <div className="md:hidden flex gap-2">
+
+          {/* Mobile Buttons */}
+          <div className="md:hidden flex gap-2 items-center relative">
             <button onClick={handleMessage} className="relative p-2 rounded-full bg-blue-50 text-blue-600">
               <MessageCircle className="w-6 h-6" />
               {hasUnread && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />}
             </button>
+            <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+              <Menu className="w-6 h-6 text-gray-700" />
+            </button>
             <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
               <PlusCircle className="w-5 h-5" /> Post
             </button>
+
+            {/* Mobile Menu Dropdown */}
+            {showMobileMenu && (
+              <div className="absolute top-14 right-0 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
+                <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
+                <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+                  <MessageCircle className="w-4 h-4" /> Messages
+                </button>
+                <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+                  <User className="w-4 h-4" /> Account
+                </Link>
+                <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
+                  <Menu className="w-4 h-4" /> Categories
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </motion.header>
-      {/* Mobile Menu Dropdown */}
-          {showMobileMenu && (
-            <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-              <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
-              <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-                <MessageCircle className="w-4 h-4" /> Messages
-              </button>
-              <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-                <User className="w-4 h-4" /> Account
-              </Link>
-              <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-                <Menu className="w-4 h-4" /> Categories
-              </button>
-            </div>
-          )}
-        </div>
-      </motion.header>
+
       {/* Search */}
       <motion.div variants={fadeUp} className="pt-28 px-6">
         <div className="max-w-3xl mx-auto flex items-center bg-zinc-900/80 border border-zinc-800 rounded-full px-6">
@@ -182,7 +189,6 @@ export default function HomePage({ posts }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredPosts.map((post) => (
               <motion.div key={post._id} variants={card} whileHover={{ y: -8 }} transition={{ type: "spring", stiffness: 280, damping: 22 }} className="group relative rounded-3xl bg-zinc-900/70 border border-zinc-800 overflow-hidden">
-                {/* Image / Video */}
                 {post.videos?.[0] ? (
                   <video controls className="w-full h-56 object-cover">
                     <source src={post.videos[0]} type="video/mp4" />
@@ -198,7 +204,6 @@ export default function HomePage({ posts }) {
                   <p className="text-sm text-zinc-400 line-clamp-3">{post.description}</p>
                   <p className="text-blue-400 font-bold">৳ {post.price}</p>
 
-                  {/* Buttons */}
                   <div className="flex justify-between items-center mt-4">
                     <Link href={`/post/${post._id}`} className="text-blue-400 flex items-center gap-1">
                       <Heart className="w-4 h-4" /> View
@@ -224,4 +229,3 @@ export default function HomePage({ posts }) {
     </motion.div>
   );
 }
-
