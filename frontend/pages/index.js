@@ -4,33 +4,36 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { io } from "socket.io-client";
-import { 
-  Menu, 
-  MessageCircle, 
-  User, 
-  Home, 
-  PlusCircle, 
-  ShoppingCart, 
-  Heart 
+import {
+  Menu,
+  MessageCircle,
+  User,
+  Home,
+  PlusCircle,
+  ShoppingCart,
+  Heart,
+  Search,
 } from "lucide-react";
+
 import { getUnread, addUnread, clearAllUnread } from "../utils/unread";
 
+// ================== SSR ==================
 export async function getServerSideProps() {
   try {
-    const res = await fetch("https://trust-market-backend-nsao.onrender.com/api/posts", {
-      headers: { "Cache-Control": "no-cache" },
-    });
-    if (!res.ok) throw new Error("API fetch failed");
+    const res = await fetch(
+      "https://trust-market-backend-nsao.onrender.com/api/posts",
+      { headers: { "Cache-Control": "no-cache" } }
+    );
     const posts = await res.json();
     return { props: { posts } };
-  } catch (e) {
-    console.error("SSR fetch error:", e);
+  } catch {
     return { props: { posts: [] } };
   }
 }
 
-const categories = ["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"];
+const CATEGORIES = ["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"];
 
+// ================== PAGE ==================
 export default function HomePage({ posts }) {
   const [category, setCategory] = useState("all");
   const [showCategory, setShowCategory] = useState(false);
@@ -40,15 +43,17 @@ export default function HomePage({ posts }) {
   const router = useRouter();
   const socket = useRef(null);
 
+  // ---------- FILTER ----------
   const filteredPosts = useMemo(() => {
-    return posts.filter(p => {
-      const matchCat = category === "all" || p.category?.toLowerCase() === category;
-      const matchSearch = p.title?.toLowerCase().includes(search.toLowerCase());
-      return matchCat && matchSearch;
-    });
+    return posts.filter(
+      (p) =>
+        (category === "all" ||
+          p.category?.toLowerCase() === category) &&
+        p.title?.toLowerCase().includes(search.toLowerCase())
+    );
   }, [posts, category, search]);
 
-  // Unread setup
+  // ---------- UNREAD ----------
   useEffect(() => {
     const checkUnread = () => setHasUnread(getUnread().length > 0);
     checkUnread();
@@ -60,153 +65,195 @@ export default function HomePage({ posts }) {
     };
   }, []);
 
-  // Notifications permission
+  // ---------- SOCKET ----------
   useEffect(() => {
-    if (!("Notification" in window)) return;
-    if (Notification.permission === "default") Notification.requestPermission();
-  }, []);
+    socket.current = io("https://trust-market-backend-nsao.onrender.com", {
+      transports: ["websocket"],
+    });
 
-  // Socket.IO for live views & messages
-  useEffect(() => {
-    socket.current = io("https://trust-market-backend-nsao.onrender.com", { transports: ["websocket"] });
     socket.current.on("connect", () => {
       socket.current.emit("home_view");
       const id = localStorage.getItem("userId");
       if (id) socket.current.emit("join", id);
     });
 
-    socket.current.on("live_views", count => {}); // optional liveViews handler
-
-    const handleMessage = msg => {
+    const onMsg = (msg) => {
       if (router.pathname !== "/messages") {
         addUnread(msg._id);
         window.dispatchEvent(new Event("unreadChange"));
-        if (Notification.permission === "granted") {
-          const n = new Notification("New Message from Admin", { body: msg.text || "New message", icon: "/favicon.ico" });
-          n.onclick = () => { window.focus(); router.push("/messages"); };
-          new Audio("/notification.mp3").play();
-        }
       }
     };
-    socket.current.on("receive_message", handleMessage);
+
+    socket.current.on("receive_message", onMsg);
 
     return () => {
-      socket.current.off("receive_message", handleMessage);
+      socket.current.off("receive_message", onMsg);
       socket.current.disconnect();
     };
-  }, []);
+  }, [router.pathname]);
 
-  // Handlers
-  const handleBuy = post => {
-    if (!localStorage.getItem("token")) { alert("Login first"); router.push("/login"); return; }
+  // ---------- HANDLERS ----------
+  const handleBuy = (post) => {
+    if (!localStorage.getItem("token")) {
+      alert("Please login first");
+      return router.push("/login");
+    }
     router.push(`/buy?post=${post._id}`);
   };
-  const handleMessage = post => {
-    if (!localStorage.getItem("userId")) { alert("Login first"); router.push("/login"); return; }
-    clearAllUnread(); window.dispatchEvent(new Event("unreadChange"));
+
+  const handleMessage = (post = null) => {
+    if (!localStorage.getItem("userId")) {
+      alert("Please login first");
+      return router.push("/login");
+    }
+    clearAllUnread();
+    window.dispatchEvent(new Event("unreadChange"));
     router.push(post ? `/messages?post=${post._id}` : "/messages");
   };
+
   const handleCreatePost = () => {
-    if (!localStorage.getItem("token")) { alert("Login first"); router.push("/login"); return; }
+    if (!localStorage.getItem("token")) {
+      alert("Please login first");
+      return router.push("/login");
+    }
     router.push("/create-post");
   };
 
+  // ================== UI ==================
   return (
-    <div className="min-h-screen bg-gray-100 pb-24">
-      {/* Navbar */}
-      <header className="bg-white shadow-md p-4 flex justify-between items-center relative">
-        <div className="flex items-center gap-2">
-          <Home className="text-blue-600 w-6 h-6" />
-          <h1 className="text-2xl font-extrabold text-blue-600 tracking-wide">Trust Market</h1>
-        </div>
-        <nav className="hidden md:flex space-x-8 text-gray-700 font-medium items-center">
-          <Link href="/" className="hover:text-blue-600 transition">Home</Link>
-          <button onClick={() => setShowCategory(!showCategory)} className="flex items-center gap-1 hover:text-blue-600 transition">
-            <Menu className="w-4 h-4" /> Categories
-          </button>
-          <button onClick={() => handleMessage()} className="relative flex items-center gap-1 hover:text-blue-600 transition">
-            <MessageCircle className="w-4 h-4" /> Messages
-            {hasUnread && <span className="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full" />}
-          </button>
-          <Link href="/dashboard" className="flex items-center gap-1 hover:text-blue-600 transition">
-            <User className="w-4 h-4" /> Account
-          </Link>
-          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700">
-            <PlusCircle className="w-5 h-5" /> Create Post
-          </button>
-        </nav>
+    <div className="min-h-screen bg-zinc-950 text-white pb-24">
+      {/* Background glow */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute -top-40 -left-40 w-[600px] h-[600px] bg-blue-600/10 blur-[140px]" />
+        <div className="absolute top-1/3 -right-40 w-[500px] h-[500px] bg-purple-600/10 blur-[140px]" />
+      </div>
 
-        {/* Mobile Menu */}
-        <div className="md:hidden flex items-center gap-2">
-          <button onClick={() => handleMessage()} className="p-2 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 relative">
-            <MessageCircle className="w-6 h-6" />
-            {hasUnread && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>}
-          </button>
-          <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
-            <Menu className="w-6 h-6 text-gray-700" />
-          </button>
-          <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
-            <PlusCircle className="w-5 h-5" /> Post
-          </button>
+      {/* ================= NAVBAR ================= */}
+      <header className="fixed top-0 w-full z-50 bg-zinc-900/80 backdrop-blur border-b border-zinc-800">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <div className="flex items-center gap-2 font-black text-xl">
+            <Home className="text-blue-500" />
+            Trust Market
+          </div>
+
+          <nav className="hidden md:flex items-center gap-6 text-sm">
+            <Link href="/" className="hover:text-blue-400">Home</Link>
+            <button onClick={() => setShowCategory(!showCategory)}>Categories</button>
+            <button onClick={() => handleMessage()} className="relative">
+              Messages
+              {hasUnread && (
+                <span className="absolute -top-1 -right-2 w-2.5 h-2.5 bg-red-500 rounded-full" />
+              )}
+            </button>
+            <Link href="/dashboard">Account</Link>
+            <button
+              onClick={handleCreatePost}
+              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg"
+            >
+              Create Post
+            </button>
+          </nav>
+
+          {/* Mobile */}
+          <div className="md:hidden flex gap-3">
+            <button onClick={() => handleMessage()} className="relative">
+              <MessageCircle />
+              {hasUnread && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
+              )}
+            </button>
+            <button onClick={() => setShowMobileMenu(!showMobileMenu)}>
+              <Menu />
+            </button>
+          </div>
         </div>
 
-        {/* Category Dropdown */}
         {showCategory && (
-          <div className="absolute right-4 top-16 bg-white border rounded-lg shadow-lg w-56 z-10">
-            {categories.map(cat => (
-              <button key={cat} onClick={() => { setCategory(cat.toLowerCase()); setShowCategory(false); }} className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize">
-                {cat}
+          <div className="absolute right-6 top-16 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
+            {CATEGORIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => {
+                  setCategory(c.toLowerCase());
+                  setShowCategory(false);
+                }}
+                className="block w-full px-4 py-2 hover:bg-zinc-800 text-left"
+              >
+                {c}
               </button>
             ))}
           </div>
         )}
-
-        {/* Mobile Menu Dropdown */}
-        {showMobileMenu && (
-          <div className="absolute top-16 right-4 bg-white border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-            <Link href="/" className="px-4 py-2 hover:bg-gray-100">Home</Link>
-            <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-              <MessageCircle className="w-4 h-4" /> Messages
-            </button>
-            <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-              <User className="w-4 h-4" /> Account
-            </Link>
-            <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-1">
-              <Menu className="w-4 h-4" /> Categories
-            </button>
-          </div>
-        )}
       </header>
 
-      {/* Search + Category Filter */}
-      <div className="bg-white border-b p-4 flex flex-col md:flex-row justify-center gap-4">
-        <input type="text" placeholder="Search post by title..." value={search} onChange={e => setSearch(e.target.value)} className="w-full max-w-xl border rounded-full px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-        <div className="flex flex-wrap gap-2">
-          {categories.map(cat => (
-            <button key={cat} onClick={() => setCategory(cat.toLowerCase())} className={`px-4 py-2 rounded-full border transition ${category === cat.toLowerCase() ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 hover:bg-blue-50"}`}>
-              {cat}
-            </button>
-          ))}
+      {/* ================= SEARCH ================= */}
+      <div className="pt-28 px-6">
+        <div className="max-w-3xl mx-auto flex items-center bg-zinc-900 border border-zinc-800 rounded-full px-5">
+          <Search className="text-zinc-500 w-5 h-5" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search premium digital assets..."
+            className="flex-1 bg-transparent px-4 py-4 focus:outline-none"
+          />
         </div>
       </div>
 
-      {/* Posts */}
-      <main className="max-w-7xl mx-auto p-6">
+      {/* ================= GRID ================= */}
+      <main className="max-w-7xl mx-auto px-6 mt-16">
         {filteredPosts.length === 0 ? (
-          <p className="text-center text-gray-500">No posts found</p>
+          <p className="text-center text-zinc-500 py-32">
+            No posts found
+          </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {filteredPosts.map(post => (
-              <div key={post._id} className="bg-white rounded-2xl shadow-lg hover:shadow-xl transition p-4 flex flex-col">
-                {post.images?.[0] && <Image src={post.images[0]} alt="Post Image" width={400} height={300} className="w-full max-h-72 object-cover rounded-xl mb-3" loading="lazy" />}
-                {post.videos?.[0] && <video controls className="w-full max-h-72 rounded-xl object-cover mb-3"><source src={post.videos[0]} type="video/mp4" /></video>}
-                <h3 className="text-lg font-semibold text-gray-800 mb-1">{post.title}</h3>
-                <p className="text-gray-600 mb-3 line-clamp-3">{post.description}</p>
-                <p className="text-blue-600 font-bold text-lg mb-3">🤑 {post.price} BDT</p>
-                <div className="flex justify-between items-center mt-auto">
-                  <Link href={`/post/${post._id}`} className="text-blue-600 hover:underline flex items-center gap-1"><Heart className="w-4 h-4" /> View</Link>
-                  <button onClick={() => handleMessage(post)} className="px-3 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 flex items-center gap-1"><MessageCircle className="w-4 h-4" /> Message</button>
-                  <button onClick={() => handleBuy(post)} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 flex items-center gap-1"><ShoppingCart className="w-4 h-4" /> Buy</button>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredPosts.map((post) => (
+              <div
+                key={post._id}
+                className="bg-zinc-900/40 border border-zinc-800 rounded-2xl overflow-hidden hover:shadow-xl transition flex flex-col"
+              >
+                {post.images?.[0] && (
+                  <div className="relative h-52">
+                    <Image
+                      src={post.images[0]}
+                      alt="Post"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                )}
+
+                <div className="p-4 flex flex-col gap-2 flex-1">
+                  <h3 className="font-semibold">{post.title}</h3>
+                  <p className="text-sm text-zinc-400 line-clamp-3">
+                    {post.description}
+                  </p>
+                  <p className="text-blue-500 font-bold">
+                    🤑 {post.price} BDT
+                  </p>
+
+                  <div className="flex justify-between items-center mt-auto">
+                    <Link
+                      href={`/post/${post._id}`}
+                      className="text-blue-400 flex items-center gap-1"
+                    >
+                      <Heart className="w-4 h-4" /> View
+                    </Link>
+
+                    <button
+                      onClick={() => handleMessage(post)}
+                      className="bg-zinc-800 hover:bg-zinc-700 px-3 py-2 rounded-lg"
+                    >
+                      Message
+                    </button>
+
+                    <button
+                      onClick={() => handleBuy(post)}
+                      className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg"
+                    >
+                      Buy
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -214,9 +261,9 @@ export default function HomePage({ posts }) {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white text-center py-4 border-t mt-10 text-gray-500 text-sm">
-        © {new Date().getFullYear()} <span className="font-semibold text-blue-600">Trust Market</span> — All rights reserved.
+      {/* ================= FOOTER ================= */}
+      <footer className="mt-24 border-t border-zinc-800 py-6 text-center text-zinc-500 text-sm">
+        © {new Date().getFullYear()} Trust Market. All rights reserved.
       </footer>
     </div>
   );
