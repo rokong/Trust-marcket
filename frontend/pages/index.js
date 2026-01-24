@@ -175,13 +175,34 @@ export default function HomePage({ posts }) {
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center relative">
           <div className="flex items-center gap-2 font-black text-xl">
             <Home className="text-blue-500" />
-            Trust Market
+            <button onClick={() => router.push("/")} className="hover:underline">Trust Market</button>
           </div>
-
+      
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-6 text-sm">
-            <Link href="/">Home</Link>
-            <button onClick={() => setShowCategory(!showCategory)}>Categories</button>
+          <nav className="hidden md:flex items-center gap-6 text-sm relative">
+            <button onClick={() => router.push("/")} className="hover:underline">Home</button>
+            
+            {/* Category Dropdown */}
+            <div className="relative">
+              <button onClick={() => setShowCategory(!showCategory)}>Categories</button>
+              {showCategory && (
+                <div className="absolute top-8 left-0 bg-white text-gray-800 border rounded-lg shadow-lg w-56 z-50">
+                  {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        setCategory(cat.toLowerCase());
+                        setShowCategory(false);
+                      }}
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+      
             <button onClick={() => handleMessage()} className="relative">
               Messages
               {hasUnread && <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full" />}
@@ -191,40 +212,56 @@ export default function HomePage({ posts }) {
               <PlusCircle className="w-5 h-5" /> Create Post
             </button>
           </nav>
-
+      
           {/* Mobile Buttons */}
           <div className="md:hidden flex gap-2 items-center relative">
-            {/* Message */}
             <button onClick={handleMessage} className="relative p-2 rounded-full bg-blue-50 text-blue-600">
               <MessageCircle className="w-6 h-6" />
               {hasUnread && <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />}
             </button>
-
-            {/* Menu toggle */}
+      
             <button onClick={() => setShowMobileMenu(!showMobileMenu)} className="p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
               <Menu className="w-6 h-6 text-gray-700" />
             </button>
-
-            {/* Create post */}
+      
             <button onClick={handleCreatePost} className="bg-blue-600 text-white px-3 py-1 rounded-lg flex items-center gap-1">
               <PlusCircle className="w-5 h-5" /> Post
             </button>
-
+      
             {/* Mobile Dropdown */}
             {showMobileMenu && (
-              <div className="absolute top-14 right-0 bg-white text-gray-800 border rounded-lg shadow-lg w-52 z-20 flex flex-col">
-                <Link href="/" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+              <div className="absolute top-14 right-0 bg-white text-gray-800 border rounded-lg shadow-lg w-52 z-50 flex flex-col">
+                <button onClick={() => { router.push("/"); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
                   <Home className="w-4 h-4" /> Home
-                </Link>
-                <button onClick={() => handleMessage()} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+                </button>
+      
+                <button onClick={() => { handleMessage(); setShowMobileMenu(false); }} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
                   <MessageCircle className="w-4 h-4" /> Messages
                 </button>
+      
                 <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
                   <User className="w-4 h-4" /> Account
                 </Link>
-                <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
-                  <Menu className="w-4 h-4" /> Categories
-                </button>
+      
+                {/* Mobile Category Dropdown */}
+                <div className="relative">
+                  <button onClick={() => setShowCategory(!showCategory)} className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
+                    <Menu className="w-4 h-4" /> Categories
+                  </button>
+                  {showCategory && (
+                    <div className="absolute top-0 left-full ml-2 bg-white border rounded-lg shadow-lg w-52 z-50 flex flex-col">
+                      {["All", "Gaming", "Facebook Page", "Website", "YouTube Channel"].map((cat) => (
+                        <button
+                          key={cat}
+                          onClick={() => { setCategory(cat.toLowerCase()); setShowCategory(false); setShowMobileMenu(false); }}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-100 capitalize"
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
