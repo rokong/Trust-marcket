@@ -193,54 +193,52 @@ export default function CreatePost() {
           <option>YouTube Channel</option>
         </select>
 
-        {/* Image Upload */}
-        <label
-          className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
-            images.length > 0
-              ? "border-green-500 bg-green-50"
-              : "border-gray-300 hover:border-blue-500"
-          }`}
-        >
-          <span className="text-gray-500 mb-2">Select Images</span>
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onClick={(e) => (e.target.value = null)}
-            onChange={(e) => setImages([...e.target.files])}
-            className="hidden"
-          />
-          {images.length > 0 && (
-            <p className="text-sm text-gray-600 mt-2">
-              {images.length} file(s) selected
-            </p>
-          )}
-        </label>
-
-        {/* Video Upload */}
-        <label
-          className={`border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
-            videos.length > 0
-              ? "border-green-500 bg-green-50"
-              : "border-gray-300 hover:border-blue-500"
-          }`}
-        >
-          <span className="text-gray-500 mb-2">Select Videos</span>
-          <input
-            type="file"
-            accept="video/*"
-            multiple
-            onClick={(e) => (e.target.value = null)}
-            onChange={(e) => setVideos([...e.target.files])}
-            className="hidden"
-          />
-          {videos.length > 0 && (
-            <p className="text-sm text-gray-600 mt-2">
-              {videos.length} file(s) selected
-            </p>
-          )}
-        </label>
-
+        {/* Images */}
+        <div className="grid grid-cols-4 gap-4 mt-2">
+          {images.map((file, index) => (
+            <div key={index} className="relative border p-1 rounded">
+              <img
+                src={URL.createObjectURL(file)}
+                alt={file.name}
+                className="w-full h-24 object-cover rounded"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const newImages = images.filter((_, i) => i !== index);
+                  setImages(newImages);
+                }}
+                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+        
+        {/* Videos */}
+        <div className="grid grid-cols-4 gap-4 mt-2">
+          {videos.map((file, index) => (
+            <div key={index} className="relative border p-1 rounded">
+              <video
+                src={URL.createObjectURL(file)}
+                className="w-full h-24 object-cover rounded"
+                controls
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  const newVideos = videos.filter((_, i) => i !== index);
+                  setVideos(newVideos);
+                }}
+                className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+        </div>
+      
         <input
           type="text"
           placeholder="Phone (01XXXXXXXXX)"
