@@ -240,7 +240,7 @@ export default function HomePage({ posts }) {
                 </button>
       
                 <Link href="/dashboard" className="px-4 py-2 hover:bg-gray-100 flex items-center gap-2">
-                  <User className="w-4 h-4" /> Account
+                  <User className="w-4 h-4" /> Profile
                 </Link>
       
                 {/* Mobile Category Dropdown */}
