@@ -207,7 +207,7 @@ export default function HomePage({ posts }) {
               Messages
               {hasUnread && <span className="absolute -top-1 -right-2 w-2 h-2 bg-red-500 rounded-full" />}
             </button>
-            <Link href="/dashboard">Account</Link>
+            <Link href="/dashboard">Profile</Link>
             <button onClick={handleCreatePost} className="bg-blue-600 px-4 py-2 rounded-xl hover:bg-blue-700 transition flex items-center gap-1">
               <PlusCircle className="w-5 h-5" /> Create Post
             </button>
