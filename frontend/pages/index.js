@@ -272,7 +272,7 @@ export default function HomePage({ posts }) {
       <motion.div variants={fadeUp} className="pt-28 px-6">
         <div className="max-w-3xl mx-auto flex items-center bg-zinc-900/80 border border-zinc-800 rounded-full px-6">
           <Search className="text-zinc-500 w-5 h-5" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search premium digital assets…" className="flex-1 bg-transparent px-4 py-4 focus:outline-none" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search…" className="flex-1 bg-transparent px-4 py-4 focus:outline-none" />
         </div>
       </motion.div>
 
