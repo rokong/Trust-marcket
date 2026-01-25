@@ -85,20 +85,22 @@ export default function CreatePost() {
         headers: { Authorization: `Bearer ${token}` },
         onUploadProgress: (e) => {
           if (!e.total) return;
-          setUploadPercent(Math.round((e.loaded * 100) / e.total));
+          setUploadPercent(
+            Math.round((e.loaded * 100) / e.total)
+          );
         },
       });
 
       router.replace("/");
     } catch (err) {
-      setError("❌ Failed to create post");
+      setError("❌ Failed to create post.");
       setIsSubmitting(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
-      <h2 className="text-3xl font-bold text-blue-600 mt-16">
+      <h2 className="text-3xl font-bold text-blue-600 mt-16 text-center">
         Create a New Post
       </h2>
 
@@ -107,6 +109,7 @@ export default function CreatePost() {
         className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-xl mt-6 space-y-6"
       >
         {error && <p className="text-red-600">{error}</p>}
+        {success && <p className="text-green-600">{success}</p>}
 
         <input
           placeholder="Title"
@@ -135,7 +138,7 @@ export default function CreatePost() {
           />
           {price && (
             <span className="absolute right-4 top-4 text-gray-500">
-              Final → {calculatedPrice}
+              Final Price → {calculatedPrice}
             </span>
           )}
         </div>
@@ -151,74 +154,81 @@ export default function CreatePost() {
           <option>YouTube Channel</option>
         </select>
 
-        {/* IMAGE UPLOAD */}
-        <label className="border-2 border-dashed p-6 rounded-xl text-center cursor-pointer">
-          Select Images
+        {/* Image Upload */}
+        <label
+          className={`relative border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
+            images.length > 0
+              ? "border-green-500 bg-green-50"
+              : "border-gray-300 hover:border-blue-500"
+          }`}
+        >
+          <span className="text-gray-500 mb-2">Select Images</span>
           <input
             type="file"
             accept="image/*"
             multiple
+            onClick={(e) => (e.target.value = null)}
+            onChange={(e) => setImages([...e.target.files])}
             className="hidden"
-            onChange={(e) => setImages([...images, ...e.target.files])}
           />
+
+          {images.length > 0 && (
+            <>
+              <p className="text-sm text-gray-600 mt-2">
+                {images.length} file(s) selected
+              </p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setImages([]);
+                }}
+                className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-sm flex items-center justify-center"
+              >
+                ✕
+              </button>
+            </>
+          )}
         </label>
 
-        {images.length > 0 && (
-          <div className="grid grid-cols-3 gap-3">
-            {images.map((file, i) => (
-              <div key={i} className="relative">
-                <img
-                  src={URL.createObjectURL(file)}
-                  className="h-24 w-full object-cover rounded"
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setImages(images.filter((_, idx) => idx !== i))
-                  }
-                  className="absolute top-1 right-1 bg-black text-white rounded-full w-6 h-6 text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* VIDEO UPLOAD */}
-        <label className="border-2 border-dashed p-6 rounded-xl text-center cursor-pointer">
-          Select Videos
+        {/* Video Upload */}
+        <label
+          className={`relative border-2 border-dashed p-6 rounded-xl flex flex-col items-center justify-center cursor-pointer transition ${
+            videos.length > 0
+              ? "border-green-500 bg-green-50"
+              : "border-gray-300 hover:border-blue-500"
+          }`}
+        >
+          <span className="text-gray-500 mb-2">Select Videos</span>
           <input
             type="file"
             accept="video/*"
             multiple
+            onClick={(e) => (e.target.value = null)}
+            onChange={(e) => setVideos([...e.target.files])}
             className="hidden"
-            onChange={(e) => setVideos([...videos, ...e.target.files])}
           />
-        </label>
 
-        {videos.length > 0 && (
-          <div className="grid grid-cols-2 gap-3">
-            {videos.map((file, i) => (
-              <div key={i} className="relative">
-                <video
-                  src={URL.createObjectURL(file)}
-                  className="h-32 w-full rounded"
-                  controls
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    setVideos(videos.filter((_, idx) => idx !== i))
-                  }
-                  className="absolute top-1 right-1 bg-black text-white rounded-full w-6 h-6 text-sm"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+          {videos.length > 0 && (
+            <>
+              <p className="text-sm text-gray-600 mt-2">
+                {videos.length} file(s) selected
+              </p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setVideos([]);
+                }}
+                className="absolute top-2 right-2 bg-red-500 text-white w-6 h-6 rounded-full text-sm flex items-center justify-center"
+              >
+                ✕
+              </button>
+            </>
+          )}
+        </label>
 
         <input
           placeholder="Phone (01XXXXXXXXX)"
@@ -229,8 +239,13 @@ export default function CreatePost() {
         {phoneError && <p className="text-red-600">{phoneError}</p>}
 
         <button
+          type="submit"
           disabled={isSubmitting}
-          className="w-full bg-blue-600 text-white py-4 rounded-lg"
+          className={`w-full py-4 rounded-lg font-semibold ${
+            isSubmitting
+              ? "bg-gray-400"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
         >
           {isSubmitting ? `Posting… ${uploadPercent}%` : "Create Post"}
         </button>
