@@ -21,6 +21,7 @@ export default function AdminDashboard() {
   const adminId = "ADMIN_UNIQUE_ID"; // localStorage.getItem("adminId") বা hardcode
   const [liveViews, setLiveViews] = useState(0);
 
+
   useEffect(() => {
     const s = io("https://trust-market-backend-nsao.onrender.com", {
       transports: ["websocket"],
@@ -71,6 +72,12 @@ export default function AdminDashboard() {
       s.disconnect();
       socket.current = null;
     };
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/admin/stats")
+      .then(res => res.json())
+      .then(data => setTotalViews(data.homeViews));
   }, []);
   
   useEffect(() => {
@@ -138,7 +145,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="p-4 rounded-lg bg-blue-50 text-center shadow-sm">
             <p className="text-gray-600 text-sm">Views</p>
-            <h2 className="text-xl font-semibold">{liveViews}</h2>
+            <h2 className="text-xl font-semibold">{const [totalViews}</h2>
           </div>
 
           <div className="p-4 rounded-lg bg-green-50 text-center shadow-sm">
