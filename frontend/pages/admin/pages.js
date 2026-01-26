@@ -20,6 +20,8 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState([]);
   const adminId = "ADMIN_UNIQUE_ID"; // localStorage.getItem("adminId") বা hardcode
   const [liveViews, setLiveViews] = useState(0);
+  const [totalViews, setTotalViews] = useState(0);
+
 
 
   useEffect(() => {
@@ -145,7 +147,7 @@ export default function AdminDashboard() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
           <div className="p-4 rounded-lg bg-blue-50 text-center shadow-sm">
             <p className="text-gray-600 text-sm">Views</p>
-            <h2 className="text-xl font-semibold">{const [totalViews}</h2>
+            <h2 className="text-xl font-semibold">{totalViews}</h2>
           </div>
 
           <div className="p-4 rounded-lg bg-green-50 text-center shadow-sm">
