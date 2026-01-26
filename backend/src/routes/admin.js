@@ -3,6 +3,7 @@ import express from "express";
 import Post from "../models/Post.js";
 import Message from "../models/Message.js";
 import User from "../models/User.js";
+import SiteStats from "../models/SiteStats.js";
 
 import authMiddleware from "../middleware/authMiddleware.js";
 import adminOnly from "../middleware/adminOnly.js";
@@ -21,7 +22,14 @@ router.delete("/reject/:id", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-
-
+// 🔐 Admin stats (PROTECTED)
+router.get("/stats", authMiddleware, adminOnly, async (req, res) => {
+  try {
+    const stats = await SiteStats.findOne({});
+    res.json({ homeViews: stats?.homeViews || 0 });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load stats" });
+  }
+});
 
 export default router;
