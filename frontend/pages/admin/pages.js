@@ -16,10 +16,8 @@ export default function AdminDashboard() {
   const [adminEmail, setAdminEmail] = useState("");
   const [dropdown, setDropdown] = useState(false);
   const router = useRouter();
-  const socket = useRef(null);
   const [users, setUsers] = useState([]);
   const adminId = "ADMIN_UNIQUE_ID"; // localStorage.getItem("adminId") বা hardcode
-  const [liveViews, setLiveViews] = useState(0);
   const [totalViews, setTotalViews] = useState(0);
 
 
@@ -29,8 +27,6 @@ export default function AdminDashboard() {
       transports: ["websocket"],
     });
     socket.current = s;
-  
-    const handleLiveViews = (count) => setLiveViews(count);
   
     const handleReceiveMessage = (msg) => {
       setUsers((prev) => {
@@ -65,11 +61,10 @@ export default function AdminDashboard() {
       s.emit("join", "ADMIN_UNIQUE_ID");
     });
   
-    s.on("live_views", handleLiveViews);
+    
     s.on("receive_message", handleReceiveMessage);
   
     return () => {
-      s.off("live_views", handleLiveViews);
       s.off("receive_message", handleReceiveMessage);
       s.disconnect();
       socket.current = null;
