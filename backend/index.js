@@ -21,6 +21,7 @@ import uploadRoutes from "./src/routes/uploadRoutes.js";
 import kycRoutes from "./src/routes/kyc.js";
 import Message from "./src/models/Message.js";
 import adminKycRoutes from "./src/routes/adminKyc.js";
+import SiteStats from "./src/models/SiteStats.js";
 
 dotenv.config();
 
@@ -47,20 +48,32 @@ io.on("connection", (socket) => {
   socket.on("join", (roomId) => {
     socket.join(roomId);
 
-    // 🔥 admin join করলে current views পাঠাও
+    // Admin join করলে current live views পাঠাও
     if (roomId === ADMIN_ROOM) {
       io.to(socket.id).emit("live_views", homeViewSockets.size);
     }
   });
 
-  + socket.on("home_view", () => {
-      if (!homeViewSockets.has(socket.id)) {
-        homeViewSockets.add(socket.id);
-        io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
-      }
+  // 🔥 Home page view count
+  socket.on("home_view", () => {
+    if (!homeViewSockets.has(socket.id)) {
+      homeViewSockets.add(socket.id);
+
+      // Live views admin-এ পাঠাও
+      io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
+    }
   });
 
-  // 💬 MESSAGE SYSTEM (unchanged logic, but safer)
+  // 🔥 Disconnect হলে view remove করো
+  socket.on("disconnect", () => {
+    if (homeViewSockets.has(socket.id)) {
+      homeViewSockets.delete(socket.id);
+      io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
+    }
+    console.log("Socket disconnected:", socket.id);
+  });
+
+  // 💬 Message system
   socket.on("send_message", (msg) => {
     if (msg?.userId) {
       io.to(msg.userId.toString()).emit("receive_message", msg);
