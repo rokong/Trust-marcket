@@ -39,7 +39,6 @@ app.use(passport.initialize());
 const server = http.createServer(app);
 const io = new IOServer(server, { cors: { origin: "*" } });
 
-const homeViewSockets = new Set();
 const ADMIN_ROOM = "ADMIN_UNIQUE_ID";
 
 io.on("connection", (socket) => {
@@ -58,19 +57,7 @@ io.on("connection", (socket) => {
   socket.on("home_view", () => {
     if (!homeViewSockets.has(socket.id)) {
       homeViewSockets.add(socket.id);
-
-      // Live views admin-এ পাঠাও
-      io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
     }
-  });
-
-  // 🔥 Disconnect হলে view remove করো
-  socket.on("disconnect", () => {
-    if (homeViewSockets.has(socket.id)) {
-      homeViewSockets.delete(socket.id);
-      io.to(ADMIN_ROOM).emit("live_views", homeViewSockets.size);
-    }
-    console.log("Socket disconnected:", socket.id);
   });
 
   // 💬 Message system
