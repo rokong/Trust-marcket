@@ -50,7 +50,7 @@ export default function HomePage({ posts }) {
   const [hasUnread, setHasUnread] = useState(false);
   const router = useRouter();
   const socket = useRef(null);
-  const [liveViews, setLiveViews] = useState(0);
+  
 
   const filteredPosts = useMemo(() => {
     return posts.filter(
@@ -97,9 +97,7 @@ export default function HomePage({ posts }) {
       }
     });
 
-    socket.current.on("live_views", (count) => {
-      setLiveViews(count); // frontend update
-    });
+    
     
     const handleReceiveMessage = (msg) => {
       if (router.pathname !== "/messages") {
@@ -126,7 +124,6 @@ export default function HomePage({ posts }) {
   
     return () => {
       socket.current.off("receive_message", handleReceiveMessage);
-      socket.current.off("live_views");
       socket.current.disconnect();
     };
   }, []);
