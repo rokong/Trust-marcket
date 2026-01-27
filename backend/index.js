@@ -64,7 +64,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminMessageRoutes);
-app.use("/admin", adminRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api", adminUserRoutes);
 app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
