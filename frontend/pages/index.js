@@ -61,6 +61,18 @@ export default function HomePage({ posts }) {
   }, [posts, search, category]);
 
   useEffect(() => {
+    const incrementHomeViews = async () => {
+      try {
+        await api.post("/views/home");
+      } catch (err) {
+        console.error("Failed to increment home views:", err);
+      }
+    };
+    
+    incrementHomeViews();
+  }, []);
+
+  useEffect(() => {
     const checkUnread = () => setHasUnread(getUnread().length > 0);
     checkUnread();
     window.addEventListener("unreadChange", checkUnread);
