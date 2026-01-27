@@ -319,7 +319,7 @@ export default function HomePage({ posts }) {
       {/* Footer */}
       <footer className="mt-28 border-t border-zinc-800 py-6 text-center text-zinc-500 text-sm">
         © {new Date().getFullYear()} GoFytra. All rights reserved.
-        <div className="flex gap-4 text-xs">
+        <div className="absolute right-6 bottom-2 flex gap-4 text-xs">
           <Link href="/privacy" className="hover:underline">Privacy</Link>
           <Link href="/terms" className="hover:underline">Terms</Link>
           <Link href="/ads" className="hover:underline">Ads</Link>
