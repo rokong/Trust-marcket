@@ -61,7 +61,7 @@ export default function HomePage({ posts }) {
   }, [posts, search, category]);
 
   useEffect(() => {
-    fetch("/views/home", { method: "POST" })
+    fetch("/api/views/home", { method: "POST" })
       .catch(console.error);
   }, []);
 
