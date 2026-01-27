@@ -99,9 +99,6 @@ export default function HomePage({ posts }) {
     });
   
     socket.current.on("connect", () => {
-      // 🔥 COUNT HOME VIEW (guest + logged-in)
-      socket.current.emit("home_view");
-  
       // 🔐 Join personal room AFTER connect
       const id = localStorage.getItem("userId");
       if (id) {
