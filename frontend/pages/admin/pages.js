@@ -1,5 +1,5 @@
 // frontend/pages/admin/pages.js
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Search,
   BarChart2,
@@ -17,59 +17,7 @@ export default function AdminDashboard() {
   const [dropdown, setDropdown] = useState(false);
   const router = useRouter();
   const [users, setUsers] = useState([]);
-  const adminId = "ADMIN_UNIQUE_ID"; // localStorage.getItem("adminId") বা hardcode
   const [totalViews, setTotalViews] = useState(0);
-
-
-
-  useEffect(() => {
-    const s = io("https://trust-market-backend-nsao.onrender.com", {
-      transports: ["websocket"],
-    });
-    socket.current = s;
-  
-    const handleReceiveMessage = (msg) => {
-      setUsers((prev) => {
-        const exists = prev.find((u) => u._id === msg.userId);
-  
-        if (exists) {
-          return prev.map((u) =>
-            u._id === msg.userId
-              ? {
-                  ...u,
-                  unreadCount: (u.unreadCount || 0) + 1,
-                  lastMessageTime: msg.createdAt,
-                }
-              : u
-          );
-        }
-  
-        return [
-          {
-            _id: msg.userId,
-            name: msg.senderName || "User",
-            email: "",
-            unreadCount: 1,
-            lastMessageTime: msg.createdAt,
-          },
-          ...prev,
-        ];
-      });
-    };
-  
-    s.on("connect", () => {
-      s.emit("join", "ADMIN_UNIQUE_ID");
-    });
-  
-    
-    s.on("receive_message", handleReceiveMessage);
-  
-    return () => {
-      s.off("receive_message", handleReceiveMessage);
-      s.disconnect();
-      socket.current = null;
-    };
-  }, []);
 
   useEffect(() => {
     fetch("/api/admin/stats")
