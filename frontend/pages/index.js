@@ -324,6 +324,7 @@ export default function HomePage({ posts }) {
           <Link href="/terms" className="hover:underline">Terms</Link>
           <Link href="/ads" className="hover:underline">Ads</Link>
           <Link href="/contact" className="hover:underline">contact</Link>
+          <Link href="/about" className="hover:underline">About</Link>
         </div>
       </footer>
     </motion.div>
