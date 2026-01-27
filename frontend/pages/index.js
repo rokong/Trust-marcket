@@ -61,15 +61,8 @@ export default function HomePage({ posts }) {
   }, [posts, search, category]);
 
   useEffect(() => {
-    const incrementHomeViews = async () => {
-      try {
-        await api.post("/views/home");
-      } catch (err) {
-        console.error("Failed to increment home views:", err);
-      }
-    };
-    
-    incrementHomeViews();
+    fetch("/views/home", { method: "POST" })
+      .catch(console.error);
   }, []);
 
   useEffect(() => {
