@@ -322,6 +322,7 @@ export default function HomePage({ posts }) {
         <div className="absolute right-6 bottom-2 flex gap-4 text-xs">
           <Link href="/privacy" className="hover:underline">Privacy</Link>
           <Link href="/terms" className="hover:underline">Terms</Link>
+          <Link href="/ads" className="hover:underline">Ads</Link>
         </div>
       </footer>
     </motion.div>
