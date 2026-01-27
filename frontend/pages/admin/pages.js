@@ -21,7 +21,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    fetch("/api/admin/stats", { 
+    fetch("https://trust-market-backend-nsao.onrender.com/api/admin/stats", { 
       headers: { Authorization: `Bearer ${token}` } 
     })
       .then(res => res.json())
