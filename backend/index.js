@@ -22,6 +22,7 @@ import kycRoutes from "./src/routes/kyc.js";
 import Message from "./src/models/Message.js";
 import adminKycRoutes from "./src/routes/adminKyc.js";
 import SiteStats from "./src/models/SiteStats.js";
+import viewsRoutes from "./src/routes/views.js";
 
 dotenv.config();
 
@@ -81,6 +82,7 @@ app.use("/api", adminPaymentRoutes);
 app.use("/api", bkashRoutes);
 app.use("/api/kyc", kycRoutes);
 app.use("/api/admin", adminKycRoutes);
+app.use("/api/views", viewsRoutes);
 
 app.get("/api/health", (_, res) => res.json({ ok: true }));
 
