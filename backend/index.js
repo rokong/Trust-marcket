@@ -47,18 +47,6 @@ io.on("connection", (socket) => {
 
   socket.on("join", (roomId) => {
     socket.join(roomId);
-
-    // Admin join করলে current live views পাঠাও
-    if (roomId === ADMIN_ROOM) {
-      io.to(socket.id).emit("live_views", homeViewSockets.size);
-    }
-  });
-
-  // 🔥 Home page view count
-  socket.on("home_view", () => {
-    if (!homeViewSockets.has(socket.id)) {
-      homeViewSockets.add(socket.id);
-    }
   });
 
   // 💬 Message system
