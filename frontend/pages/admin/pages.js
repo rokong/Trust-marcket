@@ -21,17 +21,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    fetch("https://trust-market-backend-nsao.onrender.com/api/admin/stats", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+    fetch("/admin/stats", { 
+      headers: { Authorization: `Bearer ${token}` } 
     })
       .then(res => res.json())
-      .then(data => {
-        setTotalViews(data.homeViews);
-      })
-      .catch(err => console.error(err));
+      .then(data => setTotalViews(data.homeViews))
+      .catch(console.error);
   }, []);
 
   
