@@ -22,13 +22,15 @@ router.delete("/reject/:id", authMiddleware, adminOnly, async (req, res) => {
   }
 });
 
-// 🔐 Admin stats (PROTECTED)
-router.get("/stats", authMiddleware, adminOnly, async (req, res) => {
+
+router.get("/admin/stats", authMiddleware, adminOnly, async (req, res) => {
   try {
-    const stats = await SiteStats.findOne({});
-    res.json({ homeViews: stats?.homeViews || 0 });
+    const stats = await SiteStats.findOne();
+    res.json({
+      homeViews: stats?.homeViews || 0,
+    });
   } catch (err) {
-    res.status(500).json({ error: "Failed to load stats" });
+    res.status(500).json({ error: "Failed to fetch stats" });
   }
 });
 
