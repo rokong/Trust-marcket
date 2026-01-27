@@ -4,21 +4,22 @@ import SiteStats from "../models/SiteStats.js";
 
 const router = express.Router();
 
-// Increment home page view
-router.post("/home", async (req, res) => {
+router.post("/views/home", async (req, res) => {
   try {
-    let stats = await SiteStats.findOne({});
+    let stats = await SiteStats.findOne();
+
     if (!stats) {
-      stats = new SiteStats({ homeViews: 1 });
+      stats = await SiteStats.create({ homeViews: 1 });
     } else {
       stats.homeViews += 1;
+      await stats.save();
     }
-    await stats.save();
-    res.json({ homeViews: stats.homeViews });
+
+    res.json({ success: true });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to increment home views" });
+    res.status(500).json({ error: "Failed to update views" });
   }
 });
 
 export default router;
+
