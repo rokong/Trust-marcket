@@ -20,10 +20,20 @@ export default function AdminDashboard() {
   const [totalViews, setTotalViews] = useState(0);
 
   useEffect(() => {
-    fetch("/api/admin/stats")
+    const token = localStorage.getItem("token");
+
+    fetch("https://trust-market-backend-nsao.onrender.com/api/admin/stats", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
       .then(res => res.json())
-      .then(data => setTotalViews(data.homeViews));
+      .then(data => {
+        setTotalViews(data.homeViews);
+      })
+      .catch(err => console.error(err));
   }, []);
+
   
   useEffect(() => {
     const allowedAdminEmail = "mdnajmullhassan938@gmail.com";
