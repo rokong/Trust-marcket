@@ -323,6 +323,7 @@ export default function HomePage({ posts }) {
           <Link href="/privacy" className="hover:underline">Privacy</Link>
           <Link href="/terms" className="hover:underline">Terms</Link>
           <Link href="/ads" className="hover:underline">Ads</Link>
+          <Link href="/contact" className="hover:underline">contact</Link>
         </div>
       </footer>
     </motion.div>
