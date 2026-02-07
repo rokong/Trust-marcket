@@ -15,6 +15,7 @@ import {
   PlusCircle,
   Search,
   User,
+  Facebook,
 } from "lucide-react";
 
 import { getUnread, addUnread, clearAllUnread } from "../utils/unread";
