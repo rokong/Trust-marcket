@@ -267,14 +267,28 @@ export default function HomePage({ posts }) {
         </div>
       </motion.header>
 
-      {/* Search */}
-      <motion.div variants={fadeUp} className="pt-28 px-6">
+      {/* SEARCH */}
+      <motion.div variants={fadeUp} className="pt-28 px-6 relative">
         <div className="max-w-3xl mx-auto flex items-center bg-zinc-900/80 border border-zinc-800 rounded-full px-6">
           <Search className="text-zinc-500 w-5 h-5" />
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search…" className="flex-1 bg-transparent px-4 py-4 focus:outline-none" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search…"
+            className="flex-1 bg-transparent px-4 py-4 focus:outline-none"
+          />
         </div>
-      </motion.div>
 
+        {/* 🌟 ADDED FACEBOOK BUTTON RIGHT HERE */}
+        <a
+          href="https://facebook.com/YOUR_PAGE"
+          target="_blank"
+          className="absolute left-1/2 -translate-x-1/2 mt-4 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded-full shadow-lg"
+        >
+          <Facebook className="w-5 h-5 text-white" />
+          <span className="text-white font-semibold">Facebook</span>
+        </a>
+      </motion.div>
       {/* Grid */}
       <motion.main variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} className="max-w-7xl mx-auto px-6 mt-16">
         {filteredPosts.length === 0 ? (
