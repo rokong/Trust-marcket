@@ -283,12 +283,12 @@ export default function HomePage({ posts }) {
         {/* Facebook Button LEFT SIDE */}
         <div className="max-w-3xl mx-auto mt-4 flex justify-start">
           <a
-            href="https://facebook.com/YOUR_PAGE"
+            href="https://www.facebook.com/share/187dpDKStQ/"
             target="_blank"
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded-full shadow-lg"
           >
             <Facebook className="w-5 h-5 text-white" />
-            <span className="text-white font-semibold">Facebook</span>
+            <span className="text-white font-semibold">Page</span>
           </a>
         </div>
       </motion.div>
