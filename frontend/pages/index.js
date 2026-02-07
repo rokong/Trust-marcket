@@ -279,17 +279,20 @@ export default function HomePage({ posts }) {
             className="flex-1 bg-transparent px-4 py-4 focus:outline-none"
           />
         </div>
-
-        {/* 🌟 ADDED FACEBOOK BUTTON RIGHT HERE */}
-        <a
-          href="https://facebook.com/YOUR_PAGE"
-          target="_blank"
-          className="absolute left-1/2 -translate-x-1/2 mt-4 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded-full shadow-lg"
-        >
-          <Facebook className="w-5 h-5 text-white" />
-          <span className="text-white font-semibold">Facebook</span>
-        </a>
+      
+        {/* Facebook Button LEFT SIDE */}
+        <div className="max-w-3xl mx-auto mt-4 flex justify-start">
+          <a
+            href="https://facebook.com/YOUR_PAGE"
+            target="_blank"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 transition px-4 py-2 rounded-full shadow-lg"
+          >
+            <Facebook className="w-5 h-5 text-white" />
+            <span className="text-white font-semibold">Facebook</span>
+          </a>
+        </div>
       </motion.div>
+
       {/* Grid */}
       <motion.main variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, margin: "-100px" }} className="max-w-7xl mx-auto px-6 mt-16">
         {filteredPosts.length === 0 ? (
